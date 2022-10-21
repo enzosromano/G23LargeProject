@@ -1,6 +1,9 @@
 {
   "name": "g23largeproject",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.18.0"
+  },
   "description": "Large Project Repo for Group 23",
   "main": "src/server.js",
   "scripts": {
@@ -11,7 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/enzosromano/G23LargeProject.git"
   },
-  "keywords": [],
+  "keywords": [
+    "heroku"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
