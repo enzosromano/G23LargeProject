@@ -1,5 +1,5 @@
 const app = require("./app");
-const port = 4000;
+const port = 5000;
 const color = require("chalk");
 
 app.listen(port, () =>
