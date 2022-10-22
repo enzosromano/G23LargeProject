@@ -1,0 +1,27 @@
+
+// Select the database to use.
+use('TuneTables');
+
+// The drop() command destroys all data from a collection.
+// Make sure you run it against the correct database and collection.
+db.users.drop();
+
+// Insert a few documents into the sales collection.
+db.users.insertMany([
+  { '_id': 1, 'firstName': 'Ethan', 'lastName': 'Woollet', 'email': 'ewoollet@knights.ucf.edu', 'isVerified': 0, 'password' : 'Ethan#1', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 2, 'firstName': 'Abbey', 'lastName': 'Zenna', 'email': 'azenna@gmail.com', 'isVerified': 0, 'password' : 'SnazzyAzzey123z', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 3, 'firstName': 'Bernard', 'lastName': 'Yian', 'email': 'byian@gmail.com', 'isVerified': 0, 'password' : 'BYiandTh3Sk1es', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 4, 'firstName': 'Chris', 'lastName': 'Xera', 'email': 'cxera@gmail.com', 'isVerified': 0, 'password' : 'B0rnByCxerian', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 5, 'firstName': 'Daniella', 'lastName': 'Warren', 'email': 'dwarren@gmail.com', 'isVerified': 0, 'password' : 'dw0rry4ab0ut1t', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 6, 'firstName': 'Eren', 'lastName': 'Volgunther', 'email': 'evolgunther@gmail.com', 'isVerified': 0, 'password' : 'n0tAs3v1l', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 7, 'firstName': 'Francine', 'lastName': 'Ural', 'email': 'fural@gmail.com', 'isVerified': 0, 'password' : 'FUall$t1nky', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 8, 'firstName': 'Geoff', 'lastName': 'Tilan', 'email': 'gtilan@gmail.com', 'isVerified': 0, 'password' : 'Ge0ffTheL4wn', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 9, 'firstName': 'Howard', 'lastName': 'Stern', 'email': 'hstern@gmail.com', 'isVerified': 0, 'password' : 'ImFam0us', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 10, 'firstName': 'Irena', 'lastName': 'Reznard', 'email': 'ireznard@gmail.com', 'isVerified': 0, 'password' : 'eyeR3sN3rds', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 11, 'firstName': 'John', 'lastName': 'Quiznos', 'email': 'jquiznos@gmail.com', 'isVerified': 0, 'password' : 'kw1zn0s3', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 12, 'firstName': 'Katy', 'lastName': 'Perry', 'email': '@gmail.com', 'isVerified': 0, 'password' : 'K1ss3d4Gurl', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 13, 'firstName': 'Lucile', 'lastName': 'Oberstein', 'email': 'loberstein@gmail.com', 'isVerified': 0, 'password' : 'bl0bbyL0bby', 'totalLikes' : 0, 'relationships' : []},
+  { '_id': 14, 'firstName': 'Mark', 'lastName': 'Nees', 'email': 'mnees@gmail.com', 'isVerified': 0, 'password' : 'n33znutz', 'totalLikes' : 0, 'relationships' : []}
+]);
+
+// Run a find command to view items sold on April 4th, 2014.
