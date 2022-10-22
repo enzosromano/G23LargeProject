@@ -1,10 +1,9 @@
 body{
-    border: 12px solid;
+    margin: 0;
 }
 
 .postForm{
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 12px solid black;
 }
