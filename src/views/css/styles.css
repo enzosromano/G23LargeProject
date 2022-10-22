@@ -1,0 +1,10 @@
+body{
+    border: 12px solid;
+}
+
+.postForm{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 12px solid black;
+}
