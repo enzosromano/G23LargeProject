@@ -8,7 +8,7 @@ const path = require("path");
 module.exports = app;
 
 app.use(logger("tiny"));
-app.use(express.static("public"));
+app.use(express.static(__dirname + "/public"));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "index.html"));
