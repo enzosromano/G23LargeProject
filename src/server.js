@@ -74,6 +74,7 @@ app.post("/users", (req, res) => {
     LastName: lastName,
     Relationships: relationships,
   };
+  //TODO: Enforce email validation here, make sure the added email doesn't already exist
 
   var error = "";
 
@@ -91,3 +92,64 @@ app.post("/users", (req, res) => {
     res.status(200).json(newUser);
   }
 });
+
+//#region User Login API Endpoint
+
+app.options("/users/auth", (req, res) => 
+{
+  //Get the request body and grab user from it
+  const { email, password } = req.body;
+
+  (async () => {
+    var ret = await loginAndValidate(email, password);
+
+    res.status(200).json(ret);
+  })()
+  
+  
+  
+  
+});
+
+async function loginAndValidate(userEmail, password)
+{
+    // Connect to db and get user
+    await client.connect();
+    db = client.db("TuneTables")
+
+    // create return
+    var ret = 
+    {
+      userID: -1,
+      email: userEmail,
+      password: password,
+      error: ""
+    }
+
+    try
+    {
+      var user = await db.collection("users").findOne({ email: userEmail });
+
+      pass = String(user.password);
+
+      if(ret.password == pass)
+      {
+        ret.userID = user.userID;
+      }
+      else
+      {
+        ret.error = "Invalid username or password";
+      }
+    }
+    catch
+    {
+      ret.error = "A user with this email address does not exist";
+    }
+
+    await client.close();
+    return ret;
+
+}
+
+//#endregion
+
