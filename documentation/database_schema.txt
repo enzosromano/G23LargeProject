@@ -1,0 +1,55 @@
+This file documents the internal schema of the MongoDB cluster we are using for this project.
+For consistency, I will keep to the following structure when describing the collections and their contents:
+
+------------------------------------------------------------------------------------------
+"table_name"   (the internally used name)
+
+-> description of table's general use/purpose
+
+<data_type>   "field_name":   purpose and contents of field (extra qualifier)
+<data_type>   "field_name":   purpose and contents of field (extra qualifier)
+...
+<data_type>   "field_name":   purpose and contents of field (extra qualifier)
+------------------------------------------------------------------------------------------
+
+Here are the tables:
+
+
+"counters"
+
+-> This table keeps track of the last used values and the fields the relate to in other tables. Intended for use in auto increment fields.
+
+<string>   "_id":   The name of the field that correlates with this object's sequence value.
+<number>   "seq":   The most previously used value for the associated auto increment field. (Integer)
+
+
+
+"users"
+
+-> Contains all user data for the application.
+
+<object>    "_id":             Internally used identifier for this user object. Not used outside of the database.
+<number>    "userID":          The unique identifier value for the user. (Integer)
+<string>    "firstName":       User's first name.
+<string>    "lastName":        User's last name.
+<string>    "email":           User's email.
+<boolean>   "isVerified":      Value representing whether or not this account has been email verified. (true/false)
+<string>    "password":        User's password. (Should be hashed)
+<number>    "totalLikes":      Number of total likes since its addition to the database. (Integer)
+<array>     "relationships":   Array of numbers (Integers) that represent the userID's of mutually friended users. (Array of numbers) 
+
+
+
+"songs"
+
+-> This table contains all songs and their data that have ever shared/added to this database.
+
+<object>   "_id":      Internally used identifier for this song object. Not used outside of the database.
+<number>   "songID":   The unique identifier value for the song. (Integer)
+<string>   "title":    Title of the song.
+<string>   "artist":   Artist creditied with this version of the song.
+<string>   "album":    Album in which this song was released. (A value of "N/A" is used for single releases)
+<string>   "url":      Link to the song on spoitfy.
+<string>   "length":   Time in minutes and seconds. (In the format "MM:SS")
+<string>   "year":     Year of official relase.
+<number>   "likes":    Number of total likes since its addition to the database. (Integer)
