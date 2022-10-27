@@ -66,25 +66,43 @@ app.get("/users", (req, res) => {
 //END USER VIEWS
 
 app.post("/users", (req, res) => {
-  const { email, password, firstName, lastName} = req.body;
 
-  //TODO: Enforce email validation here, make sure the added email doesn't already exist
+  const { email, password, firstName, lastName } = req.body;
+
+  //error handling for user input
+  if (!email) {
+    error = "User email required.";
+    return res.status(400).json(error);
+  } 
+  else if (!firstName || !lastName) 
+  {
+    error = "First Name and Last Name are required fields.";
+    return res.status(400).json(error);
+  } 
+  else if (!password) 
+  {
+    error = "Password is a required field.";
+    return res.status(400).json(error);
+  }
+
+
   (async () => {
-    var ret = await addUser(email, 
-                            password, 
-                            firstName, 
-                            lastName);
-  })()
+    var ret = await addUser(email, password, firstName, lastName);
 
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+  
 });
 
-async function addUser(
-                      email,
-                      password,
-                      firstName,
-                      lastName
-                      )
-{
+async function addUser(email, password, firstName, lastName) {
   const newUser = {
     userID: -1,
     firstName: firstName,
@@ -95,61 +113,73 @@ async function addUser(
     relationships: [],
   };
 
+  var ret = {
+    "success": false,
+    "message": "",
+    "results": {}
+  }
+
   // establish db connection
-  await client.connect()
+  await client.connect();
   db = client.db("TuneTables");
 
-  try
-  {
-    var exists = await db.collection("users").findOne({email: email});
-    // If a user exists, return an error
-    // TODO: Return an error
+  var exists = await db.collection("users").findOne({ email: email });
+
+  if (!exists) {
+    try {
+      // The user doesn't already exist
+
+      var count = await db.collection("counters").findOne({ _id: "userID" });
+
+      //THIS ISNT WORKING I DONT GET THE COUNTERS DATABASE ):
+      /*await db.collection("counters").insertOne({
+        _id: "userID",
+        seq: count.seq + 1,
+      });*/
+      //var count2 = await db.collection("counters").findOne({ _id: "userID" });
+      //console.log("BP3");
+      //console.log(`New counter: ${count2.seq}\n`);
+
+      //Add the new user into the database
+      await db.collection("users").insertOne({
+        userID: count.seq + 1,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        isVerified: false,
+        password: password,
+        totalLikes: 0,
+        relationships: [],
+      });
+
+      ret.success = true;
+      ret.message = "Successfully added user.";
+      ret.results = {
+        "userID": count.seq + 1,
+        "firstName": firstName,
+        "lastName": lastName
+      }
+
+    } 
+    catch 
+    {
+      ret.message = "Error occured while adding user";
+    }
   }
-  catch
+  else
   {
-    // The user doesn't already exist
-
-    // find the userid count
-    var count = await db.collection("counters").findOne({ _id: "userID" }).seq;
-    // TODO: Increment the userid count on the counters in the db
-
-    //Add the new user into the database
-    await db.collection("users").insertOne({
-      userID: count + 1,
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      isVerified: false,
-      password: password,
-      totalLikes: 0,
-      relationships: []
-    });
-
-    //TODO: return the user
-
+    ret.message = "Please try a different email.";
   }
 
-
-    // Error Handling
-    // if (!newUser.UserID) {
-    //   error = "User ID Invalid.";
-    //   res.status(400).json(error);
-    // } else if (!newUser.FirstName || !newUser.LastName) {
-    //   error = "firstName and lastName are required fields.";
-    //   res.status(400).json(error);
-    // } else if (!newUser.Relationships) {
-    //   error = "No relationships passed.";
-    //   res.status(400).json(error);
-    // } else {
-    //   res.status(200).json(newUser);
-    // }
+  await client.close();
+  console.log(ret);
+  return ret;
 
 }
 
 //#region User Login API Endpoint
 
-app.options("/users/auth", (req, res) => 
-{
+app.options("/users/auth", (req, res) => {
   //Get the request body and grab user from it
   const { email, password } = req.body;
 
@@ -157,52 +187,38 @@ app.options("/users/auth", (req, res) =>
     var ret = await loginAndValidate(email, password);
 
     res.status(200).json(ret);
-  })()
-  
-  
-  
-  
+  })();
 });
 
-async function loginAndValidate(userEmail, password)
-{
-    // Connect to db and get user
-    await client.connect();
-    db = client.db("TuneTables")
+async function loginAndValidate(userEmail, password) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
 
-    // create return
-    var ret = 
-    {
-      userID: -1,
-      email: userEmail,
-      password: password,
-      error: ""
+  // create return
+  var ret = {
+    userID: -1,
+    email: userEmail,
+    password: password,
+    error: "",
+  };
+
+  try {
+    var user = await db.collection("users").findOne({ email: userEmail });
+
+    pass = String(user.password);
+
+    if (ret.password == pass) {
+      ret.userID = user.userID;
+    } else {
+      ret.error = "Invalid username or password";
     }
+  } catch {
+    ret.error = "A user with this email address does not exist";
+  }
 
-    try
-    {
-      var user = await db.collection("users").findOne({ email: userEmail });
-
-      pass = String(user.password);
-
-      if(ret.password == pass)
-      {
-        ret.userID = user.userID;
-      }
-      else
-      {
-        ret.error = "Invalid username or password";
-      }
-    }
-    catch
-    {
-      ret.error = "A user with this email address does not exist";
-    }
-
-    await client.close();
-    return ret;
-
+  await client.close();
+  return ret;
 }
 
 //#endregion
-
