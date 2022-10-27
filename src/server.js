@@ -224,7 +224,43 @@ async function loginAndValidate(userEmail, password) {
 //#endregion
 
 //#region Search song API
+// To implement lazy loading of size n: db.collection("songs").find().limit(n)  
 
+app.get('/songs/searchall', (req, res) => {
+  // Outgoing (result body): {data: [
+  //                                  {_id1, songID1, title1, artist1, album1, url1, length1, year1, likes1 },
+  //                                  {_id2, songID2, title2, artist2, album2, url2, length2, year2, likes2 },
+  //                                   ...
+  //                                ],
+  //                          status: "message"
+  //                         }
 
+  (async () => {
+    var ret = await getAllSongs();
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function getAllSongs() {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ''};
+
+  try {
+    // create return (it is up to the frontend to display the fields they want).
+    var data = await db.collection("songs").find().toArray();
+    ret.data = data;
+    ret.status = "success";
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
 
 //#endregion
