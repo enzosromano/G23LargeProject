@@ -66,32 +66,85 @@ app.get("/users", (req, res) => {
 //END USER VIEWS
 
 app.post("/users", (req, res) => {
-  const { userID, firstName, lastName, relationships } = req.body;
+  const { email, password, firstName, lastName} = req.body;
 
-  const newUser = {
-    UserID: userID,
-    FirstName: firstName,
-    LastName: lastName,
-    Relationships: relationships,
-  };
   //TODO: Enforce email validation here, make sure the added email doesn't already exist
+  (async () => {
+    var ret = await addUser(email, 
+                            password, 
+                            firstName, 
+                            lastName);
+  })()
 
-  var error = "";
-
-  //Error Handling
-  if (!newUser.UserID) {
-    error = "User ID Invalid.";
-    res.status(400).json(error);
-  } else if (!newUser.FirstName || !newUser.LastName) {
-    error = "firstName and lastName are required fields.";
-    res.status(400).json(error);
-  } else if (!newUser.Relationships) {
-    error = "No relationships passed.";
-    res.status(400).json(error);
-  } else {
-    res.status(200).json(newUser);
-  }
 });
+
+async function addUser(
+                      email,
+                      password,
+                      firstName,
+                      lastName
+                      )
+{
+  const newUser = {
+    userID: -1,
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    isVerified: false,
+    password: password,
+    relationships: [],
+  };
+
+  // establish db connection
+  await client.connect()
+  db = client.db("TuneTables");
+
+  try
+  {
+    var exists = await db.collection("users").findOne({email: email});
+    // If a user exists, return an error
+    // TODO: Return an error
+  }
+  catch
+  {
+    // The user doesn't already exist
+
+    // find the userid count
+    var count = await db.collection("counters").findOne({ _id: "userID" }).seq;
+    // TODO: Increment the userid count on the counters in the db
+
+    //Add the new user into the database
+    await db.collection("users").insertOne({
+      userID: count + 1,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      isVerified: false,
+      password: password,
+      totalLikes: 0,
+      relationships: []
+    });
+
+    //TODO: return the user
+
+  }
+
+
+    // Error Handling
+    // if (!newUser.UserID) {
+    //   error = "User ID Invalid.";
+    //   res.status(400).json(error);
+    // } else if (!newUser.FirstName || !newUser.LastName) {
+    //   error = "firstName and lastName are required fields.";
+    //   res.status(400).json(error);
+    // } else if (!newUser.Relationships) {
+    //   error = "No relationships passed.";
+    //   res.status(400).json(error);
+    // } else {
+    //   res.status(200).json(newUser);
+    // }
+
+}
 
 //#region User Login API Endpoint
 
