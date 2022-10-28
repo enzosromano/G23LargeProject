@@ -53,17 +53,7 @@ async function run() {
 run().catch(console.dir); // read error log
 //END TEST
 
-//START USER VIEWS
-//Initial load on home page, redirects user to index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "index.html"));
-});
-
-//This is for the frontend to use when they make a second page. It will redirect to users.html which you can rename and edit
-app.get("/users", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "users.html"));
-});
-//END USER VIEWS
+//#region Create/Register User API Endpoint
 
 //#region Create/Register User API Endpoint
 
@@ -133,14 +123,11 @@ async function addUser(email, password, firstName, lastName) {
 
       var count = await db.collection("counters").findOne({ _id: "userID" });
 
-      //THIS ISNT WORKING I DONT GET THE COUNTERS DATABASE ):
-      /*await db.collection("counters").insertOne({
-        _id: "userID",
-        seq: count.seq + 1,
-      });*/
-      //var count2 = await db.collection("counters").findOne({ _id: "userID" });
-      //console.log("BP3");
-      //console.log(`New counter: ${count2.seq}\n`);
+      //THIS IS A SECURITY FLAW, CHECK TECH DEBT
+      await db.collection("counters").updateOne({
+        _id: "userID",},
+        {$set:{seq: count.seq + 1}}
+      );
 
       //Add the new user into the database
       await db.collection("users").insertOne({
@@ -188,10 +175,19 @@ app.options("/users/auth", (req, res) => {
   const { email, password } = req.body;
 
   (async () => {
-    var ret = await loginAndValidate(email, password);
+    var ret = await await loginAndValidate(email, password);
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
   })();
+
 });
 
 async function loginAndValidate(userEmail, password) {
