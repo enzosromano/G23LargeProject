@@ -51,19 +51,6 @@ async function run() {
 }
 
 run().catch(console.dir); // read error log
-//END TEST
-
-//START USER VIEWS
-//Initial load on home page, redirects user to index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "index.html"));
-});
-
-//This is for the frontend to use when they make a second page. It will redirect to users.html which you can rename and edit
-app.get("/users", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "users.html"));
-});
-//END USER VIEWS
 
 app.post("/users", (req, res) => {
 
