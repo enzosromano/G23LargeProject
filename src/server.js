@@ -133,14 +133,11 @@ async function addUser(email, password, firstName, lastName) {
 
       var count = await db.collection("counters").findOne({ _id: "userID" });
 
-      //THIS ISNT WORKING I DONT GET THE COUNTERS DATABASE ):
-      /*await db.collection("counters").insertOne({
-        _id: "userID",
-        seq: count.seq + 1,
-      });*/
-      //var count2 = await db.collection("counters").findOne({ _id: "userID" });
-      //console.log("BP3");
-      //console.log(`New counter: ${count2.seq}\n`);
+      //THIS IS A SECURITY FLAW, CHECK TECH DEBT
+      await db.collection("counters").updateOne({
+        _id: "userID",},
+        {$set:{seq: count.seq + 1}}
+      );
 
       //Add the new user into the database
       await db.collection("users").insertOne({
@@ -188,10 +185,19 @@ app.options("/users/auth", (req, res) => {
   const { email, password } = req.body;
 
   (async () => {
-    var ret = await loginAndValidate(email, password);
+    var ret = await await loginAndValidate(email, password);
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
   })();
+
 });
 
 async function loginAndValidate(userEmail, password) {
