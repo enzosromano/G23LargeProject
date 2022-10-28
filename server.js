@@ -51,6 +51,9 @@ async function run() {
 }
 
 run().catch(console.dir); // read error log
+//END TEST
+
+//#region Create/Register User API Endpoint
 
 app.post("/users", (req, res) => {
 
@@ -118,14 +121,11 @@ async function addUser(email, password, firstName, lastName) {
 
       var count = await db.collection("counters").findOne({ _id: "userID" });
 
-      //THIS ISNT WORKING I DONT GET THE COUNTERS DATABASE ):
-      /*await db.collection("counters").insertOne({
-        _id: "userID",
-        seq: count.seq + 1,
-      });*/
-      //var count2 = await db.collection("counters").findOne({ _id: "userID" });
-      //console.log("BP3");
-      //console.log(`New counter: ${count2.seq}\n`);
+      //THIS IS A SECURITY FLAW, CHECK TECH DEBT
+      await db.collection("counters").updateOne({
+        _id: "userID",},
+        {$set:{seq: count.seq + 1}}
+      );
 
       //Add the new user into the database
       await db.collection("users").insertOne({
@@ -164,6 +164,8 @@ async function addUser(email, password, firstName, lastName) {
 
 }
 
+//#endregion 
+
 //#region User Login API Endpoint
 
 app.options("/users/auth", (req, res) => {
@@ -171,10 +173,19 @@ app.options("/users/auth", (req, res) => {
   const { email, password } = req.body;
 
   (async () => {
-    var ret = await loginAndValidate(email, password);
+    var ret = await await loginAndValidate(email, password);
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
   })();
+
 });
 
 async function loginAndValidate(userEmail, password) {
@@ -183,25 +194,74 @@ async function loginAndValidate(userEmail, password) {
   db = client.db("TuneTables");
 
   // create return
-  var ret = {
+  var retResults = {
     userID: -1,
     email: userEmail,
-    password: password,
-    error: "",
+    password: password
   };
+
+  var ret = {
+    success: false,
+    message: "",
+    results: retResults
+  }
 
   try {
     var user = await db.collection("users").findOne({ email: userEmail });
 
     pass = String(user.password);
 
-    if (ret.password == pass) {
-      ret.userID = user.userID;
+    if (ret.results.password == pass) {
+      ret.success = true;
+      ret.results.userID = user.userID;
+      ret.message = "Successfully logged in user"
     } else {
-      ret.error = "Invalid username or password";
+      ret.message = "Invalid username or password";
     }
   } catch {
-    ret.error = "A user with this email address does not exist";
+    ret.message = "A user with this email address does not exist";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Search song API
+// To implement lazy loading of size n: db.collection("songs").find().limit(n)  
+
+app.get('/songs/searchall', (req, res) => {
+  // Outgoing (result body): {data: [
+  //                                  {_id1, songID1, title1, artist1, album1, url1, length1, year1, likes1 },
+  //                                  {_id2, songID2, title2, artist2, album2, url2, length2, year2, likes2 },
+  //                                   ...
+  //                                ],
+  //                          status: "message"
+  //                         }
+
+  (async () => {
+    var ret = await getAllSongs();
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function getAllSongs() {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ''};
+
+  try {
+    // create return (it is up to the frontend to display the fields they want).
+    var data = await db.collection("songs").find().toArray();
+    ret.data = data;
+    ret.status = "success";
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
   }
 
   await client.close();
