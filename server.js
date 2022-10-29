@@ -1,28 +1,37 @@
 //const
 const express = require("express");
-const app = express();
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const path = require("path");
+const PORT = process.env.PORT || 5000;
+const app = express();
 
 //exports
 module.exports = app;
 
 //app properties
+app.set('port', (process.env.PORT || 5000));
 app.use(logger("tiny"));
-app.use(express.static(__dirname + "/public"));
+// app.use(express.static(__dirname + "/public"));
 app.use(express.json());
 app.use(bodyParser.json());
+
+// Server static assets if in production
+if (process.env.NODE.ENV === 'production')
+{
+  app.use(express.static('frontend/build'));
+
+  app.get('*', (req, res) => 
+  {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+  });
+}
 
 //Mongo DB Variables
 const { MongoClient } = require("mongodb");
 const url =
   "mongodb+srv://conn-master:Group23IsGoated@ttcluster.fwv7kkt.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(url);
-//
-
-//Connect to server and output when running
-app.listen(process.env.PORT || 5000, () => console.log("Server is running..."));
 //
 
 //Test function to see if database is working, runs below
@@ -269,3 +278,10 @@ async function getAllSongs() {
 }
 
 //#endregion
+
+//Connect to server and output when running
+app.listen(PORT, () => 
+{
+  console.log("Server is running...");
+});
+//
