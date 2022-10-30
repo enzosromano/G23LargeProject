@@ -237,18 +237,8 @@ async function loginAndValidate(userEmail, password) {
 
 //#endregion
 
-//#region Search song API
-// To implement lazy loading of size n: db.collection("songs").find().limit(n)  
-
+//#region Display all songs API endpoint
 app.get('/songs/searchall', (req, res) => {
-  // Outgoing (result body): {data: [
-  //                                  {_id1, songID1, title1, artist1, album1, url1, length1, year1, likes1 },
-  //                                  {_id2, songID2, title2, artist2, album2, url2, length2, year2, likes2 },
-  //                                   ...
-  //                                ],
-  //                          status: "message"
-  //                         }
-
   (async () => {
     var ret = await getAllSongs();
 
@@ -268,6 +258,201 @@ async function getAllSongs() {
     var data = await db.collection("songs").find().toArray();
     ret.data = data;
     ret.status = "success";
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Display specific songs API endpoint
+app.post('/songs/searchspecific', (req, res) => {
+  // Parse request body
+  const {thingToSearch} = req.body;
+  var _thingToSearch = thingToSearch.trim();
+  
+  (async () => {
+    var ret = await searchForSong(_thingToSearch);
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function searchForSong(_thingToSearch) {
+  console.log(`Searching for song...`);
+  console.log(`thingToSearch: ${_thingToSearch}\n`);
+
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ""};
+
+  try {
+    // create return (it is up to the frontend to display the fields they want).
+    // var data = await db.collection("songs").find(
+    //   { title:_title, artist:_artist, album:_album, length:_length, year:_year, likes:_likes }).toArray();
+
+    var data = [];
+    data = await db.collection("songs").find({ title:_thingToSearch }).toArray();
+    if (data.length == 0)
+    {
+      data = await db.collection("songs").find({ artist:_thingToSearch }).toArray();
+      if (data.length == 0)
+      {
+        data = await db.collection("songs").find({ album:_thingToSearch }).toArray();
+        if (data.length == 0)
+        {
+          data = await db.collection("songs").find({ length:_thingToSearch }).toArray();
+          if (data.length == 0)
+          {
+            data = await db.collection("songs").find({ year:_thingToSearch }).toArray();
+            console.log(`Match(s) found in year category\n`);
+            if (data.length == 0)
+            {
+              _thingToSearch = parseInt(_thingToSearch, 10);
+              data = await db.collection("songs").find({ likes:_thingToSearch }).toArray();
+              if (data.length != 0)
+              {
+                console.log(`Match(s) found in likes category\n`);
+              }
+            }
+            else
+            {
+              console.log(`Match(s) found in year category\n`);
+            }
+          }
+          else
+          {
+            console.log(`Match(s) found in length category\n`);
+          }
+        }
+        else
+        {
+          console.log(`Match(s) found in album category\n`);
+        }
+      }
+      else
+      {
+        console.log(`Match(s) found in artist category\n`);
+      }
+    }
+    else
+    {
+      console.log(`Match(s) found in title category\n`);
+    }
+
+    if (data.length > 0)
+    {
+      ret.data = data;
+      ret.status = "success";
+    }
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Display all users API endpoint
+app.get('/users/searchall', (req, res) => {
+  (async () => {
+    var ret = await getAllUsers();
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function getAllUsers() {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ''};
+
+  try {
+    // create return (it is up to the frontend to display the fields they want).
+    var data = await db.collection("users").find().toArray();
+    ret.data = data;
+    ret.status = "success";
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Display specific users API endpoint
+
+app.post('/users/searchspecific', (req, res) => {
+  // Parse request body
+  const {thingToSearch} = req.body;
+  var _thingToSearch = thingToSearch.trim();
+  
+  (async () => {
+    var ret = await searchForUser(_thingToSearch);
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function searchForUser(_thingToSearch) {
+  console.log(`Searching for user...`);
+  console.log(`thingToSearch: ${_thingToSearch}\n`);
+
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ""};
+
+  try {
+    var data = [];
+    data = await db.collection("users").find({ firstName:_thingToSearch }).toArray();
+    if (data.length == 0)
+    {
+      data = await db.collection("users").find({ lastName:_thingToSearch }).toArray();
+      if (data.length == 0)
+      {
+        data = await db.collection("users").find({ email:_thingToSearch }).toArray();
+        if (data.length == 0)
+        {
+          data = await db.collection("users").find({ totalLikes:_thingToSearch }).toArray();
+          if (data.length != 0)
+          console.log(`Match(s) found in totalLikes category\n`);
+        }
+        else
+        {
+          console.log(`Match(s) found in email category\n`);
+        }
+      }
+      else
+      {
+        console.log(`Match(s) found in lastName category\n`);
+      }
+    }
+    else
+    {
+      console.log(`Match(s) found in firstName category\n`);
+    }
+
+    if (data.length > 0)
+    {
+      ret.data = data;
+      ret.status = "success";
+    }
   } catch (e) {
     console.log(e);
     ret.status = "failure";
