@@ -65,8 +65,6 @@ app.get("/users", (req, res) => {
 });
 //END USER VIEWS
 
-//#region Create/Register User API Endpoint
-
 app.post("/users", (req, res) => {
 
   const { email, password, firstName, lastName } = req.body;
@@ -133,11 +131,14 @@ async function addUser(email, password, firstName, lastName) {
 
       var count = await db.collection("counters").findOne({ _id: "userID" });
 
-      //THIS IS A SECURITY FLAW, CHECK TECH DEBT
-      await db.collection("counters").updateOne({
-        _id: "userID",},
-        {$set:{seq: count.seq + 1}}
-      );
+      //THIS ISNT WORKING I DONT GET THE COUNTERS DATABASE ):
+      /*await db.collection("counters").insertOne({
+        _id: "userID",
+        seq: count.seq + 1,
+      });*/
+      //var count2 = await db.collection("counters").findOne({ _id: "userID" });
+      //console.log("BP3");
+      //console.log(`New counter: ${count2.seq}\n`);
 
       //Add the new user into the database
       await db.collection("users").insertOne({
@@ -176,8 +177,6 @@ async function addUser(email, password, firstName, lastName) {
 
 }
 
-//#endregion 
-
 //#region User Login API Endpoint
 
 app.options("/users/auth", (req, res) => {
@@ -185,19 +184,10 @@ app.options("/users/auth", (req, res) => {
   const { email, password } = req.body;
 
   (async () => {
-    var ret = await await loginAndValidate(email, password);
+    var ret = await loginAndValidate(email, password);
 
-    if(ret.success)
-    {
-      res.status(200).json(ret);
-    }
-    else
-    {
-      res.status(400).json(ret.message);
-    }
-
+    res.status(200).json(ret);
   })();
-
 });
 
 async function loginAndValidate(userEmail, password) {
@@ -206,32 +196,25 @@ async function loginAndValidate(userEmail, password) {
   db = client.db("TuneTables");
 
   // create return
-  var retResults = {
+  var ret = {
     userID: -1,
     email: userEmail,
-    password: password
+    password: password,
+    error: "",
   };
-
-  var ret = {
-    success: false,
-    message: "",
-    results: retResults
-  }
 
   try {
     var user = await db.collection("users").findOne({ email: userEmail });
 
     pass = String(user.password);
 
-    if (ret.results.password == pass) {
-      ret.success = true;
-      ret.results.userID = user.userID;
-      ret.message = "Successfully logged in user"
+    if (ret.password == pass) {
+      ret.userID = user.userID;
     } else {
-      ret.message = "Invalid username or password";
+      ret.error = "Invalid username or password";
     }
   } catch {
-    ret.message = "A user with this email address does not exist";
+    ret.error = "A user with this email address does not exist";
   }
 
   await client.close();
@@ -240,18 +223,8 @@ async function loginAndValidate(userEmail, password) {
 
 //#endregion
 
-//#region Search song API
-// To implement lazy loading of size n: db.collection("songs").find().limit(n)  
-
+//#region Display all songs API
 app.get('/songs/searchall', (req, res) => {
-  // Outgoing (result body): {data: [
-  //                                  {_id1, songID1, title1, artist1, album1, url1, length1, year1, likes1 },
-  //                                  {_id2, songID2, title2, artist2, album2, url2, length2, year2, likes2 },
-  //                                   ...
-  //                                ],
-  //                          status: "message"
-  //                         }
-
   (async () => {
     var ret = await getAllSongs();
 
@@ -279,5 +252,96 @@ async function getAllSongs() {
   await client.close();
   return ret;
 }
+
+app.post('/songs/searchspecific', (req, res) => {
+  // Parse request body
+  const {thingToSearch} = req.body;
+  var _thingToSearch = thingToSearch.trim();
+  
+  (async () => {
+    var ret = await searchForSong(_thingToSearch);
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function searchForSong(_thingToSearch) {
+  console.log(`Searching for song...`);
+  console.log(`thingToSearch: ${_thingToSearch}\n`);
+
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ""};
+
+  try {
+    // create return (it is up to the frontend to display the fields they want).
+    // var data = await db.collection("songs").find(
+    //   { title:_title, artist:_artist, album:_album, length:_length, year:_year, likes:_likes }).toArray();
+
+    var data = [];
+    data = await db.collection("songs").find({ title:_thingToSearch }).toArray();
+    if (data.length == 0)
+    {
+      data = await db.collection("songs").find({ artist:_thingToSearch }).toArray();
+      if (data.length == 0)
+      {
+        data = await db.collection("songs").find({ album:_thingToSearch }).toArray();
+        if (data.length == 0)
+        {
+          data = await db.collection("songs").find({ length:_thingToSearch }).toArray();
+          if (data.length == 0)
+          {
+            data = await db.collection("songs").find({ year:_thingToSearch }).toArray();
+            console.log(`Match(s) found in year category\n`);
+            if (data.length == 0)
+            {
+              _thingToSearch = parseInt(_thingToSearch, 10);
+              data = await db.collection("songs").find({ likes:_thingToSearch }).toArray();
+              if (data.length != 0)
+              {
+                console.log(`Match(s) found in likes category\n`);
+              }
+            }
+            else
+            {
+              console.log(`Match(s) found in year category\n`);
+            }
+          }
+          else
+          {
+            console.log(`Match(s) found in length category\n`);
+          }
+        }
+        else
+        {
+          console.log(`Match(s) found in album category\n`);
+        }
+      }
+      else
+      {
+        console.log(`Match(s) found in artist category\n`);
+      }
+    }
+    else
+    {
+      console.log(`Match(s) found in title category\n`);
+    }
+
+    if (data.length > 0)
+    {
+      ret.data = data;
+      ret.status = "success";
+    }
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
+
 
 //#endregion
