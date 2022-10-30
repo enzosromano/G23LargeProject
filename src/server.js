@@ -223,7 +223,7 @@ async function loginAndValidate(userEmail, password) {
 
 //#endregion
 
-//#region Display all songs API
+//#region Display all songs API endpoint
 app.get('/songs/searchall', (req, res) => {
   (async () => {
     var ret = await getAllSongs();
@@ -253,6 +253,9 @@ async function getAllSongs() {
   return ret;
 }
 
+//#endregion
+
+//#region Display specific songs API endpoint
 app.post('/songs/searchspecific', (req, res) => {
   // Parse request body
   const {thingToSearch} = req.body;
@@ -343,5 +346,106 @@ async function searchForSong(_thingToSearch) {
   return ret;
 }
 
+//#endregion
+
+//#region Display all users API endpoint
+app.get('/users/searchall', (req, res) => {
+  (async () => {
+    var ret = await getAllUsers();
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function getAllUsers() {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ''};
+
+  try {
+    // create return (it is up to the frontend to display the fields they want).
+    var data = await db.collection("users").find().toArray();
+    ret.data = data;
+    ret.status = "success";
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Display specific users API endpoint
+
+app.post('/users/searchspecific', (req, res) => {
+  // Parse request body
+  const {thingToSearch} = req.body;
+  var _thingToSearch = thingToSearch.trim();
+  
+  (async () => {
+    var ret = await searchForUser(_thingToSearch);
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function searchForUser(_thingToSearch) {
+  console.log(`Searching for user...`);
+  console.log(`thingToSearch: ${_thingToSearch}\n`);
+
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ""};
+
+  try {
+    var data = [];
+    data = await db.collection("users").find({ firstName:_thingToSearch }).toArray();
+    if (data.length == 0)
+    {
+      data = await db.collection("users").find({ lastName:_thingToSearch }).toArray();
+      if (data.length == 0)
+      {
+        data = await db.collection("users").find({ email:_thingToSearch }).toArray();
+        if (data.length == 0)
+        {
+          data = await db.collection("users").find({ totalLikes:_thingToSearch }).toArray();
+          if (data.length != 0)
+          console.log(`Match(s) found in totalLikes category\n`);
+        }
+        else
+        {
+          console.log(`Match(s) found in email category\n`);
+        }
+      }
+      else
+      {
+        console.log(`Match(s) found in lastName category\n`);
+      }
+    }
+    else
+    {
+      console.log(`Match(s) found in firstName category\n`);
+    }
+
+    if (data.length > 0)
+    {
+      ret.data = data;
+      ret.status = "success";
+    }
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
 
 //#endregion
