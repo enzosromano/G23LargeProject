@@ -12,7 +12,7 @@ const Index = () =>
                 <label for="artistName">Artist Name:</label>
                 <input type="text" id="artistName" name="artistName"/>
 
-                <label for="genre">Genre:</label>
+                <label for="genrjifjiopkjoisf">genijsdjfiswjifjere:</label>
                 <input type="text" id="genre" name="genre"/>
             </div>
 
