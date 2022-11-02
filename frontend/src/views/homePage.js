@@ -1,0 +1,10 @@
+import React from "react";
+
+export const HomePage = (props) => {
+
+    return (
+        <div>
+            <h1> Login Successful!</h1>
+        </div>
+    )
+}

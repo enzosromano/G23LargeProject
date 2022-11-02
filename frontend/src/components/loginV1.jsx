@@ -13,6 +13,7 @@ function Login() {
         }
     }
 
+
     var email;
     var password;
 
@@ -25,8 +26,7 @@ function Login() {
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch(buildPath("users/auth"), 
-            {method:'POST', body:js, headers:{'Content-Type': 'application/json'}});
+            const response = await fetch(buildPath("users/auth"), {method:'OPTIONS', body:js, headers:{'Content-Type':'application/json'}});
 
             var res = JSON.parse(await response.text());
 
@@ -37,7 +37,7 @@ function Login() {
                 var user = {firstName:res.firstName, lastName:res.lastName, id:res.id}
                 localStorage.setItem('user_data', JSON.stringify(user));
 
-                setMessage("");
+                setMessage('');
                 window.location.href = '../views/homePage';
             }
         }
@@ -49,17 +49,16 @@ function Login() {
     };
 
     return(
-        <div className="auth-form-container">
+        <div id="loginDiv">
             <form onSubmit={handleSubmit}>
-                <label htmlfor="email">email</label>
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="ianfrelix@yahoo.com" id="email" name="email"
-                ref={(c) => email = c} />
-                <label htmlfor="password">password</label>
-                <input value={pass} onChnage={(e) => setPass(e.target.value)} type="password" placeholder="*********" id="password" name="password"
-                ref={(c) => password = c}/>
-                <input type="submit" id="loginButton" class="buttons" value = "Do It" onClick={handleSubmit} />
+                <span id="inner-title">PLEASE LOG IN</span><br />
+                <input type="text" id="email" placeholder="ianfrelix@yahoo.com" ref={(c) => email = c} /><br />
+                <input type="password" id="loginPassword" placeholder="Password" ref={(c) => password = c} /><br />
+                <input type="submit" id="loginButton" class="buttons" value = "Log In" onClick={handleSubmit} />
             </form>
             <span id="loginResult">{message}</span>
         </div>
     );
 };
+
+export default Login;

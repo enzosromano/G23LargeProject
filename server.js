@@ -7,6 +7,8 @@ app.set('port', (process.env.PORT || 5000));
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 
+
+
 //exports
 module.exports = app;
 
@@ -184,7 +186,7 @@ app.options("/users/auth", (req, res) => {
   const { email, password } = req.body;
 
   (async () => {
-    var ret = await await loginAndValidate(email, password);
+    var ret = await loginAndValidate(email, password);
 
     if(ret.success)
     {
