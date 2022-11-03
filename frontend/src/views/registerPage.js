@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Register } from "../components/register";
+import  Register  from "../components/registerV1";
 
 export const RegisterPage = (props) => {
 
