@@ -7,6 +7,7 @@ app.set('port', (process.env.PORT || 5000));
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const cors = require("cors");
+const bcrypt = require("bcryptjs");
 
 //exports
 module.exports = app;
@@ -82,7 +83,7 @@ run().catch(console.dir); // read error log
 
 //#region Create/Register User API Endpoint
 
-app.post("/users", (req, res) => {
+app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 
   const { email, password, firstName, lastName } = req.body;
 
@@ -120,6 +121,7 @@ app.post("/users", (req, res) => {
 });
 
 async function addUser(email, password, firstName, lastName) {
+  
   const newUser = {
     userID: -1,
     firstName: firstName,
@@ -154,6 +156,9 @@ async function addUser(email, password, firstName, lastName) {
         {$set:{seq: count.seq + 1}}
       );
 
+      // hash created password
+      var hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+
       //Add the new user into the database
       await db.collection("users").insertOne({
         userID: count.seq + 1,
@@ -161,7 +166,7 @@ async function addUser(email, password, firstName, lastName) {
         lastName: lastName,
         email: email,
         isVerified: false,
-        password: password,
+        password: hashedPassword,
         totalLikes: 0,
         relationships: [],
       });
@@ -177,7 +182,7 @@ async function addUser(email, password, firstName, lastName) {
     } 
     catch 
     {
-      ret.message = "Error occured while adding user";
+      ret.message = "Error occurred while adding user";
     }
   }
   else
@@ -195,7 +200,7 @@ async function addUser(email, password, firstName, lastName) {
 
 //#region User Login API Endpoint
 
-app.post("/users/auth", (req, res) => {
+app.post("/users/auth", (req, res) => { // COMPARING WITH HASHED PASSWORD
   //Get the request body and grab user from it
   const { email, password } = req.body;
 
@@ -237,8 +242,11 @@ async function loginAndValidate(userEmail, password) {
     var user = await db.collection("users").findOne({ email: userEmail });
 
     pass = String(user.password);
+    
+    // compare entered password with hashed password
+    var validPassword = bcrypt.compare(pass, ret.results.password);
 
-    if (ret.results.password == pass) {
+    if (validPassword) {
       ret.success = true;
       ret.results.userID = user.userID;
       ret.message = "Successfully logged in user"
