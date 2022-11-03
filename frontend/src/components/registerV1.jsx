@@ -34,14 +34,14 @@ function Register() {
 
             var res = JSON.parse(await response.text());
 
-            if( res.id <= 0 ) {
-                setMessage('Registration failed');
+            if(!res.success) {
+                setMessage(JSON.stringify(res));
             }
             else {
-                var user = {firstName:res.firstName, lastName:res.lastName, id:res.id}
-                localStorage.setItem('user_data', JSON.stringify(user));
+                // var user = {userID:res.results["userID"], email:res.results["email"], password:res.results["password"]};
+                // localStorage.setItem('user_data', JSON.stringify(user));
 
-                setMessage('');
+                setMessage("Successfully added user.");
                 window.location.href = '../views/loginPage';
             }
         }
