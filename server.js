@@ -296,13 +296,13 @@ async function getAllSongs() {
 //#endregion
 
 //#region Display specific songs API endpoint
-app.post('/songs/searchspecific', (req, res) => {
+app.post('/songs/search', (req, res) => {
   // Parse request body
-  const {thingToSearch} = req.body;
-  var _thingToSearch = thingToSearch.trim();
+  const {keyword} = req.body;
+  var _keyword = keyword.trim();
   
   (async () => {
-    var ret = await searchForSong(_thingToSearch);
+    var ret = await searchForSong(_keyword);
 
     res.status(200).json(ret);
   })();
@@ -316,7 +316,11 @@ async function searchForSong(_thingToSearch) {
   await client.connect();
   db = client.db("TuneTables");
 
-  var ret = {data: [], status: ""};
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
 
   try {
     // create return (it is up to the frontend to display the fields they want).
@@ -333,29 +337,7 @@ async function searchForSong(_thingToSearch) {
         data = await db.collection("songs").find({ album:_thingToSearch }).toArray();
         if (data.length == 0)
         {
-          data = await db.collection("songs").find({ length:_thingToSearch }).toArray();
-          if (data.length == 0)
-          {
-            data = await db.collection("songs").find({ year:_thingToSearch }).toArray();
-            console.log(`Match(s) found in year category\n`);
-            if (data.length == 0)
-            {
-              _thingToSearch = parseInt(_thingToSearch, 10);
-              data = await db.collection("songs").find({ likes:_thingToSearch }).toArray();
-              if (data.length != 0)
-              {
-                console.log(`Match(s) found in likes category\n`);
-              }
-            }
-            else
-            {
-              console.log(`Match(s) found in year category\n`);
-            }
-          }
-          else
-          {
-            console.log(`Match(s) found in length category\n`);
-          }
+        
         }
         else
         {
@@ -374,8 +356,9 @@ async function searchForSong(_thingToSearch) {
 
     if (data.length > 0)
     {
-      ret.data = data;
-      ret.status = "success";
+      ret.success = true;
+      ret.message = `${data.length} results found.`
+      ret.results = data;
     }
   } catch (e) {
     console.log(e);
