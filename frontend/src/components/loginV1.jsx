@@ -26,7 +26,7 @@ function Login() {
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch('http://localhost:5000/users/auth', {method:'POST', body:js, headers:{'Content-Type':'application/json'}});
+            const response = await fetch(buildPath('users/auth'), {method:'POST', body:js, headers:{'Content-Type':'application/json'}});
 
             var res = JSON.parse(await response.text());
 
