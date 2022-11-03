@@ -1,13 +1,15 @@
 //const
 const express = require("express");
 const path = require("path");
-const PORT = process.env.PORT || 5000;
 const app = express();
-app.set('port', (process.env.PORT || 5000));
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+
+//porting
+const PORT = process.env.PORT || 5000;
+app.set('port', (process.env.PORT || 5000));
 
 //exports
 module.exports = app;
@@ -17,8 +19,9 @@ app.use(logger("tiny"));
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
 
+//cors
+app.use(cors());
 app.use((req, res, next) => 
 {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -47,39 +50,12 @@ app.listen(process.env.PORT || 5000, () => console.log("Server is running..."));
 
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
-app.get('*', (req, res) =>
+
+//If we do not need this, delete it
+/*app.get('*', (req, res) =>
 {
   res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
-});
-
-//Test function to see if database is working, runs below
-//START TEST
-async function run() {
-  try {
-    await client.connect();
-    console.log("-- CONNECTION ESTABLISHED --\n\n");
-
-    db = client.db("TuneTables");
-
-    var counter1 = await db.collection("counters").findOne({ _id: "userID" });
-    var user1 = await db.collection("users").findOne({ userID: 1 });
-    var song1 = await db.collection("songs").findOne({ songID: 1 });
-
-    console.log(`first counter: ${counter1.seq}\n`);
-    console.log(`first user:    ${user1.firstName}\n`);
-    console.log(`first song:    ${song1.title}\n`);
-
-    // run the rest of the code
-  } catch (err) {
-    console.log(err.stack); // log error
-  } finally {
-    await client.close(); // end connection after process
-  }
-}
-
-run().catch(console.dir); // read error log
-
-//#region Create/Register User API Endpoint
+});*/
 
 //#region Create/Register User API Endpoint
 
@@ -264,12 +240,20 @@ async function loginAndValidate(userEmail, password) {
 //#endregion
 
 //#region Display all songs API endpoint
-app.get('/songs/searchall', (req, res) => {
+app.get('/songs', (req, res) => {
   (async () => {
     var ret = await getAllSongs();
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
   })();
+
 });
 
 async function getAllSongs() {
@@ -277,16 +261,20 @@ async function getAllSongs() {
   await client.connect();
   db = client.db("TuneTables");
 
-  var ret = {data: [], status: ''};
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
 
   try {
     // create return (it is up to the frontend to display the fields they want).
-    var data = await db.collection("songs").find().toArray();
-    ret.data = data;
-    ret.status = "success";
+    var data = [];
+    data = await db.collection("songs").find().toArray();
+    ret.success = true;
+    ret.results = data;
   } catch (e) {
     console.log(e);
-    ret.status = "failure";
   }
 
   await client.close();
@@ -308,9 +296,9 @@ app.post('/songs/search', (req, res) => {
   })();
 });
 
-async function searchForSong(_thingToSearch) {
+async function searchForSong(_keyword) {
   console.log(`Searching for song...`);
-  console.log(`thingToSearch: ${_thingToSearch}\n`);
+  console.log(`thingToSearch: ${_keyword}\n`);
 
   // Connect to db and get user
   await client.connect();
@@ -328,31 +316,9 @@ async function searchForSong(_thingToSearch) {
     //   { title:_title, artist:_artist, album:_album, length:_length, year:_year, likes:_likes }).toArray();
 
     var data = [];
-    data = await db.collection("songs").find({ title:_thingToSearch }).toArray();
-    if (data.length == 0)
-    {
-      data = await db.collection("songs").find({ artist:_thingToSearch }).toArray();
-      if (data.length == 0)
-      {
-        data = await db.collection("songs").find({ album:_thingToSearch }).toArray();
-        if (data.length == 0)
-        {
-        
-        }
-        else
-        {
-          console.log(`Match(s) found in album category\n`);
-        }
-      }
-      else
-      {
-        console.log(`Match(s) found in artist category\n`);
-      }
-    }
-    else
-    {
-      console.log(`Match(s) found in title category\n`);
-    }
+    data = await db.collection("songs").find({ title:_keyword }).toArray();
+    data.concat(await db.collection("songs").find({ artist:_keyword }).toArray());
+    data.concat(await db.collection("songs").find({ album:_keyword }).toArray());
 
     if (data.length > 0)
     {
@@ -362,7 +328,7 @@ async function searchForSong(_thingToSearch) {
     }
   } catch (e) {
     console.log(e);
-    ret.status = "failure";
+    ret.message = `Error searching for ${_keyword}`
   }
 
   await client.close();
