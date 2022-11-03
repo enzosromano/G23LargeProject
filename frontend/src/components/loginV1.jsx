@@ -26,22 +26,21 @@ function Login() {
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch('http://localhost:5000/users/auth', {method:'OPTIONS', body:js, headers:{'Content-Type':'application/json'}});
+            const response = await fetch('http://localhost:5000/users/auth', {method:'POST', body:js, headers:{'Content-Type':'application/json'}});
 
             var res = JSON.parse(await response.text());
 
-            if( res.id <= 0 ) {
-                setMessage('Email/Password combination incorrect');
+            if(!res.success) {
+                setMessage(JSON.stringify(res));
             }
             else {
-                var user = {firstName:res.firstName, lastName:res.lastName, id:res.id}
+                var user = {userID:res.results["userID"], email:res.results["email"], password:res.results["password"]};
                 localStorage.setItem('user_data', JSON.stringify(user));
 
-                setMessage('');
+                setMessage("Successfully logged in user");
                 window.location.href = '../views/homePage';
             }
         }
-
         catch(e) {
             alert(e.toString());
             return;

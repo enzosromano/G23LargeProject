@@ -8,7 +8,6 @@ const bodyParser = require("body-parser");
 const logger = require("morgan");
 const cors = require("cors");
 
-
 //exports
 module.exports = app;
 
@@ -196,7 +195,7 @@ async function addUser(email, password, firstName, lastName) {
 
 //#region User Login API Endpoint
 
-app.options("/users/auth", (req, res) => {
+app.post("/users/auth", (req, res) => {
   //Get the request body and grab user from it
   const { email, password } = req.body;
 
