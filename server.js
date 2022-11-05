@@ -47,14 +47,6 @@ client.connect();
 
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
-app.get('*', function(req, res) { // DO NOT MAKE ANYMORE GET REQUESTS BECAUSE OF THIS
-  res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'), function(err) {
-    if (err) {
-      res.status(500).send(err)
-    }
-  })
-})
-
 
 //#region Create/Register User API Endpoint
 
@@ -413,3 +405,12 @@ async function searchForUser(_keyword) {
 }
 
 //#endregion
+
+//Leave this at the bottom, it ovverides other get requests
+app.get('*', function(req, res) {
+  res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'), function(err) {
+    if (err) {
+      res.status(500).send(err)
+    }
+  })
+})
