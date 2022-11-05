@@ -63,6 +63,7 @@ function Register() {
                 <input type="submit" id="registerButton" class="buttons" value = "Register" onClick={handleSubmit} />
             </form>
             <span id="registerResult">{message}</span>
+            <button onClick={() => window.location.href = "/"}>Already have an Account? Login Here!</button>
         </div>
     );
 };

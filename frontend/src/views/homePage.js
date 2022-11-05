@@ -4,7 +4,7 @@ const HomePage = () => {
 
     return (
         <div>
-            <h1> Login Successful!</h1>
+            <h1> Login/Router Successful!</h1>
         </div>
     )
 }

@@ -9,7 +9,8 @@ const bcrypt = require("bcryptjs");
 
 //porting
 const PORT = process.env.PORT || 5000;
-app.set('port', (process.env.PORT || 5000));
+app.set('port', PORT);
+app.listen(PORT, () => console.log("Server is running..."));
 
 //exports
 module.exports = app;
@@ -44,18 +45,16 @@ const client = new MongoClient(url);
 client.connect();
 //
 
-//Connect to server and output when running
-app.listen(process.env.PORT || 5000, () => console.log("Server is running..."));
-//
-
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
+app.get('*', function(req, res) { // DO NOT MAKE ANYMORE GET REQUESTS BECAUSE OF THIS
+  res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'), function(err) {
+    if (err) {
+      res.status(500).send(err)
+    }
+  })
+})
 
-//If we do not need this, delete it
-/*app.get('*', (req, res) =>
-{
-  res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
-});*/
 
 //#region Create/Register User API Endpoint
 
@@ -284,8 +283,7 @@ async function getAllSongs() {
 //#endregion
 
 //#region Display specific songs API endpoint
-app.post('/songs/search', (req, res) => {
-  // Parse request body
+app.get('/songs/search', (req, res) => {
   const {keyword} = req.body;
   var _keyword = keyword.trim();
   
@@ -300,7 +298,6 @@ async function searchForSong(_keyword) {
   console.log(`Searching for song...`);
   console.log(`thingToSearch: ${_keyword}\n`);
 
-  // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
 
@@ -317,8 +314,8 @@ async function searchForSong(_keyword) {
 
     var data = [];
     data = await db.collection("songs").find({ title:_keyword }).toArray();
-    data.concat(await db.collection("songs").find({ artist:_keyword }).toArray());
-    data.concat(await db.collection("songs").find({ album:_keyword }).toArray());
+    data = data.concat(await db.collection("songs").find({ artist:_keyword }).toArray());
+    data = data.concat(await db.collection("songs").find({ album:_keyword }).toArray());
 
     if (data.length > 0)
     {
@@ -338,7 +335,7 @@ async function searchForSong(_keyword) {
 //#endregion
 
 //#region Display all users API endpoint
-app.get('/users/searchall', (req, res) => {
+app.get('/users', (req, res) => {
   (async () => {
     var ret = await getAllUsers();
 
@@ -354,7 +351,6 @@ async function getAllUsers() {
   var ret = {data: [], status: ''};
 
   try {
-    // create return (it is up to the frontend to display the fields they want).
     var data = await db.collection("users").find().toArray();
     ret.data = data;
     ret.status = "success";
@@ -371,66 +367,45 @@ async function getAllUsers() {
 
 //#region Display specific users API endpoint
 
-app.post('/users/searchspecific', (req, res) => {
+app.get('/users/search', (req, res) => {
   // Parse request body
-  const {thingToSearch} = req.body;
-  var _thingToSearch = thingToSearch.trim();
+  const {keyword} = req.body;
+  var _keyword = keyword.trim();
   
   (async () => {
-    var ret = await searchForUser(_thingToSearch);
+    var ret = await searchForUser(_keyword);
 
     res.status(200).json(ret);
   })();
 });
 
-async function searchForUser(_thingToSearch) {
+async function searchForUser(_keyword) {
   console.log(`Searching for user...`);
-  console.log(`thingToSearch: ${_thingToSearch}\n`);
+  console.log(`thingToSearch: ${_keyword}\n`);
 
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
 
-  var ret = {data: [], status: ""};
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
 
   try {
     var data = [];
-    data = await db.collection("users").find({ firstName:_thingToSearch }).toArray();
-    if (data.length == 0)
-    {
-      data = await db.collection("users").find({ lastName:_thingToSearch }).toArray();
-      if (data.length == 0)
-      {
-        data = await db.collection("users").find({ email:_thingToSearch }).toArray();
-        if (data.length == 0)
-        {
-          data = await db.collection("users").find({ totalLikes:_thingToSearch }).toArray();
-          if (data.length != 0)
-          console.log(`Match(s) found in totalLikes category\n`);
-        }
-        else
-        {
-          console.log(`Match(s) found in email category\n`);
-        }
-      }
-      else
-      {
-        console.log(`Match(s) found in lastName category\n`);
-      }
-    }
-    else
-    {
-      console.log(`Match(s) found in firstName category\n`);
-    }
+    data = await db.collection("users").find({ firstName:_keyword }).toArray();
+    data = data.concat(await db.collection("users").find({ lastName:_keyword }).toArray());
+    data = data.concat(await db.collection("users").find({ email:_keyword }).toArray());
 
-    if (data.length > 0)
-    {
-      ret.data = data;
-      ret.status = "success";
-    }
+    ret.success = true;
+    ret.message = `${data.length} results found.`;
+    ret.results = data;
+
   } catch (e) {
     console.log(e);
-    ret.status = "failure";
+    ret.message = e;
   }
 
   await client.close();
