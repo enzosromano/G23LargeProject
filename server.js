@@ -230,6 +230,64 @@ async function loginAndValidate(userEmail, password) {
 
 //#endregion
 
+//#region User reset password
+
+app.put("/users/:userId([0-9]+)/password", (req, res) => {
+
+  var id = req.params.userId;
+  const { password } = req.body;
+
+  (async () => {
+    var ret = await passwordReset(id, password);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+
+});
+
+async function passwordReset(userId, newPassword) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  userId = parseInt(userId);
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user = await db.collection("users").findOne({ userID: userId });
+
+    await db.collection("users").updateOne(
+      user, 
+      {$set:{password: newPassword}
+    })
+
+    ret.success = true;
+    ret.message = "Password Reset.";
+    ret.results = user;
+    
+  } catch {
+    ret.message = "We were unable to reset the user's password.";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Display all users API endpoint
 app.get('/users', (req, res) => {
   (async () => {
