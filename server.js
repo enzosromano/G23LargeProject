@@ -230,6 +230,86 @@ async function loginAndValidate(userEmail, password) {
 
 //#endregion
 
+//#region Display all users API endpoint
+app.get('/users', (req, res) => {
+  (async () => {
+    var ret = await getAllUsers();
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function getAllUsers() {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {data: [], status: ''};
+
+  try {
+    var data = await db.collection("users").find().toArray();
+    ret.data = data;
+    ret.status = "success";
+  } catch (e) {
+    console.log(e);
+    ret.status = "failure";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Display specific users API endpoint
+
+app.get('/users/search', (req, res) => {
+  // Parse request body
+  const {keyword} = req.body;
+  var _keyword = keyword.trim();
+  
+  (async () => {
+    var ret = await searchForUser(_keyword);
+
+    res.status(200).json(ret);
+  })();
+});
+
+async function searchForUser(_keyword) {
+  console.log(`Searching for user...`);
+  console.log(`thingToSearch: ${_keyword}\n`);
+
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var data = [];
+    data = await db.collection("users").find({ firstName:_keyword }).toArray();
+    data = data.concat(await db.collection("users").find({ lastName:_keyword }).toArray());
+    data = data.concat(await db.collection("users").find({ email:_keyword }).toArray());
+
+    ret.success = true;
+    ret.message = `${data.length} results found.`;
+    ret.results = data;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Display all songs API endpoint
 app.get('/songs', (req, res) => {
   (async () => {
@@ -326,85 +406,6 @@ async function searchForSong(_keyword) {
 
 //#endregion
 
-//#region Display all users API endpoint
-app.get('/users', (req, res) => {
-  (async () => {
-    var ret = await getAllUsers();
-
-    res.status(200).json(ret);
-  })();
-});
-
-async function getAllUsers() {
-  // Connect to db and get user
-  await client.connect();
-  db = client.db("TuneTables");
-
-  var ret = {data: [], status: ''};
-
-  try {
-    var data = await db.collection("users").find().toArray();
-    ret.data = data;
-    ret.status = "success";
-  } catch (e) {
-    console.log(e);
-    ret.status = "failure";
-  }
-
-  await client.close();
-  return ret;
-}
-
-//#endregion
-
-//#region Display specific users API endpoint
-
-app.get('/users/search', (req, res) => {
-  // Parse request body
-  const {keyword} = req.body;
-  var _keyword = keyword.trim();
-  
-  (async () => {
-    var ret = await searchForUser(_keyword);
-
-    res.status(200).json(ret);
-  })();
-});
-
-async function searchForUser(_keyword) {
-  console.log(`Searching for user...`);
-  console.log(`thingToSearch: ${_keyword}\n`);
-
-  // Connect to db and get user
-  await client.connect();
-  db = client.db("TuneTables");
-
-  var ret = {
-    success: false,
-    message: "",
-    results: {}
-  }
-
-  try {
-    var data = [];
-    data = await db.collection("users").find({ firstName:_keyword }).toArray();
-    data = data.concat(await db.collection("users").find({ lastName:_keyword }).toArray());
-    data = data.concat(await db.collection("users").find({ email:_keyword }).toArray());
-
-    ret.success = true;
-    ret.message = `${data.length} results found.`;
-    ret.results = data;
-
-  } catch (e) {
-    console.log(e);
-    ret.message = e;
-  }
-
-  await client.close();
-  return ret;
-}
-
-//#endregion
 
 //Leave this at the bottom, it ovverides other get requests
 app.get('*', function(req, res) {
