@@ -273,7 +273,7 @@ async function passwordReset(userId, newPassword) {
     await db.collection("users").updateOne(
       user, 
       {$set:{password: newPassword}
-    })
+    });
 
     ret.success = true;
     ret.message = "Password Reset.";
@@ -289,7 +289,133 @@ async function passwordReset(userId, newPassword) {
 
 //#endregion
 
+//#region User Change Email API endpoint
+
+app.put("/users/:userId([0-9]+)/changeEmail", (req, res) => { 
+  //Get the request body and grab user from it
+  var id = req.params.userId;
+  const { newEmail } = req.body;
+
+  (async () => {
+    var ret = await emailReset(id, newEmail);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+
+});
+
+async function emailReset(userId, newEmail) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  // create return
+  var ret = {
+    success: false,
+    message: "",
+    results: {
+      userID: -1,
+      newEmail: newEmail
+    }
+  };
+
+  try {
+    var user = await db.collection("users").findOne({ userID: parseInt(userId) });
+    
+    await db.collection("users").updateOne(
+      user, 
+      {$set:{email: newEmail}
+    });
+
+    ret.success = true;
+    ret.results.userID = user.userID;
+    ret.message = "Sucessfully changed email address";
+
+  } catch {
+    ret.message = "Unable to change the user's email address";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Delete user API endpoint
+
+app.delete("/users/:userId([0-9]+)/delete", (req, res) => {
+
+  var id = req.params.userId;
+
+  (async () => {
+    var ret = await deleteUser(id);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+
+});
+
+async function deleteUser(userId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+
+  console.log(`Attempting to delete user with ID=${userId}...\n`);
+  userId = parseInt(userId);
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    // Check if user exists (can delete this code if we don't care whether a user exists)
+    exists = await db.collection("users").findOne({ userID: userId });
+    if (!exists)
+    {
+      console.log(`User does not exist.\n`);
+      ret.message = "User does not exist.";
+      ret.results = -1;
+      await client.close();
+      return ret;
+    }
+
+    // Delete user
+    await db.collection("users").deleteOne({ userID: exists.userID });
+    console.log(`Successfully deleted user.\n`);
+    ret.success = true;
+    ret.message = "Deleted user.";
+    ret.results = userId;
+  } catch {
+    ret.message = "We were unable to delete the user.";
+    ret.results = -1;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Display all users API endpoint
+
 app.get('/users', (req, res) => {
   (async () => {
     var ret = await getAllUsers();
