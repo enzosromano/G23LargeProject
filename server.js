@@ -124,7 +124,8 @@ async function addUser(email, password, firstName, lastName) {
       );
 
       // hash created password
-      var hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+      var salt = bcrypt.genSaltSync(10);
+      var hashedPassword = bcrypt.hashSync(password, salt);
 
       //Add the new user into the database
       await db.collection("users").insertOne({
@@ -211,7 +212,7 @@ async function loginAndValidate(userEmail, password) {
     pass = String(user.password);
     
     // compare entered password with hashed password
-    var validPassword = await bcrypt.compare(ret.results.password, pass);
+    var validPassword = await bcrypt.compareSync(ret.results.password, pass);
 
     if (validPassword) {
       ret.success = true;
