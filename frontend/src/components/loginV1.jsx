@@ -38,8 +38,8 @@ function Login() {
                 var user = {userID:res.results["userID"], email:res.results["email"], password:res.results["password"]};
                 localStorage.setItem('user_data', JSON.stringify(user));
 
-                setMessage("Successfully logged in user");
-                window.location.href = '/home';
+                setMessage(JSON.stringify(res.message));
+                // window.location.href = '/home';
             }
         }
         catch(e) {

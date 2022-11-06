@@ -211,7 +211,7 @@ async function loginAndValidate(userEmail, password) {
     pass = String(user.password);
     
     // compare entered password with hashed password
-    var validPassword = bcrypt.compare(pass, ret.results.password);
+    var validPassword = await bcrypt.compare(ret.results.password, pass);
 
     if (validPassword) {
       ret.success = true;
@@ -463,7 +463,6 @@ async function searchForSong(_keyword) {
 }
 
 //#endregion
-
 
 //Leave this at the bottom, it ovverides other get requests
 app.get('*', function(req, res) {
