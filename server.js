@@ -272,7 +272,7 @@ async function passwordReset(userId, newPassword) {
     await db.collection("users").updateOne(
       user, 
       {$set:{password: newPassword}
-    })
+    });
 
     ret.success = true;
     ret.message = "Password Reset.";
@@ -280,6 +280,66 @@ async function passwordReset(userId, newPassword) {
     
   } catch {
     ret.message = "We were unable to reset the user's password.";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region User Change Email API endpoint
+
+app.put("/users/:userId([0-9]+)/changeEmail", (req, res) => { 
+  //Get the request body and grab user from it
+  var id = req.params.userId;
+  const { newEmail } = req.body;
+
+  (async () => {
+    var ret = await emailReset(id, newEmail);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+
+});
+
+async function emailReset(userId, newEmail) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+
+  // create return
+  var ret = {
+    success: false,
+    message: "",
+    results: {
+      userID: -1,
+      newEmail: newEmail
+    }
+  };
+
+  try {
+    var user = await db.collection("users").findOne({ userID: parseInt(userId) });
+    
+    await db.collection("users").updateOne(
+      user, 
+      {$set:{email: newEmail}
+    });
+
+    ret.success = true;
+    ret.results.userID = user.userID;
+    ret.message = "Sucessfully changed email address";
+
+  } catch {
+    ret.message = "Unable to change the user's email address";
   }
 
   await client.close();
