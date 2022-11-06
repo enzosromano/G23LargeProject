@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
 
 function Login() {
 
     const app_name = "tunetable23"
     function buildPath(route) {
 
-        if(process.env.NODE_ENV === "production") {
+        if (process.env.NODE_ENV !== "production") { // TECH DEBT PROBLEM
             return "https://" + app_name + ".herokuapp.com/" + route;
         }
         else {
-            return "http://localhost:5000/" + route;
+            return 'http://localhost:5000/' + route;
         }
     }
-
 
     var email;
     var password;
@@ -23,32 +21,32 @@ function Login() {
     const handleSubmit = async event => {
         event.preventDefault();
 
-        var obj = {email:email.value, password:password.value};
+        var obj = { email: email.value, password: password.value };
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch(buildPath('users/auth'), {method:'POST', body:js, headers:{'Content-Type':'application/json'}});
+            const response = await fetch(buildPath('users/auth'), { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
-            if(!res.success) {
+            if (!res.success) {
                 setMessage(JSON.stringify(res));
             }
             else {
-                var user = {userID:res.results["userID"], email:res.results["email"], password:res.results["password"]};
+                var user = { userID: res.results["userID"], email: res.results["email"], password: res.results["password"] };
                 localStorage.setItem('user_data', JSON.stringify(user));
 
                 setMessage(JSON.stringify(res.message));
                 // window.location.href = '/home';
             }
         }
-        catch(e) {
+        catch (e) {
             alert(e.toString());
             return;
         }
     };
 
-    return(
+    return (
         <div id="loginDiv">
             <form onSubmit={handleSubmit}>
                 <span id="inner-title">PLEASE LOG IN</span><br />
