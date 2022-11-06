@@ -348,7 +348,73 @@ async function emailReset(userId, newEmail) {
 
 //#endregion
 
+//#region Delete user API endpoint
+
+app.delete("/users/:userId([0-9]+)/delete", (req, res) => {
+
+  var id = req.params.userId;
+
+  (async () => {
+    var ret = await deleteUser(id);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+
+});
+
+async function deleteUser(userId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+
+  console.log(`Attempting to delete user with ID=${userId}...\n`);
+  userId = parseInt(userId);
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    // Check if user exists (can delete this code if we don't care whether a user exists)
+    exists = await db.collection("users").findOne({ userID: userId });
+    if (!exists)
+    {
+      console.log(`User does not exist.\n`);
+      ret.message = "User does not exist.";
+      ret.results = -1;
+      await client.close();
+      return ret;
+    }
+
+    // Delete user
+    await db.collection("users").deleteOne({ userID: exists.userID });
+    console.log(`Successfully deleted user.\n`);
+    ret.success = true;
+    ret.message = "Deleted user.";
+    ret.results = userId;
+  } catch {
+    ret.message = "We were unable to delete the user.";
+    ret.results = -1;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Display all users API endpoint
+
 app.get('/users', (req, res) => {
   (async () => {
     var ret = await getAllUsers();
