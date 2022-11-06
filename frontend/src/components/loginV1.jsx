@@ -37,7 +37,7 @@ function Login() {
                 localStorage.setItem('user_data', JSON.stringify(user));
 
                 setMessage(JSON.stringify(res.message));
-                // window.location.href = '/home';
+                window.location.href = '/home';
             }
         }
         catch (e) {
@@ -55,7 +55,6 @@ function Login() {
                 <input type="submit" id="loginButton" class="buttons" value = "Log In" onClick={handleSubmit} />
             </form>
             <span id="loginResult">{message}</span>
-            <input onClick={() => window.location.href = "/home"} type="submit" id="homeButton" class="buttons" value = "Home Page" /><br />
             <button onClick={() => window.location.href = "/register"}>Don't have an Account? Register Here!</button>
         </div>
     );
