@@ -42,7 +42,7 @@ function Register() {
                 // localStorage.setItem('user_data', JSON.stringify(user));
 
                 setMessage("Successfully added user.");
-                window.location.href = '../views/loginPage';
+                window.location.href = '/';
             }
         }
 
