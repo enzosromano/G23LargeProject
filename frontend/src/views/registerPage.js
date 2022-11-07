@@ -7,7 +7,7 @@ const RegisterPage = () => {
     return (
         <div>
             <Register />
-            {/* <button onClick={() => props.onFormSwitch("loginPage")}>Don't have an Account? Register Here!</button> */}
+            <button onClick={() => window.location.href = "/"}>Already have an Account? Login Here!</button>
         </div>
     )
 }
