@@ -55,7 +55,6 @@ function Login() {
                 <input type="submit" id="loginButton" class="buttons" value = "Log In" onClick={handleSubmit} />
             </form>
             <span id="loginResult">{message}</span>
-            <button onClick={() => window.location.href = "/register"}>Don't have an Account? Register Here!</button>
         </div>
     );
 };
