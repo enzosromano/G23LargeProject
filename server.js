@@ -48,6 +48,22 @@ client.connect();
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
 
+//#region Helper Functions
+
+function omit(obj, omitKey) {
+  return Object.keys(obj).reduce((result, key) => {
+
+    if(key !== omitKey) {
+       result[key] = obj[key];
+    }
+
+    return result;
+
+  }, {});
+}
+
+//#endregion 
+
 //#region Create/Register User API Endpoint
 
 app.post("/users", (req, res) => { // WITH HASHED PASSWORD
@@ -101,16 +117,6 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 });
 
 async function addUser(email, password, firstName, lastName) {
-  
-  const newUser = {
-    userID: -1,
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    isVerified: false,
-    password: password,
-    relationships: [],
-  };
 
   var ret = {
     "success": false,
@@ -126,15 +132,6 @@ async function addUser(email, password, firstName, lastName) {
 
   if (!exists) {
     try {
-      // The user doesn't already exist
-
-      var count = await db.collection("counters").findOne({ _id: "userID" });
-
-      //THIS IS A SECURITY FLAW, CHECK TECH DEBT
-      await db.collection("counters").updateOne({
-        _id: "userID",},
-        {$set:{seq: count.seq + 1}}
-      );
 
       // hash created password
       var salt = bcrypt.genSaltSync(10);
@@ -142,7 +139,6 @@ async function addUser(email, password, firstName, lastName) {
 
       //Add the new user into the database
       await db.collection("users").insertOne({
-        userID: count.seq + 1,
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -152,13 +148,11 @@ async function addUser(email, password, firstName, lastName) {
         relationships: [],
       });
 
+      var user = await db.collection("users").findOne({ email: email });
+
       ret.success = true;
       ret.message = "Successfully added user.";
-      ret.results = {
-        "userID": count.seq + 1,
-        "firstName": firstName,
-        "lastName": lastName
-      }
+      ret.results = omit(user, 'password');
 
     } 
     catch 
@@ -168,7 +162,7 @@ async function addUser(email, password, firstName, lastName) {
   }
   else
   {
-    ret.message = "Please try a different email.";
+    ret.message = "Could not create account.";
   }
 
   await client.close();
@@ -181,8 +175,8 @@ async function addUser(email, password, firstName, lastName) {
 
 //#region User Login API Endpoint
 
-app.post("/users/auth", (req, res) => { // COMPARING WITH HASHED PASSWORD
-  //Get the request body and grab user from it
+app.post("/users/auth", (req, res) => {
+
   const { email, password } = req.body;
 
   (async () => {
@@ -206,36 +200,29 @@ async function loginAndValidate(userEmail, password) {
   await client.connect();
   db = client.db("TuneTables");
 
-  // create return
-  var retResults = {
-    userID: -1,
-    email: userEmail,
-    password: password
-  };
-
   var ret = {
     success: false,
     message: "",
-    results: retResults
+    results: {}
   }
 
   try {
     var user = await db.collection("users").findOne({ email: userEmail });
 
     pass = String(user.password);
-    
+
     // compare entered password with hashed password
-    var validPassword = await bcrypt.compareSync(ret.results.password, pass);
+    var validPassword = await bcrypt.compareSync(password, pass);
 
     if (validPassword) {
       ret.success = true;
-      ret.results.userID = user.userID;
+      ret.results = omit(user, 'password');
       ret.message = "Successfully logged in user"
     } else {
-      ret.message = "Invalid username or password";
+      ret.message = "Invalid email or password.";
     }
   } catch {
-    ret.message = "A user with this email address does not exist";
+    ret.message = "Invalid email or password";
   }
 
   await client.close();
@@ -246,7 +233,7 @@ async function loginAndValidate(userEmail, password) {
 
 //#region User reset password
 
-app.put("/users/:userId([0-9]+)/password", (req, res) => {
+app.put("/users/:userId/password", (req, res) => { //TODO: Fix and add hashing to passwords
 
   var id = req.params.userId;
   const { password } = req.body;
