@@ -420,50 +420,18 @@ app.get('/users', (req, res) => {
   (async () => {
     var ret = await getAllUsers();
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
   })();
 });
 
 async function getAllUsers() {
-  // Connect to db and get user
-  await client.connect();
-  db = client.db("TuneTables");
-
-  var ret = {data: [], status: ''};
-
-  try {
-    var data = await db.collection("users").find().toArray();
-    ret.data = data;
-    ret.status = "success";
-  } catch (e) {
-    console.log(e);
-    ret.status = "failure";
-  }
-
-  await client.close();
-  return ret;
-}
-
-//#endregion
-
-//#region Display specific users API endpoint
-
-app.get('/users/search', (req, res) => {
-  // Parse request body
-  const {keyword} = req.body;
-  var _keyword = keyword.trim();
-  
-  (async () => {
-    var ret = await searchForUser(_keyword);
-
-    res.status(200).json(ret);
-  })();
-});
-
-async function searchForUser(_keyword) {
-  console.log(`Searching for user...`);
-  console.log(`thingToSearch: ${_keyword}\n`);
-
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
@@ -475,15 +443,20 @@ async function searchForUser(_keyword) {
   }
 
   try {
-    var data = [];
-    data = await db.collection("users").find({ firstName:_keyword }).toArray();
-    data = data.concat(await db.collection("users").find({ lastName:_keyword }).toArray());
-    data = data.concat(await db.collection("users").find({ email:_keyword }).toArray());
+    var results = await db.collection("users").find().toArray();
 
-    ret.success = true;
-    ret.message = `${data.length} results found.`;
-    ret.results = data;
-
+    if (results.length != 0)
+    {
+      ret.results = results;
+      console.log(`There are ${results.length} users.`);
+      ret.message = `There are ${results.length} users.`;
+      ret.success = true;
+    }
+    else
+    {
+      console.log(`No users found.`);
+      ret.message = `No users found.`;
+    }
   } catch (e) {
     console.log(e);
     ret.message = e;
@@ -495,7 +468,68 @@ async function searchForUser(_keyword) {
 
 //#endregion
 
+//#region Display specific users API endpoint
+
+  app.get("/users/search/:keyword", (req, res) => {
+    (async () => {
+      var ret = await searchForUser(req.params.keyword);
+  
+      if(ret.success)
+      {
+        res.status(200).json(ret);
+      }
+      else
+      {
+        res.status(400).json(ret.message);
+      }
+    })();
+  });
+  
+  async function searchForUser(keyword) {
+    console.log(`Searching for user...`);
+    console.log(`keyword: ${keyword}\n`);
+  
+    // Connect to db and get user
+    await client.connect();
+    db = client.db("TuneTables");
+  
+    var ret = {
+      success: false,
+      message: "",
+      results: {}
+    }
+  
+    try {
+      var results = [];
+      results = await db.collection("users").find({ firstName:keyword }).toArray();
+      results = results.concat(await db.collection("users").find({ lastName:keyword }).toArray());
+      results = results.concat(await db.collection("users").find({ email:keyword }).toArray());
+  
+      if (results.length != 0)
+      {
+        ret.success = true;
+        console.log(`${results.length} results found.`);
+        ret.message = `${results.length} results found.`;
+        ret.results = results;
+      }
+      else
+      {
+        console.log(`No user found with keyword = ${keyword}`);
+        ret.message = `No user found with keyword = ${keyword}`;
+      }
+    } catch (e) {
+      console.log(e);
+      ret.message = e;
+    }
+  
+    await client.close();
+    return ret;
+  }
+  
+  //#endregion
+
 //#region Display all songs API endpoint
+
 app.get('/songs', (req, res) => {
   (async () => {
     var ret = await getAllSongs();
@@ -524,13 +558,23 @@ async function getAllSongs() {
   }
 
   try {
-    // create return (it is up to the frontend to display the fields they want).
-    var data = [];
-    data = await db.collection("songs").find().toArray();
-    ret.success = true;
-    ret.results = data;
+    var results = [];
+    results = await db.collection("songs").find().toArray();
+    if (results.length != 0)
+    {
+      ret.success = true;
+      ret.results = results;
+      console.log(`There are ${results.length} songs.`);
+      ret.message = `There are ${results.length} songs.`;
+    }
+    else
+    {
+      console.log(`No songs found.`);
+      ret.message = `No songs found.`;
+    }
   } catch (e) {
     console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -540,20 +584,18 @@ async function getAllSongs() {
 //#endregion
 
 //#region Display specific songs API endpoint
-app.get('/songs/search', (req, res) => {
-  const {keyword} = req.body;
-  var _keyword = keyword.trim();
-  
+
+app.get('/songs/search/:keyword', (req, res) => {
   (async () => {
-    var ret = await searchForSong(_keyword);
+    var ret = await searchForSong(req.params.keyword);
 
     res.status(200).json(ret);
   })();
 });
 
-async function searchForSong(_keyword) {
+async function searchForSong(keyword) {
   console.log(`Searching for song...`);
-  console.log(`thingToSearch: ${_keyword}\n`);
+  console.log(`keyword: ${keyword}\n`);
 
   await client.connect();
   db = client.db("TuneTables");
@@ -565,24 +607,26 @@ async function searchForSong(_keyword) {
   }
 
   try {
-    // create return (it is up to the frontend to display the fields they want).
-    // var data = await db.collection("songs").find(
-    //   { title:_title, artist:_artist, album:_album, length:_length, year:_year, likes:_likes }).toArray();
+    var results = [];
+    results = await db.collection("songs").find({ title:keyword }).toArray();
+    results = results.concat(await db.collection("songs").find({ artist:keyword }).toArray());
+    results = results.concat(await db.collection("songs").find({ album:keyword }).toArray());
 
-    var data = [];
-    data = await db.collection("songs").find({ title:_keyword }).toArray();
-    data = data.concat(await db.collection("songs").find({ artist:_keyword }).toArray());
-    data = data.concat(await db.collection("songs").find({ album:_keyword }).toArray());
-
-    if (data.length > 0)
+    if (results.length != 0)
     {
       ret.success = true;
-      ret.message = `${data.length} results found.`
-      ret.results = data;
+      console.log(`${results.length} results found.`);
+      ret.message = `${results.length} results found.`;
+      ret.results = results;
+    }
+    else
+    {
+      console.log(`No song found with keyword = ${keyword}`);
+      ret.message = `No song found with keyword = ${keyword}`;
     }
   } catch (e) {
     console.log(e);
-    ret.message = `Error searching for ${_keyword}`
+    ret.message = e;
   }
 
   await client.close();
