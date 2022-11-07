@@ -55,19 +55,32 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
   const { email, password, firstName, lastName } = req.body;
 
   //error handling for user input
+  const fields = [];
   if (!email) {
-    error = "User email required.";
-    return res.status(400).json(error);
+    fields.push("Email");
   } 
-  else if (!firstName || !lastName) 
+  if (!firstName) 
   {
-    error = "First Name and Last Name are required fields.";
-    return res.status(400).json(error);
+    fields.push("First Name");
   } 
-  else if (!password) 
+  if (!lastName) {
+    fields.push("Last Name");
+  } 
+  if (!password) 
   {
-    error = "Password is a required field.";
+    fields.push("Password");
+  }
+
+  if(fields.length != 0){
+    
+    var error = "Missing required field(s): ";
+    error = error + fields[0];
+    for(let i = 1; i < fields.length; i++){
+      error = error + ", " + fields[i];
+    }
+    
     return res.status(400).json(error);
+
   }
 
 
