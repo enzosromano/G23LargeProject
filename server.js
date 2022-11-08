@@ -448,15 +448,14 @@ async function getAllUsers() {
     if (results.length != 0)
     {
       ret.results = results;
-      console.log(`There are ${results.length} users.`);
-      ret.message = `There are ${results.length} users.`;
-      ret.success = true;
+      ret.message = `${results.length} user(s) found.`;
     }
     else
     {
-      console.log(`No users found.`);
       ret.message = `No users found.`;
     }
+    ret.success = true;
+
   } catch (e) {
     console.log(e);
     ret.message = e;
@@ -486,7 +485,6 @@ async function getAllUsers() {
   });
   
   async function searchForUser(keyword) {
-    console.log(`Searching for user...`);
     console.log(`keyword: ${keyword}\n`);
   
     // Connect to db and get user
@@ -507,16 +505,15 @@ async function getAllUsers() {
   
       if (results.length != 0)
       {
-        ret.success = true;
-        console.log(`${results.length} results found.`);
-        ret.message = `${results.length} results found.`;
+        ret.message = `${results.length} user(s) found.`;
         ret.results = results;
       }
       else
       {
-        console.log(`No user found with keyword = ${keyword}`);
-        ret.message = `No user found with keyword = ${keyword}`;
+        ret.message = `No users found.`;
       }
+      ret.success = true;
+
     } catch (e) {
       console.log(e);
       ret.message = e;
@@ -560,18 +557,18 @@ async function getAllSongs() {
   try {
     var results = [];
     results = await db.collection("songs").find().toArray();
+
     if (results.length != 0)
     {
-      ret.success = true;
       ret.results = results;
-      console.log(`There are ${results.length} songs.`);
-      ret.message = `There are ${results.length} songs.`;
+      ret.message = `${results.length} song(s) found.`;
     }
     else
     {
-      console.log(`No songs found.`);
       ret.message = `No songs found.`;
     }
+    ret.success = true;
+
   } catch (e) {
     console.log(e);
     ret.message = e;
@@ -589,14 +586,18 @@ app.get('/songs/search/:keyword', (req, res) => {
   (async () => {
     var ret = await searchForSong(req.params.keyword);
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
   })();
 });
 
 async function searchForSong(keyword) {
-  console.log(`Searching for song...`);
-  console.log(`keyword: ${keyword}\n`);
-
   await client.connect();
   db = client.db("TuneTables");
 
@@ -614,16 +615,15 @@ async function searchForSong(keyword) {
 
     if (results.length != 0)
     {
-      ret.success = true;
-      console.log(`${results.length} results found.`);
-      ret.message = `${results.length} results found.`;
+      ret.message = `${results.length} song(s) found.`;
       ret.results = results;
     }
     else
     {
-      console.log(`No song found with keyword = ${keyword}`);
-      ret.message = `No song found with keyword = ${keyword}`;
+      ret.message = `No songs found.`;
     }
+    ret.success = true;
+    
   } catch (e) {
     console.log(e);
     ret.message = e;
