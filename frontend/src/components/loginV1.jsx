@@ -5,7 +5,7 @@ function Login() {
     const app_name = "tunetable23"
     function buildPath(route) {
 
-        if (process.env.NODE_ENV !== "production") { // TECH DEBT PROBLEM
+        if (process.env.NODE_ENV == "production") { // TECH DEBT PROBLEM
             return "https://" + app_name + ".herokuapp.com/" + route;
         }
         else {
@@ -52,7 +52,7 @@ function Login() {
                 <span id="inner-title">PLEASE LOG IN</span><br />
                 <input type="text" id="email" placeholder="ianfrelix@yahoo.com" ref={(c) => email = c} /><br />
                 <input type="password" id="loginPassword" placeholder="Password" ref={(c) => password = c} /><br />
-                <input type="submit" id="loginButton" class="buttons" value = "Log In" onClick={handleSubmit} />
+                <input type="submit" id="loginButton" class="buttons" value="Log In" onClick={handleSubmit} />
             </form>
             <span id="loginResult">{message}</span>
         </div>
