@@ -291,13 +291,11 @@ async function passwordReset(userId, newPassword) {
 
 //#region User Change Email API endpoint
 
-app.put("/users/:userId([0-9]+)/changeEmail", (req, res) => { 
-  //Get the request body and grab user from it
-  var id = req.params.userId;
+app.put("/users/:userId/changeEmail", (req, res) => { 
   const { newEmail } = req.body;
 
   (async () => {
-    var ret = await emailReset(id, newEmail);
+    var ret = await emailReset(req.params.userId, newEmail);
 
     if(ret.success)
     {
@@ -309,26 +307,26 @@ app.put("/users/:userId([0-9]+)/changeEmail", (req, res) => {
     }
 
   })();
-
 });
 
 async function emailReset(userId, newEmail) {
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
 
   // create return
   var ret = {
     success: false,
     message: "",
     results: {
-      userID: -1,
+      _id: -1,
       newEmail: newEmail
     }
   };
 
   try {
-    var user = await db.collection("users").findOne({ userID: parseInt(userId) });
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
     
     await db.collection("users").updateOne(
       user, 
@@ -336,11 +334,12 @@ async function emailReset(userId, newEmail) {
     });
 
     ret.success = true;
-    ret.results.userID = user.userID;
+    ret.results._id = user._id;
     ret.message = "Sucessfully changed email address";
 
-  } catch {
-    ret.message = "Unable to change the user's email address";
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -351,12 +350,9 @@ async function emailReset(userId, newEmail) {
 
 //#region Delete user API endpoint
 
-app.delete("/users/:userId([0-9]+)/delete", (req, res) => {
-
-  var id = req.params.userId;
-
+app.delete("/users/:userId/delete", (req, res) => {
   (async () => {
-    var ret = await deleteUser(id);
+    var ret = await deleteUser(req.params.userId);
 
     if(ret.success)
     {
@@ -375,9 +371,7 @@ async function deleteUser(userId) {
   // Connect to db
   await client.connect();
   db = client.db("TuneTables");
-
-  console.log(`Attempting to delete user with ID=${userId}...\n`);
-  userId = parseInt(userId);
+  var ObjectId = require('mongodb').ObjectId;
 
   var ret = {
     success: false,
@@ -387,25 +381,25 @@ async function deleteUser(userId) {
 
   try {
     // Check if user exists (can delete this code if we don't care whether a user exists)
-    exists = await db.collection("users").findOne({ userID: userId });
+    exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
     if (!exists)
     {
-      console.log(`User does not exist.\n`);
+      ret.success = true;
       ret.message = "User does not exist.";
-      ret.results = -1;
+      ret.results = userId;
       await client.close();
       return ret;
     }
 
     // Delete user
-    await db.collection("users").deleteOne({ userID: exists.userID });
+    await db.collection("users").deleteOne({ _id: ObjectId(exists._id) });
     console.log(`Successfully deleted user.\n`);
     ret.success = true;
     ret.message = "Deleted user.";
     ret.results = userId;
-  } catch {
-    ret.message = "We were unable to delete the user.";
-    ret.results = -1;
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
