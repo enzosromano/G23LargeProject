@@ -258,8 +258,7 @@ async function passwordReset(userId, newPassword) {
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
-
-  userId = parseInt(userId);
+  var ObjectId = require('mongodb').ObjectId;
 
   var ret = {
     success: false,
@@ -267,17 +266,21 @@ async function passwordReset(userId, newPassword) {
     results: {}
   }
 
+  // hash created password
+  var salt = bcrypt.genSaltSync(10);
+  var hashedPassword = bcrypt.hashSync(newPassword, salt);
+
   try {
-    var user = await db.collection("users").findOne({ userID: userId });
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
 
     await db.collection("users").updateOne(
       user, 
-      {$set:{password: newPassword}
+      {$set:{password: hashedPassword}
     });
 
     ret.success = true;
-    ret.message = "Password Reset.";
-    ret.results = user;
+    ret.message = "Your password has been reset.";
+    ret.results = omit(user, 'password');
     
   } catch {
     ret.message = "We were unable to reset the user's password.";
@@ -368,7 +371,7 @@ app.delete("/users/:userId/delete", (req, res) => {
 });
 
 async function deleteUser(userId) {
-  // Connect to db
+
   await client.connect();
   db = client.db("TuneTables");
   var ObjectId = require('mongodb').ObjectId;
@@ -380,7 +383,7 @@ async function deleteUser(userId) {
   }
 
   try {
-    // Check if user exists (can delete this code if we don't care whether a user exists)
+    
     exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
     if (!exists)
     {
@@ -538,7 +541,7 @@ app.get('/songs', (req, res) => {
 });
 
 async function getAllSongs() {
-  // Connect to db and get user
+
   await client.connect();
   db = client.db("TuneTables");
 
