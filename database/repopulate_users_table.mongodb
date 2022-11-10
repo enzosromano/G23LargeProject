@@ -5,9 +5,16 @@ use('TuneTables');
 // clear the old data from the collection
 db.users.drop();
 
+//Add indexes for partial text search
+db.users.createIndex({"username":"text"});
+
+// Add inde
+db.users.createIndex({"email":1}, {unique: true});
+
 // inserting into Users
 db.users.insertMany([
     { // 1
+        'username':      'Ewool',
         'firstName':     'Ethan', 
         'lastName':      'Woollet', 
         'email':         'ewoollet@knights.ucf.edu', 
@@ -17,121 +24,135 @@ db.users.insertMany([
         'relationships': []
     },
     { // 2
+        'username':      'Azenn',
         'firstName':     'Abbey', 
         'lastName':      'Zenna', 
         'email':         'azenna@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$32Ch.GD9LLEMPDPBeHlpOOzPWilBkr4kKIsBT2iZWzPJdYoIkBx5e', // RwLz255b
         'totalLikes':    0, 
-        'relationships': [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        'relationships': []
     },
     { // 3
+        'username':      'Byian',
         'firstName':     'Bernard', 
         'lastName':      'Yian', 
         'email':         'byian@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$JHuMN9Sdb/m1o6IPT/iG.OmtBaaBmdBUk9/8O2jKvCHjxnFeO2l12', // Wx9tgkaV
         'totalLikes':    0, 
-        'relationships': [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        'relationships': []
     },
     { // 4
+        'username':      'Cxera',
         'firstName':     'Chris', 
         'lastName':      'Xera', 
         'email':         'cxera@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$5SWOBeweqOhgFzwznU7TEucEcfAkLrdLVFHccT.24IrLvfk3BGhb.', // Z3DTKJ2m
         'totalLikes':    0, 
-        'relationships': [1, 7, 8]
+        'relationships': []
     },
     { // 5
+        'username':      'Dwarr',
         'firstName':     'Daniella', 
         'lastName':      'Warren', 
         'email':         'dwarren@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$2SA5Z9cY6kg0a.R7WNqOx.PpKhla94z6T1RpIey8ZwOqbJ7ltq3fW', // J6FiKk7t
         'totalLikes':    0, 
-        'relationships': [1, 3, 4, 7, 9, 10, 11, 12, 13, 14]
+        'relationships': []
     },
     { // 6
+        'username':      'Evolg',
         'firstName':     'Eren', 
         'lastName':      'Volgunther', 
         'email':         'evolgunther@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$epCL1/YqeINQh5FzrbDxP.ZKUbJcoxjcCXnMdWz2hBjRCTGeeYdNm', // pv4xR7na
         'totalLikes':    0, 
-        'relationships': [3, 14]
+        'relationships': []
     },
     { // 7
+        'username':      'Fural',
         'firstName':     'Francine', 
         'lastName':      'Ural', 
         'email':         'fural@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$cNgQ6o2giYpVs0.wM2kVfOifF3k1sYffEOHE1htMdOEBMZYnL8I1y', // G23ZLJ2A
         'totalLikes':    0, 
-        'relationships': [1, 4, 5, 12, 13]
+        'relationships': []
     },
     { // 8
+        'username':      'Gtila',
         'firstName':     'Geoff', 
         'lastName':      'Tilan', 
         'email':         'gtilan@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$0Q90ldFwpXk8Bpqn6VaCXuls/8qgUrRFyxI5QS024HeJE0Umoz9JW', // dhpZFB9Q
         'totalLikes':    0, 
-        'relationships': [1, 3, 11]
+        'relationships': []
     },
     { // 9
+        'username':      'Hster',
         'firstName':     'Howard', 
         'lastName':      'Stern', 
         'email':         'hstern@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$5CULV8g..v1oGtmJa7B6ZuyG73iqvPMbo4uDulWOtirasz7O5Y/PG', // 3kPmNiPA
         'totalLikes':    0, 
-        'relationships': [12, 13, 14]
+        'relationships': []
     },
     { // 10
+        'username':      'Irezn',
         'firstName':     'Irena', 
         'lastName':      'Reznard', 
         'email':         'ireznard@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$g4NNyKF.IKiY0BKYdEq.M.cZ81mSy0Ajs2.mLyUeQbrjCfl9s12/S', // nj3G8YMk
         'totalLikes':    0, 
-        'relationships': [8, 9, 14]
+        'relationships': []
     },
     { // 11
+        'username':      'Jquiz',
         'firstName':     'John', 
         'lastName':      'Quiznos', 
         'email':         'jquiznos@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$4a31egLGxLpBTorZaIZmSe9yj/uIM/emiYTE02Kr7Ri9cpsFqxv5y', // s94cLfu1
         'totalLikes':    0, 
-        'relationships': [1, 2, 5, 6, 10]
+        'relationships': []
     },
     { // 12
+        'username':      'Kperr',
         'firstName':     'Katy', 
         'lastName':      'Perry', 
         'email':         'kperry@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$GTrrVO5qeD24y1aDnUvzYuPrHu4DSA5uch7jE.EeSSF4QIO3cL7wG', // 5jmCjfof
         'totalLikes':    0, 
-        'relationships': [1, 2, 4, 6, 7, 8, 11, 13]
+        'relationships': []
     },
     { // 13
+        'username':      'Lober',
         'firstName':     'Lucile', 
         'lastName':      'Oberstein', 
         'email':         'loberstein@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$PgrhELO8OMlsrj5wAxiXou80.jHe9FqRi0GenKzeIqY74xXLRKU6e', // rDd9cQmQ
         'totalLikes':    0, 
-        'relationships': [1, 2, 3, 7, 12, 14]
+        'relationships': []
     },
     { // 14
+        'username':      'Mnees',
         'firstName':     'Mark', 
         'lastName':      'Nees', 
         'email':         'mnees@gmail.com', 
         'isVerified':    false, 
         'password':      '$2a$10$7ugrJMbKoHxkj/C8B0k6wu6BoQZ/ocR0X0TFCjqlhgsweptWCynfq', // w3iihbgN
         'totalLikes':    0, 
-        'relationships': [1, 2, 4, 8, 9, 12]
+        'relationships': []
     }
 ]);
+
 
