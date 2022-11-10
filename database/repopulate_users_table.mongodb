@@ -156,16 +156,3 @@ db.users.insertMany([
 ]);
 
 
-db.users.insertOne(
-    { // 1
-        'username':      'Ewool',
-        'firstName':     'Ethan', 
-        'lastName':      'Woollet', 
-        'email':         'ewoollet@knights.ucf.edu', 
-        'isVerified':    false, 
-        'password':      '$2a$10$lW.yNo5g/5JnfN3WHmh3LeWubK8f/hYSU4GJ4gy6HynIOPtlUyyhK', // rVphD4pU
-        'totalLikes':    0, 
-        'relationships': []
-    }
-)
-
