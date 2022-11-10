@@ -166,7 +166,6 @@ async function addUser(email, password, firstName, lastName) {
   }
 
   await client.close();
-  console.log(ret);
   return ret;
 
 }
@@ -520,7 +519,115 @@ async function getAllUsers() {
     return ret;
   }
   
-  //#endregion
+//#endregion
+
+//#region Create song API endpoint
+
+app.post("/songs", (req, res) => {
+
+  const { title, artist, album, url, length, year } = req.body;
+  var songObject = req.body;
+
+  //error handling for user input
+  const fields = [];
+  if (!title) {
+    fields.push("title");
+  } 
+  if (!artist) 
+  {
+    fields.push("artist");
+  } 
+  if (!album) {
+    fields.push("album");
+  } 
+  if (!url) 
+  {
+    fields.push("url");
+  }
+  if (!length) 
+  {
+    fields.push("length");
+  }
+  if (!year) 
+  {
+    fields.push("year");
+  }
+
+  if(fields.length != 0){
+    
+    var error = "Missing required field(s): ";
+    error = error + fields[0];
+    for(let i = 1; i < fields.length; i++){
+      error = error + ", " + fields[i];
+    }
+    
+    return res.status(400).json(error);
+
+  }
+
+
+  (async () => {
+    var ret = await addSong(songObject);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+  
+});
+
+async function addSong(songObject) {
+
+  var ret = {
+    "success": false,
+    "message": "",
+    "results": {}
+  }
+
+  // establish db connection
+  await client.connect();
+  db = client.db("TuneTables");
+
+  try {
+
+
+    await db.collection("songs").insertOne({
+
+      //Temp, we need to remove this from the database...
+      songID: 1000000,
+
+      title: songObject.title,
+      artist: songObject.artist,
+      album: songObject.album,
+      url: songObject.url,
+      length: songObject.length,
+      year: songObject.year,
+      likes: 0,
+    });
+
+    var song = await db.collection("songs").findOne({ title: songObject.title });
+
+    ret.success = true;
+    ret.message = "Successfully added song.";
+    ret.results = song;
+
+  }
+  catch {
+    ret.message = "Error occurred while adding song";
+  }
+
+  await client.close();
+  return ret;
+
+}
+
+//#endregion
 
 //#region Display all songs API endpoint
 

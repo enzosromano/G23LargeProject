@@ -5,6 +5,11 @@ use('TuneTables');
 // clear the old data from the collection
 db.songs.drop();
 
+//Add indexes for partial text search
+db.songs.createIndex({"title":"text"});
+db.songs.createIndex({"artist":"text"});
+db.songs.createIndex({"album":"text"});
+
 // inserting into Users
 db.songs.insertMany([
     {   
