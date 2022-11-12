@@ -1,10 +1,12 @@
 import React from "react";
 
+import DeleteUserButton from "../components/ProfileComponents/DeleteUserButton";
+
 const ProfilePage = () => {
 
     return (
         <div>
-            <h1>Profile Successful!</h1>
+            <DeleteUserButton />
         </div>
     )
 }
