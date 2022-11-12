@@ -1,10 +1,11 @@
 import React from "react";
+import  DeleteUser  from "../components/ProfileComponents/DeleteUser";
 
 const ProfilePage = () => {
 
     return (
         <div>
-            <h1>Profile Successful!</h1>
+            <DeleteUser />
         </div>
     )
 }
