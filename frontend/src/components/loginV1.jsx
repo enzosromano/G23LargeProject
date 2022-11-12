@@ -18,7 +18,7 @@ function Login() {
 
     const [message, setMessage] = useState("");
 
-    const handleSubmit = async event => {
+    const loginSubmit = async event => {
         event.preventDefault();
 
         var obj = { email: email.value, password: password.value };
@@ -46,15 +46,23 @@ function Login() {
         }
     };
 
+    const forgotPasswordSubmit = async event => {
+
+    };
+
     return (
         <div id="loginDiv">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={loginSubmit}>
                 <span id="inner-title">PLEASE LOG IN</span><br />
                 <input type="text" id="email" placeholder="ianfrelix@yahoo.com" ref={(c) => email = c} /><br />
                 <input type="password" id="loginPassword" placeholder="Password" ref={(c) => password = c} /><br />
-                <input type="submit" id="loginButton" class="buttons" value = "Log In" onClick={handleSubmit} />
+                <input type="submit" id="loginButton" class="buttons" value="Log In" onClick={loginSubmit} />
             </form>
             <span id="loginResult">{message}</span>
+
+            <form onSubmit={forgotPasswordSubmit}>
+                <input type="submit" id="forgotPasswordButton" class="buttons" value="Forgot Password" onClick={forgotPasswordSubmit} />
+            </form>
         </div>
     );
 };
