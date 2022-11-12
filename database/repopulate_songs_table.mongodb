@@ -5,10 +5,12 @@ use('TuneTables');
 // clear the old data from the collection
 db.songs.drop();
 
-// inserting into Users
+//Add indexes for partial text search
+db.songs.createIndex({"title":"text", "artist":"text", "album":"text"});
+
+// inserting into Songs
 db.songs.insertMany([
-    {   
-        'songID': 1, 
+    { // 1
         'title':  'Respect', 
         'artist': 'Aretha Franklin', 
         'album':  'I Never Loved a Man the Way I Love You', 
@@ -17,8 +19,7 @@ db.songs.insertMany([
         'year':   '1967', 
         'likes' : 0
     },
-    {
-        'songID': 2, 
+    { // 2
         'title':  '(I Can\'t Get No) Satisfaction', 
         'artist': 'The Rolling Stones', 
         'album':  'N/A', 
@@ -27,8 +28,7 @@ db.songs.insertMany([
         'year':   '1965', 
         'likes':  0
     },
-    {
-        'songID': 3, 
+    { // 3
         'title':  'Johnny B. Goode', 
         'artist': 'Check Berry', 
         'album':  'Check Berry Is on Top', 
@@ -37,8 +37,7 @@ db.songs.insertMany([
         'year':   '1958', 
         'likes':  0
     },
-    {
-        'songID': 4, 
+    { // 4
         'title':  'Blitzkrieg Bop', 
         'artist': 'Ramones', 
         'album':  'Ramones', 
@@ -47,8 +46,7 @@ db.songs.insertMany([
         'year':   '1976', 
         'likes':  0
     },
-    {
-        'songID': 5, 
+    { // 5
         'title':  'I Walk the Line', 
         'artist': 'Johnny Cash', 
         'album':  'Johnny Cash with His Hot and Blue Guitar!', 
@@ -57,8 +55,7 @@ db.songs.insertMany([
         'year':   '1956', 
         'likes':  0
     },
-    {
-        'songID': 6,
+    { // 6
         'title':  'Hey Jude', 
         'artist': 'The Beatles', 
         'album':  'N/A', 
@@ -67,8 +64,7 @@ db.songs.insertMany([
         'year':   '1968', 
         'likes':  0
     },
-    {
-        'songID': 7, 
+    { // 7
         'title':  'Super Freak', 
         'artist': 'Rick James', 
         'album':  'N/A', 
@@ -77,8 +73,7 @@ db.songs.insertMany([
         'year':   '1981', 
         'likes':  0
     },
-    {
-        'songID': 8, 
+    { // 8
         'title':  'Into The Groove', 
         'artist': 'Madonna', 
         'album':  'Like a Virgin', 
@@ -87,8 +82,7 @@ db.songs.insertMany([
         'year':   '1985', 
         'likes':  0
     },
-    {
-        'songID': 9, 
+    { // 9
         'title':  'Dream On', 
         'artist': 'Aerosmith', 
         'album':  'N/A', 
@@ -97,8 +91,7 @@ db.songs.insertMany([
         'year':   '1973', 
         'likes':  0
     },
-    {
-        'songID': 10, 
+    { // 10 
         'title':  'Dancing Queen', 
         'artist': 'ABBA', 
         'album':  'Arrival', 
@@ -108,11 +101,3 @@ db.songs.insertMany([
         'likes':  0
     },
 ]);
-
-
-db.counters.updateOne(
-    {'_id' : 'songID'},
-    {$set : 
-        {'seq' : 10}
-    }
-)

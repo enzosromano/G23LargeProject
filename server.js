@@ -48,6 +48,22 @@ client.connect();
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
 
+//#region Helper Functions
+
+function omit(obj, omitKey) {
+  return Object.keys(obj).reduce((result, key) => {
+
+    if(key !== omitKey) {
+       result[key] = obj[key];
+    }
+
+    return result;
+
+  }, {});
+}
+
+//#endregion 
+
 //#region Create/Register User API Endpoint
 
 app.post("/users", (req, res) => { // WITH HASHED PASSWORD
@@ -101,16 +117,6 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 });
 
 async function addUser(email, password, firstName, lastName) {
-  
-  const newUser = {
-    userID: -1,
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    isVerified: false,
-    password: password,
-    relationships: [],
-  };
 
   var ret = {
     "success": false,
@@ -126,15 +132,6 @@ async function addUser(email, password, firstName, lastName) {
 
   if (!exists) {
     try {
-      // The user doesn't already exist
-
-      var count = await db.collection("counters").findOne({ _id: "userID" });
-
-      //THIS IS A SECURITY FLAW, CHECK TECH DEBT
-      await db.collection("counters").updateOne({
-        _id: "userID",},
-        {$set:{seq: count.seq + 1}}
-      );
 
       // hash created password
       var salt = bcrypt.genSaltSync(10);
@@ -142,7 +139,6 @@ async function addUser(email, password, firstName, lastName) {
 
       //Add the new user into the database
       await db.collection("users").insertOne({
-        userID: count.seq + 1,
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -152,13 +148,11 @@ async function addUser(email, password, firstName, lastName) {
         relationships: [],
       });
 
+      var user = await db.collection("users").findOne({ email: email });
+
       ret.success = true;
       ret.message = "Successfully added user.";
-      ret.results = {
-        "userID": count.seq + 1,
-        "firstName": firstName,
-        "lastName": lastName
-      }
+      ret.results = omit(user, 'password');
 
     } 
     catch 
@@ -168,11 +162,10 @@ async function addUser(email, password, firstName, lastName) {
   }
   else
   {
-    ret.message = "Please try a different email.";
+    ret.message = "Could not create account.";
   }
 
   await client.close();
-  console.log(ret);
   return ret;
 
 }
@@ -181,8 +174,8 @@ async function addUser(email, password, firstName, lastName) {
 
 //#region User Login API Endpoint
 
-app.post("/users/auth", (req, res) => { // COMPARING WITH HASHED PASSWORD
-  //Get the request body and grab user from it
+app.post("/users/auth", (req, res) => {
+
   const { email, password } = req.body;
 
   (async () => {
@@ -206,36 +199,29 @@ async function loginAndValidate(userEmail, password) {
   await client.connect();
   db = client.db("TuneTables");
 
-  // create return
-  var retResults = {
-    userID: -1,
-    email: userEmail,
-    password: password
-  };
-
   var ret = {
     success: false,
     message: "",
-    results: retResults
+    results: {}
   }
 
   try {
     var user = await db.collection("users").findOne({ email: userEmail });
 
     pass = String(user.password);
-    
+
     // compare entered password with hashed password
-    var validPassword = await bcrypt.compareSync(ret.results.password, pass);
+    var validPassword = await bcrypt.compareSync(password, pass);
 
     if (validPassword) {
       ret.success = true;
-      ret.results.userID = user.userID;
+      ret.results = omit(user, 'password');
       ret.message = "Successfully logged in user"
     } else {
-      ret.message = "Invalid username or password";
+      ret.message = "Invalid email or password.";
     }
   } catch {
-    ret.message = "A user with this email address does not exist";
+    ret.message = "Invalid email or password";
   }
 
   await client.close();
@@ -246,7 +232,7 @@ async function loginAndValidate(userEmail, password) {
 
 //#region User reset password
 
-app.put("/users/:userId([0-9]+)/password", (req, res) => {
+app.put("/users/:userId/password", (req, res) => { //TODO: Fix and add hashing to passwords
 
   var id = req.params.userId;
   const { password } = req.body;
@@ -271,8 +257,7 @@ async function passwordReset(userId, newPassword) {
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
-
-  userId = parseInt(userId);
+  var ObjectId = require('mongodb').ObjectId;
 
   var ret = {
     success: false,
@@ -280,17 +265,21 @@ async function passwordReset(userId, newPassword) {
     results: {}
   }
 
+  // hash created password
+  var salt = bcrypt.genSaltSync(10);
+  var hashedPassword = bcrypt.hashSync(newPassword, salt);
+
   try {
-    var user = await db.collection("users").findOne({ userID: userId });
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
 
     await db.collection("users").updateOne(
       user, 
-      {$set:{password: newPassword}
+      {$set:{password: hashedPassword}
     });
 
     ret.success = true;
-    ret.message = "Password Reset.";
-    ret.results = user;
+    ret.message = "Your password has been reset.";
+    ret.results = omit(user, 'password');
     
   } catch {
     ret.message = "We were unable to reset the user's password.";
@@ -304,13 +293,11 @@ async function passwordReset(userId, newPassword) {
 
 //#region User Change Email API endpoint
 
-app.put("/users/:userId([0-9]+)/changeEmail", (req, res) => { 
-  //Get the request body and grab user from it
-  var id = req.params.userId;
+app.put("/users/:userId/changeEmail", (req, res) => { 
   const { newEmail } = req.body;
 
   (async () => {
-    var ret = await emailReset(id, newEmail);
+    var ret = await emailReset(req.params.userId, newEmail);
 
     if(ret.success)
     {
@@ -322,26 +309,26 @@ app.put("/users/:userId([0-9]+)/changeEmail", (req, res) => {
     }
 
   })();
-
 });
 
 async function emailReset(userId, newEmail) {
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
 
   // create return
   var ret = {
     success: false,
     message: "",
     results: {
-      userID: -1,
+      _id: -1,
       newEmail: newEmail
     }
   };
 
   try {
-    var user = await db.collection("users").findOne({ userID: parseInt(userId) });
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
     
     await db.collection("users").updateOne(
       user, 
@@ -349,11 +336,12 @@ async function emailReset(userId, newEmail) {
     });
 
     ret.success = true;
-    ret.results.userID = user.userID;
+    ret.results._id = user._id;
     ret.message = "Sucessfully changed email address";
 
-  } catch {
-    ret.message = "Unable to change the user's email address";
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -364,12 +352,9 @@ async function emailReset(userId, newEmail) {
 
 //#region Delete user API endpoint
 
-app.delete("/users/:userId([0-9]+)/delete", (req, res) => {
-
-  var id = req.params.userId;
-
+app.delete("/users/:userId/delete", (req, res) => {
   (async () => {
-    var ret = await deleteUser(id);
+    var ret = await deleteUser(req.params.userId);
 
     if(ret.success)
     {
@@ -385,12 +370,10 @@ app.delete("/users/:userId([0-9]+)/delete", (req, res) => {
 });
 
 async function deleteUser(userId) {
-  // Connect to db
+
   await client.connect();
   db = client.db("TuneTables");
-
-  console.log(`Attempting to delete user with ID=${userId}...\n`);
-  userId = parseInt(userId);
+  var ObjectId = require('mongodb').ObjectId;
 
   var ret = {
     success: false,
@@ -399,26 +382,26 @@ async function deleteUser(userId) {
   }
 
   try {
-    // Check if user exists (can delete this code if we don't care whether a user exists)
-    exists = await db.collection("users").findOne({ userID: userId });
+    
+    exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
     if (!exists)
     {
-      console.log(`User does not exist.\n`);
+      ret.success = true;
       ret.message = "User does not exist.";
-      ret.results = -1;
+      ret.results = userId;
       await client.close();
       return ret;
     }
 
     // Delete user
-    await db.collection("users").deleteOne({ userID: exists.userID });
+    await db.collection("users").deleteOne({ _id: ObjectId(exists._id) });
     console.log(`Successfully deleted user.\n`);
     ret.success = true;
     ret.message = "Deleted user.";
     ret.results = userId;
-  } catch {
-    ret.message = "We were unable to delete the user.";
-    ret.results = -1;
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -433,50 +416,18 @@ app.get('/users', (req, res) => {
   (async () => {
     var ret = await getAllUsers();
 
-    res.status(200).json(ret);
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
   })();
 });
 
 async function getAllUsers() {
-  // Connect to db and get user
-  await client.connect();
-  db = client.db("TuneTables");
-
-  var ret = {data: [], status: ''};
-
-  try {
-    var data = await db.collection("users").find().toArray();
-    ret.data = data;
-    ret.status = "success";
-  } catch (e) {
-    console.log(e);
-    ret.status = "failure";
-  }
-
-  await client.close();
-  return ret;
-}
-
-//#endregion
-
-//#region Display specific users API endpoint
-
-app.get('/users/search', (req, res) => {
-  // Parse request body
-  const {keyword} = req.body;
-  var _keyword = keyword.trim();
-  
-  (async () => {
-    var ret = await searchForUser(_keyword);
-
-    res.status(200).json(ret);
-  })();
-});
-
-async function searchForUser(_keyword) {
-  console.log(`Searching for user...`);
-  console.log(`thingToSearch: ${_keyword}\n`);
-
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
@@ -488,14 +439,18 @@ async function searchForUser(_keyword) {
   }
 
   try {
-    var data = [];
-    data = await db.collection("users").find({ firstName:_keyword }).toArray();
-    data = data.concat(await db.collection("users").find({ lastName:_keyword }).toArray());
-    data = data.concat(await db.collection("users").find({ email:_keyword }).toArray());
+    var results = await db.collection("users").find().toArray();
 
+    if (results.length != 0)
+    {
+      ret.results = results;
+      ret.message = `${results.length} user(s) found.`;
+    }
+    else
+    {
+      ret.message = `No users found.`;
+    }
     ret.success = true;
-    ret.message = `${data.length} results found.`;
-    ret.results = data;
 
   } catch (e) {
     console.log(e);
@@ -508,7 +463,174 @@ async function searchForUser(_keyword) {
 
 //#endregion
 
+//#region Display specific users API endpoint
+
+  app.get("/users/search/:keyword", (req, res) => {
+    (async () => {
+      var ret = await searchForUser(req.params.keyword);
+  
+      if(ret.success)
+      {
+        res.status(200).json(ret);
+      }
+      else
+      {
+        res.status(400).json(ret.message);
+      }
+    })();
+  });
+  
+  async function searchForUser(keyword) {
+    console.log(`keyword: ${keyword}\n`);
+  
+    // Connect to db and get user
+    await client.connect();
+    db = client.db("TuneTables");
+  
+    var ret = {
+      success: false,
+      message: "",
+      results: {}
+    }
+  
+    try {
+      var results = [];
+      results = await db.collection("users").find({ firstName:keyword }).toArray();
+      results = results.concat(await db.collection("users").find({ lastName:keyword }).toArray());
+      results = results.concat(await db.collection("users").find({ email:keyword }).toArray());
+  
+      if (results.length != 0)
+      {
+        ret.message = `${results.length} user(s) found.`;
+        ret.results = results;
+      }
+      else
+      {
+        ret.message = `No users found.`;
+      }
+      ret.success = true;
+
+    } catch (e) {
+      console.log(e);
+      ret.message = e;
+    }
+  
+    await client.close();
+    return ret;
+  }
+  
+//#endregion
+
+//#region Create song API endpoint
+
+app.post("/songs", (req, res) => {
+
+  const { title, artist, album, url, length, year } = req.body;
+  var songObject = req.body;
+
+  //error handling for user input
+  const fields = [];
+  if (!title) {
+    fields.push("title");
+  } 
+  if (!artist) 
+  {
+    fields.push("artist");
+  } 
+  if (!album) {
+    fields.push("album");
+  } 
+  if (!url) 
+  {
+    fields.push("url");
+  }
+  if (!length) 
+  {
+    fields.push("length");
+  }
+  if (!year) 
+  {
+    fields.push("year");
+  }
+
+  if(fields.length != 0){
+    
+    var error = "Missing required field(s): ";
+    error = error + fields[0];
+    for(let i = 1; i < fields.length; i++){
+      error = error + ", " + fields[i];
+    }
+    
+    return res.status(400).json(error);
+
+  }
+
+
+  (async () => {
+    var ret = await addSong(songObject);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+  
+});
+
+async function addSong(songObject) {
+
+  var ret = {
+    "success": false,
+    "message": "",
+    "results": {}
+  }
+
+  // establish db connection
+  await client.connect();
+  db = client.db("TuneTables");
+
+  try {
+
+
+    await db.collection("songs").insertOne({
+
+      //Temp, we need to remove this from the database...
+      songID: 1000000,
+
+      title: songObject.title,
+      artist: songObject.artist,
+      album: songObject.album,
+      url: songObject.url,
+      length: songObject.length,
+      year: songObject.year,
+      likes: 0,
+    });
+
+    var song = await db.collection("songs").findOne({ title: songObject.title });
+
+    ret.success = true;
+    ret.message = "Successfully added song.";
+    ret.results = song;
+
+  }
+  catch {
+    ret.message = "Error occurred while adding song";
+  }
+
+  await client.close();
+  return ret;
+
+}
+
+//#endregion
+
 //#region Display all songs API endpoint
+
 app.get('/songs', (req, res) => {
   (async () => {
     var ret = await getAllSongs();
@@ -526,7 +648,7 @@ app.get('/songs', (req, res) => {
 });
 
 async function getAllSongs() {
-  // Connect to db and get user
+
   await client.connect();
   db = client.db("TuneTables");
 
@@ -537,13 +659,23 @@ async function getAllSongs() {
   }
 
   try {
-    // create return (it is up to the frontend to display the fields they want).
-    var data = [];
-    data = await db.collection("songs").find().toArray();
+    var results = [];
+    results = await db.collection("songs").find().toArray();
+
+    if (results.length != 0)
+    {
+      ret.results = results;
+      ret.message = `${results.length} song(s) found.`;
+    }
+    else
+    {
+      ret.message = `No songs found.`;
+    }
     ret.success = true;
-    ret.results = data;
+
   } catch (e) {
     console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -553,21 +685,23 @@ async function getAllSongs() {
 //#endregion
 
 //#region Display specific songs API endpoint
-app.get('/songs/search', (req, res) => {
-  const {keyword} = req.body;
-  var _keyword = keyword.trim();
-  
-  (async () => {
-    var ret = await searchForSong(_keyword);
 
-    res.status(200).json(ret);
+app.get('/songs/search/:keyword', (req, res) => {
+  (async () => {
+    var ret = await searchForSong(req.params.keyword);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
   })();
 });
 
-async function searchForSong(_keyword) {
-  console.log(`Searching for song...`);
-  console.log(`thingToSearch: ${_keyword}\n`);
-
+async function searchForSong(keyword) {
   await client.connect();
   db = client.db("TuneTables");
 
@@ -578,24 +712,25 @@ async function searchForSong(_keyword) {
   }
 
   try {
-    // create return (it is up to the frontend to display the fields they want).
-    // var data = await db.collection("songs").find(
-    //   { title:_title, artist:_artist, album:_album, length:_length, year:_year, likes:_likes }).toArray();
+    var results = [];
+    results = await db.collection("songs").find({ title:keyword }).toArray();
+    results = results.concat(await db.collection("songs").find({ artist:keyword }).toArray());
+    results = results.concat(await db.collection("songs").find({ album:keyword }).toArray());
 
-    var data = [];
-    data = await db.collection("songs").find({ title:_keyword }).toArray();
-    data = data.concat(await db.collection("songs").find({ artist:_keyword }).toArray());
-    data = data.concat(await db.collection("songs").find({ album:_keyword }).toArray());
-
-    if (data.length > 0)
+    if (results.length != 0)
     {
-      ret.success = true;
-      ret.message = `${data.length} results found.`
-      ret.results = data;
+      ret.message = `${results.length} song(s) found.`;
+      ret.results = results;
     }
+    else
+    {
+      ret.message = `No songs found.`;
+    }
+    ret.success = true;
+    
   } catch (e) {
     console.log(e);
-    ret.message = `Error searching for ${_keyword}`
+    ret.message = e;
   }
 
   await client.close();
