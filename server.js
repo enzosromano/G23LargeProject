@@ -540,6 +540,226 @@ async function getAllUsers() {
   
 //#endregion
 
+//#region Get a user's relationships API endpoint
+
+app.get('/users/:userId/relationships', (req, res) => {
+  (async () => {
+    var ret = await getRelationships(req.params.userId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function getRelationships(userId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
+
+    if (exists)
+    {
+      ret.results = exists.relationships;
+      
+      if (ret.results.length != 0)
+        ret.message = `${ret.results.length} relationship(s) found.`;
+      else
+        ret.message = `No relationships found.`
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region add relationship API endpoint
+
+app.post('/users/:userId/addRelationship/:friendId', (req, res) => {
+  (async () => {
+    var ret = await addRelationship(req.params.userId, req.params.friendId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function addRelationship(userId, friendId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user    = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var friend  = await db.collection("users").findOne({ _id: ObjectId(friendId) });
+
+    if (user)
+    {
+      if (friend)
+      {
+        var duplicate = false;
+
+        for (var i = 0; i < user.relationships.length; i++)
+          if (friendId == (user.relationships[i]))
+            duplicate = true;
+
+        if (!duplicate)
+        {
+          await db.collection("users").updateOne(
+            user, 
+            {$push:{relationships: friendId}
+          });
+
+          ret.message = `Successfully added friend.`;
+          ret.results = friendId;
+        }
+        else
+        {
+          ret.message = `Friend has already been added.`;
+        }
+      }
+      else
+      {
+        ret.message = `No user found with id = ${userId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Delete relationship API endpoint 
+
+app.delete('/users/:userId/deleteRelationship/:friendId', (req, res) => {
+  (async () => {
+    var ret = await deleteRelationship(req.params.userId, req.params.friendId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function deleteRelationship(userId, friendId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user    = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var friend  = await db.collection("users").findOne({ _id: ObjectId(friendId) });
+
+    if (user)
+    {
+      if (friend)
+      {
+        var isFriend = false;
+        for (var i = 0; i < user.relationships.length; i++)
+          if (friendId == user.relationships[i])
+            isFriend = true;
+
+        if (isFriend)
+        {
+          await db.collection("users").updateOne(
+            user, 
+            {$pull:{relationships: friend._id}
+          });
+
+          ret.message = `Successfully deleted friend.`;
+          ret.results = friendId;
+        }
+        else
+        {
+          ret.message = `User was not a friend.`;
+        }
+      }
+      else
+      {
+        ret.message = `No user found with id = ${userId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Create song API endpoint
 
 app.post("/songs", (req, res) => {
