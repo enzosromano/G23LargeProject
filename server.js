@@ -68,13 +68,17 @@ function omit(obj, omitKey) {
 
 app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 
-  const { email, password, firstName, lastName } = req.body;
+  const { email, username, password, firstName, lastName } = req.body;
 
   //error handling for user input
   const fields = [];
   if (!email) {
     fields.push("Email");
   } 
+  if (!username) 
+  {
+    fields.push("Username");
+  }
   if (!firstName) 
   {
     fields.push("First Name");
@@ -86,6 +90,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
   {
     fields.push("Password");
   }
+  
 
   if(fields.length != 0){
     
@@ -101,7 +106,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 
 
   (async () => {
-    var ret = await addUser(email, password, firstName, lastName);
+    var ret = await addUser(email, username, password, firstName, lastName);
 
     if(ret.success)
     {
@@ -116,7 +121,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
   
 });
 
-async function addUser(email, password, firstName, lastName) {
+async function addUser(email, username, password, firstName, lastName) {
 
   var ret = {
     "success": false,
@@ -142,6 +147,7 @@ async function addUser(email, password, firstName, lastName) {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        username: username,
         isVerified: false,
         password: hashedPassword,
         totalLikes: 0,
@@ -494,10 +500,23 @@ async function getAllUsers() {
     }
   
     try {
+      var resultsCheck = [];
       var results = [];
-      results = await db.collection("users").find({ firstName:keyword }).toArray();
-      results = results.concat(await db.collection("users").find({ lastName:keyword }).toArray());
-      results = results.concat(await db.collection("users").find({ email:keyword }).toArray());
+      resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
+      resultsCheck = results.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+
+      //Remove duplicates as result of concatenation
+      const unique = resultsCheck.filter(element => {
+        const isDuplicate = results.includes(element.email);
+      
+        if (!isDuplicate) {
+          results.push(element);
+      
+          return true;
+        }
+      
+        return false;
+      });
   
       if (results.length != 0)
       {
