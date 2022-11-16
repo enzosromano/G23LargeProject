@@ -68,13 +68,17 @@ function omit(obj, omitKey) {
 
 app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 
-  const { email, password, firstName, lastName } = req.body;
+  const { email, username, password, firstName, lastName } = req.body;
 
   //error handling for user input
   const fields = [];
   if (!email) {
     fields.push("Email");
   } 
+  if (!username) 
+  {
+    fields.push("Username");
+  }
   if (!firstName) 
   {
     fields.push("First Name");
@@ -86,6 +90,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
   {
     fields.push("Password");
   }
+  
 
   if(fields.length != 0){
     
@@ -101,7 +106,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
 
 
   (async () => {
-    var ret = await addUser(email, password, firstName, lastName);
+    var ret = await addUser(email, username, password, firstName, lastName);
 
     if(ret.success)
     {
@@ -116,7 +121,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
   
 });
 
-async function addUser(email, password, firstName, lastName) {
+async function addUser(email, username, password, firstName, lastName) {
 
   var ret = {
     "success": false,
@@ -142,6 +147,7 @@ async function addUser(email, password, firstName, lastName) {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        username: username,
         isVerified: false,
         password: hashedPassword,
         totalLikes: 0,
@@ -494,10 +500,23 @@ async function getAllUsers() {
     }
   
     try {
+      var resultsCheck = [];
       var results = [];
-      results = await db.collection("users").find({ firstName:keyword }).toArray();
-      results = results.concat(await db.collection("users").find({ lastName:keyword }).toArray());
-      results = results.concat(await db.collection("users").find({ email:keyword }).toArray());
+      resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
+      resultsCheck = results.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+
+      //Remove duplicates as result of concatenation
+      const unique = resultsCheck.filter(element => {
+        const isDuplicate = results.includes(element.email);
+      
+        if (!isDuplicate) {
+          results.push(element);
+      
+          return true;
+        }
+      
+        return false;
+      });
   
       if (results.length != 0)
       {
@@ -519,6 +538,226 @@ async function getAllUsers() {
     return ret;
   }
   
+//#endregion
+
+//#region Get a user's relationships API endpoint
+
+app.get('/users/:userId/relationships', (req, res) => {
+  (async () => {
+    var ret = await getRelationships(req.params.userId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function getRelationships(userId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
+
+    if (exists)
+    {
+      ret.results = exists.relationships;
+      
+      if (ret.results.length != 0)
+        ret.message = `${ret.results.length} relationship(s) found.`;
+      else
+        ret.message = `No relationships found.`
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region add relationship API endpoint
+
+app.post('/users/:userId/addRelationship/:friendId', (req, res) => {
+  (async () => {
+    var ret = await addRelationship(req.params.userId, req.params.friendId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function addRelationship(userId, friendId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user    = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var friend  = await db.collection("users").findOne({ _id: ObjectId(friendId) });
+
+    if (user)
+    {
+      if (friend)
+      {
+        var duplicate = false;
+
+        for (var i = 0; i < user.relationships.length; i++)
+          if (friendId == (user.relationships[i]))
+            duplicate = true;
+
+        if (!duplicate)
+        {
+          await db.collection("users").updateOne(
+            user, 
+            {$push:{relationships: friendId}
+          });
+
+          ret.message = `Successfully added friend.`;
+          ret.results = friendId;
+        }
+        else
+        {
+          ret.message = `Friend has already been added.`;
+        }
+      }
+      else
+      {
+        ret.message = `No user found with id = ${userId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region Delete relationship API endpoint 
+
+app.delete('/users/:userId/deleteRelationship/:friendId', (req, res) => {
+  (async () => {
+    var ret = await deleteRelationship(req.params.userId, req.params.friendId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function deleteRelationship(userId, friendId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user    = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var friend  = await db.collection("users").findOne({ _id: ObjectId(friendId) });
+
+    if (user)
+    {
+      if (friend)
+      {
+        var isFriend = false;
+        for (var i = 0; i < user.relationships.length; i++)
+          if (friendId == user.relationships[i])
+            isFriend = true;
+
+        if (isFriend)
+        {
+          await db.collection("users").updateOne(
+            user, 
+            {$pull:{relationships: friend._id}
+          });
+
+          ret.message = `Successfully deleted friend.`;
+          ret.results = friendId;
+        }
+        else
+        {
+          ret.message = `User was not a friend.`;
+        }
+      }
+      else
+      {
+        ret.message = `No user found with id = ${userId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
 //#endregion
 
 //#region Create song API endpoint
