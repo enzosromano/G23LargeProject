@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const logger = require("morgan");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const e = require("express");
 
 //porting
 const PORT = process.env.PORT || 5000;
@@ -599,11 +600,11 @@ async function getRelationships(userId) {
 
 //#endregion
 
-//#region add relationship API endpoint
+//#region get user's friends API endpoint 
 
-app.post('/users/:userId/addRelationship/:friendId', (req, res) => {
+app.get('/users/:userId/friends', (req, res) => {
   (async () => {
-    var ret = await addRelationship(req.params.userId, req.params.friendId);
+    var ret = await getFriends(req.params.userId);
 
     if(ret.success)
     {
@@ -617,7 +618,7 @@ app.post('/users/:userId/addRelationship/:friendId', (req, res) => {
   })();
 });
 
-async function addRelationship(userId, friendId) {
+async function getFriends(userId) {
   // Connect to db
   await client.connect();
   db = client.db("TuneTables");
@@ -630,25 +631,182 @@ async function addRelationship(userId, friendId) {
   }
 
   try {
+    var exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
+
+    if (exists)
+    {
+      ret.results = [];
+      for (var i = 0; i < exists.relationships.length; i++)
+        if (exists.relationships[i].friend)
+          ret.results.push(exists.relationships[i].id);
+      
+      if (ret.results.length != 0)
+        ret.message = `${ret.results.length} friend(s) found.`;
+      else
+        ret.message = `No friends found.`
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region get user's blocked API endpoint 
+
+app.get('/users/:userId/blocked', (req, res) => {
+  (async () => {
+    var ret = await getBlocked(req.params.userId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function getBlocked(userId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
+
+    if (exists)
+    {
+      ret.results = [];
+      for (var i = 0; i < exists.relationships.length; i++)
+        if (exists.relationships[i].blocked)
+          ret.results.push(exists.relationships[i].id);
+      
+      if (ret.results.length != 0)
+        ret.message = `${ret.results.length} blocked user(s) found.`;
+      else
+        ret.message = `No blocked users found.`
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region add friend API endpoint
+
+app.post('/users/:userId/addFriend/:friendId', (req, res) => {
+  (async () => {
+    var ret = await addFriend(req.params.userId, req.params.friendId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function addFriend(userId, friendId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  // Object to be stored in a user's relationship array
+  var friend_object = {
+      id: friendId,
+      friend: true,
+      blocked: false  
+  }
+
+  try {
     var user    = await db.collection("users").findOne({ _id: ObjectId(userId) });
     var friend  = await db.collection("users").findOne({ _id: ObjectId(friendId) });
 
-    if (user)
+    if (user) // If user exists in db
     {
-      if (friend)
+      if (friend) // If friend exists in db
       {
         var duplicate = false;
+        var relationship_exists = false;
 
+        // Iterate to check if a relationship exists
         for (var i = 0; i < user.relationships.length; i++)
-          if (friendId == (user.relationships[i]))
-            duplicate = true;
+        {
+          // If relationship exists...
+          if (friendId == (user.relationships[i].id))
+          {
+            relationship_exists = true;
 
+            // If already a friend, we have a duplicate (no modification to db)
+            if (user.relationships[i].friend)
+              duplicate = true;
+            
+            break;
+          }
+        }
         if (!duplicate)
         {
-          await db.collection("users").updateOne(
-            user, 
-            {$push:{relationships: friendId}
-          });
+          // Add new object to array if relationship doesn't exist
+          if (!relationship_exists)
+          {
+            await db.collection("users").updateOne(
+              user, 
+              {$push:{relationships: friend_object}}
+            );
+          }
+          // Modify the existing object if relationship arleady exists
+          else
+          {
+            await db.collection("users").updateOne(
+              // Update all objects in relationships array that have an id of friendId
+              {_id: ObjectId(userId), "relationships.id": friendId},
+              // Set blocked field to true
+              {$set: {"relationships.$.friend": true}}
+            );
+          }
 
           ret.message = `Successfully added friend.`;
           ret.results = friendId;
@@ -680,11 +838,11 @@ async function addRelationship(userId, friendId) {
 
 //#endregion
 
-//#region Delete relationship API endpoint 
+//#region Delete Friend API endpoint 
 
-app.delete('/users/:userId/deleteRelationship/:friendId', (req, res) => {
+app.post('/users/:userId/unfriend/:friendId', (req, res) => {
   (async () => {
-    var ret = await deleteRelationship(req.params.userId, req.params.friendId);
+    var ret = await deleteFriend(req.params.userId, req.params.friendId);
 
     if(ret.success)
     {
@@ -698,7 +856,7 @@ app.delete('/users/:userId/deleteRelationship/:friendId', (req, res) => {
   })();
 });
 
-async function deleteRelationship(userId, friendId) {
+async function deleteFriend(userId, friendId) {
   // Connect to db
   await client.connect();
   db = client.db("TuneTables");
@@ -714,21 +872,44 @@ async function deleteRelationship(userId, friendId) {
     var user    = await db.collection("users").findOne({ _id: ObjectId(userId) });
     var friend  = await db.collection("users").findOne({ _id: ObjectId(friendId) });
 
-    if (user)
+    if (user) // If user exists in db
     {
-      if (friend)
+      if (friend) // If friend exists in db
       {
+        // Check if friend is in user's relationship array and is truly a friend
         var isFriend = false;
+        var isBlocked = false;
         for (var i = 0; i < user.relationships.length; i++)
-          if (friendId == user.relationships[i])
-            isFriend = true;
+        {
+          if (friendId == user.relationships[i].id)
+          {
+            if (user.relationships[i].friend)
+              isFriend = true;
+            if (user.relationships[i].blocked)
+              isBlocked = true;
+          }
+        }
 
         if (isFriend)
         {
-          await db.collection("users").updateOne(
-            user, 
-            {$pull:{relationships: friend._id}
-          });
+          // Preserve the blocked relationship
+          if (isBlocked)
+          {
+            await db.collection("users").updateOne(
+              // Update all objects in relationships array with an id of friendId
+              {_id: ObjectId(userId), "relationships.id": friendId},
+              // Set friend field to false
+              {$set: {"relationships.$.friend": false}}
+            );
+          }
+          // Delete the relationship entirely
+          else
+          {
+            await db.collection("users").updateOne(
+              user, 
+              {$pull: {"relationships": {id: friendId}}}
+            );
+          }
 
           ret.message = `Successfully deleted friend.`;
           ret.results = friendId;
@@ -736,6 +917,224 @@ async function deleteRelationship(userId, friendId) {
         else
         {
           ret.message = `User was not a friend.`;
+        }
+      }
+      else
+      {
+        ret.message = `No user found with id = ${userId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region block user API endpoint
+
+app.post('/users/:userId/block/:blockedId', (req, res) => {
+  (async () => {
+    var ret = await blockUser(req.params.userId, req.params.blockedId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function blockUser(userId, blockedId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  // Object to be stored in a user's relationship array
+  var blocked_object = {
+      id: blockedId,
+      friend: false,
+      blocked: true 
+  }
+
+  try {
+    var user        = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var blockedUser = await db.collection("users").findOne({ _id: ObjectId(blockedId) });
+
+    if (user) // If user exists in db
+    {
+      if (blockedUser) // If blocked user exists in db
+      {
+        var duplicate = false;
+        var relationship_exists = false;
+
+        // Iterate to check if a relationship exists
+        for (var i = 0; i < user.relationships.length; i++)
+        {
+          // If relationship exists...
+          if (blockedId == (user.relationships[i].id))
+          {
+            relationship_exists  = true;
+
+            // If already blocked, we have a duplicate (no modification to db)
+            if (user.relationships[i].blocked)
+              duplicate = true;
+
+            break;
+          }
+        }
+
+        if (!duplicate)
+        {
+          // Add new object to array if relationship doesn't exist
+          if (!relationship_exists)
+          {
+            await db.collection("users").updateOne(
+              user, 
+              {$push:{relationships: blocked_object}
+            });
+          }
+          // Modify the existing object if relationship already exists
+          else
+          {
+            await db.collection("users").updateOne(
+              // Update all objects in relationships array that have an id of blockedId
+              {_id: ObjectId(userId), "relationships.id": blockedId},
+              // Set blocked field to true
+              {$set: {"relationships.$.blocked": true}}
+            );
+          }
+
+          ret.message = `Successfully blocked user.`;
+          ret.results = blockedId;
+        }
+        else
+        {
+          ret.message = `User has already been blocked.`;
+        }
+      }
+      else
+      {
+        ret.message = `No user found with id = ${userId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region unblock user API endpoint 
+
+app.post('/users/:userId/unblock/:blockedId', (req, res) => {
+  (async () => {
+    var ret = await unblockUser(req.params.userId, req.params.blockedId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function unblockUser(userId, blockedId) {
+  // Connect to db
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user        = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var blockedUser = await db.collection("users").findOne({ _id: ObjectId(blockedId) });
+
+    if (user) // If user exists in db
+    {
+      if (blockedUser) // If blocked user exists in db
+      {
+        // Check if blocked user is in user's relationship array and is truly blocked
+        var isFriend = false;
+        var isBlocked = false;
+        for (var i = 0; i < user.relationships.length; i++)
+        {
+          if (blockedId == user.relationships[i].id)
+          {
+              if (user.relationships[i].blocked)
+                isBlocked = true;
+              if (user.relationships[i].friend)
+                isFriend = true;
+          }
+        }
+
+        if (isBlocked)
+        {
+          // Preserve the friend relationship
+          if (isFriend)
+          {
+            await db.collection("users").updateOne(
+              // Update all objects in relationships array that have an id of blockedId
+              {_id: ObjectId(userId), "relationships.id": blockedId},
+              // Set blocked field to false
+              {$set: {"relationships.$.blocked": false}}
+            );
+          }
+          // Delete the relationship entirely
+          else
+          {
+            await db.collection("users").updateOne(
+              user, 
+              {$pull: {"relationships": {id: blockedId}}}
+            );
+          }
+
+          ret.message = `Successfully unblocked user.`;
+          ret.results = blockedId;
+        }
+        else
+        {
+          ret.message = `User was not blocked.`;
         }
       }
       else
