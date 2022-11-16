@@ -11,7 +11,7 @@ import ProfilePage from "./views/profilePage";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App text-3xl font-bold underline">
       <BrowserRouter>
         <Routes>
           <Route path="/index" index element={<IndexPage/>} />
