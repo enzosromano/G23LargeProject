@@ -10,7 +10,12 @@ const bcrypt = require("bcryptjs");
 //porting
 const PORT = process.env.PORT || 5000;
 app.set('port', PORT);
-app.listen(PORT, () => console.log("Server is running..."));
+
+if (process.env.NODE_ENV !== 'test') { // this is to avoid jest complaining about unclosed listeners when running tests
+  app.listen(PORT, () => console.log("Server is running..."));
+};
+
+
 
 //exports
 module.exports = app;
