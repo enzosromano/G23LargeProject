@@ -8,7 +8,8 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
+        "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend",
+        "test": "jest --detectOpenHandles --forceExit"
     },
     "repository": {
         "type": "git",
@@ -36,6 +37,8 @@
         "path": "^0.12.7"
     },
     "devDependencies": {
+        "jest": "^29.3.1",
+        "supertest": "^6.3.1",
         "uglify-js": "^3.17.4"
     }
 }
