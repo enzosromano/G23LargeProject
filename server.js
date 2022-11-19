@@ -502,7 +502,7 @@ async function getAllUsers() {
     var ret = {
       success: false,
       message: "",
-      results: {}
+      results: {} // should be changed to [], or 
     }
   
     try {
