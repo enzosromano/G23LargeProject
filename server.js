@@ -1233,10 +1233,6 @@ async function addSong(songObject) {
 
 
     await db.collection("songs").insertOne({
-
-      //Temp, we need to remove this from the database...
-      songID: 1000000,
-
       title: songObject.title,
       artist: songObject.artist,
       album: songObject.album,
