@@ -6,7 +6,7 @@ function Login() {
     const app_name = "tunetable23"
     function buildPath(route) {
 
-        if (process.env.NODE_ENV == "production") { // TECH DEBT PROBLEM
+        if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
             return "https://" + app_name + ".herokuapp.com/" + route;
         }
         else {
@@ -34,11 +34,12 @@ function Login() {
                 setMessage(JSON.stringify(res));
             }
             else {
-                var user = { userID: res.results["userID"], email: res.results["email"], password: res.results["password"] };
+                var user = { userID: res.results["_id"], email: res.results["email"] };
                 localStorage.setItem('user_data', JSON.stringify(user));
+                console.log(JSON.stringify(user.userID));
 
                 setMessage(JSON.stringify(res.message));
-                window.location.href = '/home';
+                //window.location.href = '/home';
             }
         }
         catch (e) {
@@ -50,7 +51,7 @@ function Login() {
     return (
         <div className="login-container">
             <form onSubmit={handleSubmit}>
-                <span id="inner-title">PLEASE LOG IN</span><br />
+                <span id="inner-title">PLEASE LOG IN!</span><br />
                 <input type="text" id="email" placeholder="ianfrelix@yahoo.com" ref={(c) => email = c} /><br />
                 <input type="password" id="loginPassword" placeholder="Password" ref={(c) => password = c} /><br />
                 <input type="submit" id="loginButton" class="buttons" value="Log In" onClick={handleSubmit} />
