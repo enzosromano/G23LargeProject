@@ -502,32 +502,24 @@ async function getAllUsers() {
     var ret = {
       success: false,
       message: "",
-      results: {} // should be changed to [], or 
+      results: {}
     }
   
     try {
       var resultsCheck = [];
-      var results = [];
       resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
-      resultsCheck = results.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
 
-      //Remove duplicates as result of concatenation
-      const unique = resultsCheck.filter(element => {
-        const isDuplicate = results.includes(element.email);
-      
-        if (!isDuplicate) {
-          results.push(element);
-      
-          return true;
-        }
-      
-        return false;
-      });
+      //Remove duplicates
+      const results = Array.from(new Set(resultsCheck.map(a => a.email)))
+        .map(email => {
+          return resultsCheck.find(a => a.email === email)
+      })
   
       if (results.length != 0)
       {
         ret.message = `${results.length} user(s) found.`;
-        ret.results = results;
+        ret.results = results; 
       }
       else
       {
@@ -1355,10 +1347,17 @@ async function searchForSong(keyword) {
   }
 
   try {
-    var results = [];
-    results = await db.collection("songs").find({ title:keyword }).toArray();
-    results = results.concat(await db.collection("songs").find({ artist:keyword }).toArray());
-    results = results.concat(await db.collection("songs").find({ album:keyword }).toArray());
+
+    var resultsCheck = [];
+    resultsCheck = await db.collection("songs").find({'title': {'$regex': keyword},}).toArray();
+    resultsCheck = resultsCheck.concat(await db.collection("songs").find({'artist': {'$regex': keyword},}).toArray());
+    resultsCheck = resultsCheck.concat(await db.collection("songs").find({'album': {'$regex': keyword},}).toArray());
+
+    //Remove duplicates
+    const results = Array.from(new Set(resultsCheck.map(a => a.title)))
+    .map(title => {
+      return resultsCheck.find(a => a.title === title)
+    })
 
     if (results.length != 0)
     {
