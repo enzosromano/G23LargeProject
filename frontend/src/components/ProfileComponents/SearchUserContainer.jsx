@@ -38,8 +38,7 @@ function SearchUserContainer() {
                 setMessage(JSON.stringify(res));
             }
             else {
-                var user = { userID: res.results["_id"], firstName: res.results["firstName"], lastName: res.results["lastName"] };
-                console.log(user);
+                console.log(Object.keys(res))
 
                 setMessage(JSON.stringify(res.message));
                 
