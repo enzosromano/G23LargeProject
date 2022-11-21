@@ -1,0 +1,94 @@
+// Select the database
+use('TuneTables');
+
+// clear the old data from the collection
+db.posts.drop();
+
+//Add indexes for partial text search
+db.posts.createIndex({"title":"text", "artist":"text", "album":"text"});
+
+// inserting into Songs
+db.posts.insertMany([
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    {
+        "creator":      {"$oid":"636d4364f31e119ff6449b0a"},
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         {"$oid":"636d3a1c96426f1de1eedaa9"}, // Super Freak
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    
+]);
+
