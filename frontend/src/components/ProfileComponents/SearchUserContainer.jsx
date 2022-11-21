@@ -22,6 +22,11 @@ function SearchUserContainer() {
     const searchUserSubmit = async event => {
         event.preventDefault();
 
+        if("" === userToSearch.value || " " === userToSearch.value) {
+            setMessage("Please provide a valid name")
+            return
+        }
+
         
 
         try {
