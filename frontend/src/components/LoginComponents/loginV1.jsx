@@ -35,11 +35,12 @@ function Login() {
             }
             else {
                 var user = { userID: res.results["_id"], email: res.results["email"] };
-                localStorage.setItem('user_data', JSON.stringify(user));
+                localStorage.setItem('userID', JSON.stringify(user.userID));
+                localStorage.setItem('email', JSON.stringify(user.email));
                 console.log(JSON.stringify(user.userID));
 
                 setMessage(JSON.stringify(res.message));
-                //window.location.href = '/home';
+                window.location.href = '/home';
             }
         }
         catch (e) {
