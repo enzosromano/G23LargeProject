@@ -1377,6 +1377,91 @@ async function searchForSong(keyword) {
 
 //#endregion
 
+//#region Create post endpoint
+
+app.post('/posts', (req, res) => {
+
+  const { message, song } = req.body;
+  var post = req.body;
+
+  //error handling for user input
+  const fields = [];
+  if (!message) {
+    fields.push("message");
+  } 
+  if (!song) 
+  {
+    fields.push("song");
+  } 
+
+  if(fields.length != 0){
+    
+    var error = "Missing required field(s): ";
+    error = error + fields[0];
+    for(let i = 1; i < fields.length; i++){
+      error = error + ", " + fields[i];
+    }
+    
+    return res.status(400).json(error);
+
+  }
+
+  (async () => {
+    var ret = await createPost(post);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function createPost(postObject) {
+
+  var ret = {
+    "success": false,
+    "message": "",
+    "results": {}
+  }
+
+  // establish db connection
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+
+  try {
+
+    let postId = await db.collection("posts").insertOne({
+      creator: ObjectId('637a4f28c782a02d5734bc9c'),
+      message: postObject.message,
+      song: postObject.song,
+      likes: 0,
+      updatedAt: Date.now()
+    });
+
+    var song = await db.collection("posts").findOne({ _id: postId.insertedId });
+
+    ret.success = true;
+    ret.message = "Successfully created post.";
+    ret.results = song;
+
+  }
+  catch {
+    ret.message = "Error occurred while creating post.";
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //Leave this at the bottom, it ovverides other get requests
 app.get('*', function(req, res) {
   res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'), function(err) {
