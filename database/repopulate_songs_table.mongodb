@@ -20,7 +20,7 @@ db.songs.insertMany([
         'likes' : 0
     },
     { // 2
-        'title':  '(I Can\'t Get No) Satisfaction', 
+        'title':  "(I Can't Get No) Satisfaction", 
         'artist': 'The Rolling Stones', 
         'album':  'N/A', 
         'url':    'https://open.spotify.com/track/2PzU4IB8Dr6mxV3lHuaG34?si=f17ede3fd0de40cd', 
