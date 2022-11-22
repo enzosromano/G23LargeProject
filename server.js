@@ -7,6 +7,11 @@ const logger = require("morgan");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const e = require("express");
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken")
+
+//getting env config
+dotenv.config();
 
 //porting
 const PORT = process.env.PORT || 5000;
@@ -49,7 +54,7 @@ const url = process.env.MONGODB_URL;
 const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 client.connect();
-//
+
 
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
@@ -66,6 +71,31 @@ function omit(obj, omitKey) {
     return result;
 
   }, {});
+}
+
+
+function createToken(username, password) {
+  //Create Json Web Token for user authentication  
+  let token;
+
+  try {
+    token = jwt.sign({username: username, password: password}, process.env.TOKEN_SECRET, {expiresIn: '3600s'});
+  }
+  catch (error) {
+    console.log(error);
+    return(error); 
+  }
+}
+
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization.split(' ')[1];
+
+  if(!token) return res.status(401);
+
+  req = jwt.verify(token, string(process.env.TOKEN_SECRET));
+
+  next();
+
 }
 
 //#endregion 
