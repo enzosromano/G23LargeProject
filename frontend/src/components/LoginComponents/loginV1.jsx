@@ -14,7 +14,7 @@ function Login() {
         }
     }
 
-    var email;
+    var username;
     var password;
 
     const [message, setMessage] = useState("");
@@ -22,7 +22,7 @@ function Login() {
     const handleSubmit = async event => {
         event.preventDefault();
 
-        var obj = { email: email.value, password: password.value };
+        var obj = { username: username.value, password: password.value };
         var js = JSON.stringify(obj);
 
         try {
@@ -53,7 +53,7 @@ function Login() {
         <div className="login-container">
             <form onSubmit={handleSubmit}>
                 <span id="inner-title">PLEASE LOG IN!</span><br />
-                <input type="text" id="email" placeholder="ianfrelix@yahoo.com" ref={(c) => email = c} /><br />
+                <input type="text" id="username" placeholder="Username" ref={(c) => username = c} /><br />
                 <input type="password" id="loginPassword" placeholder="Password" ref={(c) => password = c} /><br />
                 <input type="submit" id="loginButton" class="buttons" value="Log In" onClick={handleSubmit} />
             </form>
