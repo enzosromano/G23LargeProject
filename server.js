@@ -188,10 +188,10 @@ async function addUser(email, username, password, firstName, lastName) {
 
 app.post("/users/auth", (req, res) => {
 
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   (async () => {
-    var ret = await loginAndValidate(email, password);
+    var ret = await loginAndValidate(username, password);
 
     if(ret.success)
     {
@@ -206,7 +206,7 @@ app.post("/users/auth", (req, res) => {
 
 });
 
-async function loginAndValidate(userEmail, password) {
+async function loginAndValidate(userName, password) {
   // Connect to db and get user
   await client.connect();
   db = client.db("TuneTables");
@@ -218,7 +218,7 @@ async function loginAndValidate(userEmail, password) {
   }
 
   try {
-    var user = await db.collection("users").findOne({ email: userEmail });
+    var user = await db.collection("users").findOne({ username: userName });
 
     pass = String(user.password);
 
@@ -230,10 +230,10 @@ async function loginAndValidate(userEmail, password) {
       ret.results = omit(user, 'password');
       ret.message = "Successfully logged in user"
     } else {
-      ret.message = "Invalid email or password.";
+      ret.message = "Invalid username or password.";
     }
   } catch {
-    ret.message = "Invalid email or password";
+    ret.message = "Invalid username or password";
   }
 
   await client.close();
