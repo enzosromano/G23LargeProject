@@ -89,20 +89,23 @@ function createToken(username, password) {
   return token;
 }
 
-function authenticateToken(req, res, next) {
+function authenticateToken(req, res) {
   const token = req.headers.authorization.split(' ')[1];
 
   if(!token) return res.status(401);
 
-  req = jwt.verify(token, string(process.env.TOKEN_SECRET));
-
-  next();
-
+  try{
+    jwt.verify(token, process.env.TOKEN_SECRET);
+    return 1; 
+  }
+  catch (err) {
+    return 0;
+  }
 }
 
 //#endregion 
 
-//testing
+//JWT Testing and reference code
 app.post("/createToken", (req, res, next) => {
   const {username, password}  = req.body;
 
@@ -124,6 +127,25 @@ app.post("/createToken", (req, res, next) => {
   return res.status(200).json(ret);
 
 });
+
+app.post("/testToken", (req, res) => {
+  
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "No Idea"});
+
+  var ret = {
+    success: true,
+    message: "",
+    results: {
+      username: req.body.username,
+      password: req.body.password
+    }
+  }
+
+  return res.status(200).json(ret);
+});
+
 
 //#region Create/Register User API Endpoint
 
