@@ -85,6 +85,8 @@ function createToken(username, password) {
     console.log(error);
     return(error); 
   }
+
+  return token;
 }
 
 function authenticateToken(req, res, next) {
@@ -99,6 +101,29 @@ function authenticateToken(req, res, next) {
 }
 
 //#endregion 
+
+//testing
+app.post("/createToken", (req, res, next) => {
+  const {username, password}  = req.body;
+
+  if(username != username || password != password){
+    res.status(400);
+  }
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  const token = createToken(username, password);
+
+  ret.success = true;
+  ret.results = {username: username, password: password, token: token};
+
+  return res.status(200).json(ret);
+
+});
 
 //#region Create/Register User API Endpoint
 
