@@ -7,6 +7,11 @@ const logger = require("morgan");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const e = require("express");
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken")
+
+//getting env config
+dotenv.config();
 
 //porting
 const PORT = process.env.PORT || 5000;
@@ -49,7 +54,7 @@ const url = process.env.MONGODB_URL;
 const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 client.connect();
-//
+
 
 // build heroku app from frontend
 app.use(express.static('frontend/build'));
@@ -68,7 +73,79 @@ function omit(obj, omitKey) {
   }, {});
 }
 
+
+function createToken(username, password) {
+  //Create Json Web Token for user authentication  
+  let token;
+
+  try {
+    token = jwt.sign({username: username, password: password}, process.env.TOKEN_SECRET, {expiresIn: '3600s'});
+  }
+  catch (error) {
+    console.log(error);
+    return(error); 
+  }
+
+  return token;
+}
+
+function authenticateToken(req, res) {
+  const token = req.headers.authorization.split(' ')[1];
+
+  if(!token) return res.status(401);
+
+  try{
+    jwt.verify(token, process.env.TOKEN_SECRET);
+    return 1; 
+  }
+  catch (err) {
+    return 0;
+  }
+}
+
 //#endregion 
+
+//JWT Testing and reference code
+app.post("/createToken", (req, res, next) => {
+  const {username, password}  = req.body;
+
+  if(username != username || password != password){
+    res.status(400);
+  }
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  const token = createToken(username, password);
+
+  ret.success = true;
+  ret.results = {username: username, password: password, token: token};
+
+  return res.status(200).json(ret);
+
+});
+
+app.post("/testToken", (req, res) => {
+  
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "No Idea"});
+
+  var ret = {
+    success: true,
+    message: "",
+    results: {
+      username: req.body.username,
+      password: req.body.password
+    }
+  }
+
+  return res.status(200).json(ret);
+});
+
 
 //#region Create/Register User API Endpoint
 
