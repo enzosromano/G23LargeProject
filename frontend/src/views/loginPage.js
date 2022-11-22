@@ -7,7 +7,9 @@ const LoginPage = () => {
     return (
         <div>
             <Login />
-            <button onClick={() => window.location.href = "/register"}>Don't have an Account? Register Here!</button>
+            
+            
+            
         </div>
     )
 }
