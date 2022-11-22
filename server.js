@@ -244,9 +244,11 @@ async function addUser(email, username, password, firstName, lastName) {
       ret.results = omit(user, 'password');
 
     } 
-    catch 
+    catch (e)
     {
-      ret.message = "Error occurred while adding user";
+      // ret.message = "Error occurred while adding user";
+      console.log(e);
+      ret.message = e;
     }
   }
   else
@@ -309,8 +311,10 @@ async function loginAndValidate(userName, password) {
     } else {
       ret.message = "Invalid username or password.";
     }
-  } catch {
-    ret.message = "Invalid username or password";
+  } catch (e) {
+    // ret.message = "Invalid username or password";
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -370,8 +374,10 @@ async function passwordReset(userId, newPassword) {
     ret.message = "Your password has been reset.";
     ret.results = omit(user, 'password');
     
-  } catch {
-    ret.message = "We were unable to reset the user's password.";
+  } catch (e) {
+    // ret.message = "We were unable to reset the user's password.";
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -740,6 +746,192 @@ async function getFriends(userId) {
 
 //#endregion
 
+//#region search user's friends based on keyword API endpoint
+
+app.get("/users/:userId/searchFriends/:keyword", (req, res) => {
+  (async () => {
+    var ret = await searchForFriends(req.params.userId, req.params.keyword);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+  })();
+});
+
+async function searchForFriends(userId, keyword) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+  var resultsCheck = [];
+  var personId;
+
+  try {
+    if (user) // If user exists in db
+    {
+      // Find all users that have [keyword] for at least one of their attributes/fields
+      var resultsCheck = [];
+      resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'firstName': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'lastName': {'$regex': keyword},}).toArray());
+
+      if (resultsCheck.length != 0)
+      {
+        //Remove duplicates
+        const results = Array.from(new Set(resultsCheck.map(a => a.email)))
+        .map(email => {
+          return resultsCheck.find(a => a.email === email)
+        })
+
+        // Iterate over each user in results array to check whether they are a friend.
+        // If friend, add to ret.results
+        ret.results = [];
+        for (var i = 0; i < results.length; i++)
+        {
+          personId = (results[i]._id).toString();
+          for (var j = 0; j < user.relationships.length; j++)
+          {
+            if (personId == user.relationships[j].id && user.relationships[j].friend)
+            {
+              delete results[i].password;
+              ret.results.push(results[i]);
+            }
+          }
+        }
+
+        ret.message = `${ret.results.length} friend(s) found with keyword = ${keyword}`;
+      }
+      else
+      {
+        ret.message = `${ret.results.length} friend(s) found with keyword = ${keyword}`;
+        ret.results = 2;
+      } 
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+      ret.results = 3;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region search user's blocked list based on keyword API endpoint
+
+app.get("/users/:userId/searchBlocked/:keyword", (req, res) => {
+  (async () => {
+    var ret = await searchForBlocked(req.params.userId, req.params.keyword);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+  })();
+});
+
+async function searchForBlocked(userId, keyword) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+  var resultsCheck = [];
+  var personId;
+
+  try {
+    if (user) // If user exists in db
+    {
+      // Find all users that have [keyword] for at least one of their attributes/fields
+      var resultsCheck = [];
+      resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'firstName': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'lastName': {'$regex': keyword},}).toArray());
+
+      if (resultsCheck.length != 0)
+      {
+        //Remove duplicates
+        const results = Array.from(new Set(resultsCheck.map(a => a.email)))
+        .map(email => {
+          return resultsCheck.find(a => a.email === email)
+        })
+
+        // Iterate over each user in results array to check whether they are blocked.
+        // If blocked, add to ret.results
+        ret.results = [];
+        for (var i = 0; i < results.length; i++)
+        {
+          personId = (results[i]._id).toString();
+          for (var j = 0; j < user.relationships.length; j++)
+          {
+            if (personId == user.relationships[j].id && user.relationships[j].blocked)
+            {
+              delete results[i].password;
+              ret.results.push(results[i]);
+            }
+          }
+        }
+
+        ret.message = `${ret.results.length} blocked user(s) found with keyword = ${keyword}`;
+      }
+      else
+      {
+        ret.message = `${ret.results.length} blocked user(s) found with keyword = ${keyword}`;
+        ret.results = 2;
+      } 
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+      ret.results = 3;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region get user's blocked API endpoint 
 
 app.get('/users/:userId/blocked', (req, res) => {
@@ -1079,10 +1271,11 @@ async function blockUser(userId, blockedId) {
     {
       if (blockedUser) // If blocked user exists in db
       {
+        // If any of these variables are true, no blocking occurs
         var isFriend = false;
         var isBlocked = false;
 
-        // Iterate to check if a relationship exists
+        // Iterate to check if a relationship already exists between user and blockedUser
         for (var i = 0; i < user.relationships.length; i++)
         {
           // If relationship exists...
@@ -1124,6 +1317,22 @@ async function blockUser(userId, blockedId) {
 
             ret.message = `Successfully unfriended user and blocked user.`;
             ret.results = 1;
+          }
+
+          // Remove user from blockedUser's relationship array.
+          // Iterate to check if a relationship exists in blockedUser's relationship array
+          for (var i = 0; i < blockedUser.relationships.length; i++)
+          {
+            // If relationship exists and user is a friend of blockedUser, delete the relationship
+            if (userId == (blockedUser.relationships[i].id) && blockedUser.relationships[i].friend)
+            {
+              await db.collection("users").updateOne(
+                blockedUser, 
+                {$pull: {"relationships": {id: userId}}}
+              );              
+
+              break;
+            }
           }
         }
         else
