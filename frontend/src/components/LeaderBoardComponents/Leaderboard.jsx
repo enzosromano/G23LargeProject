@@ -1,9 +1,10 @@
-import TopBar from "../TopBar";
+import TopBarLeaderboard from "./TopBarLeaderboard";
+
 
 const Leaderboard = () => {
     return (
         <div className="flex flex-col m-0 h-full w-full overflow-hidden">
-            <TopBar text = "this week's leaderboard."/>
+            <TopBarLeaderboard text = "THIS WEEK'S LEADERBOARD."/>
             
             <div className="flex flex-col h-screen bg-brown-500 ml-32">
                 <LeaderboardEntry username="samu_420" pfp="21"/>
