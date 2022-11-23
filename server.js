@@ -1343,7 +1343,7 @@ async function blockUser(userId, blockedId) {
       }
       else
       {
-        ret.message = `No user found with id = ${friendId}`;
+        ret.message = `No user found with id = ${blockedId}`;
         ret.results = 3;
       }
     }
@@ -1432,7 +1432,7 @@ async function unblockUser(userId, blockedId) {
       }
       else
       {
-        ret.message = `No user found with id = ${friendId}`;
+        ret.message = `No user found with id = ${blockedId}`;
         ret.results = 2;
       }
     }
@@ -1921,20 +1921,20 @@ async function getFriendPosts(userId) {
           results = results.concat(friendPosts);
         }
       }
+
+      if (results.length != 0)
+      {
+        ret.results = results;
+        ret.message = `${results.length} post(s) found.`;
+      }
+      else
+      {
+        ret.message = `No posts found.`;
+      }
     }
     else
     {
       ret.message = `No user found with id = ${userId}`;
-    }
-
-    if (results.length != 0)
-    {
-      ret.results = results;
-      ret.message = `${results.length} post(s) found.`;
-    }
-    else
-    {
-      ret.message = `No posts found.`;
     }
     ret.success = true;
 
