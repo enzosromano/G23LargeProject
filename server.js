@@ -8,10 +8,14 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const e = require("express");
 const dotenv = require("dotenv");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const sendgrid = require("@sendgrid/mail");
 
 //getting env config
 dotenv.config();
+
+//setting up sendgrid api key
+sendgrid.setApiKey(process.env.SENDGRID_KEY);
 
 //porting
 const PORT = process.env.PORT || 5000;
@@ -103,6 +107,24 @@ function authenticateToken(req, res) {
   }
 }
 
+function sendVerificationEmail(email) {
+  const msg = {
+    to: email, // Change to your recipient
+    from: 'gab.01@hotmail.com', // Change to your verified sender
+    subject: 'Tune Table Verification Email',
+    text: 'Tune Table Verification',
+    html: '<strong>Click here to verify your email with Tune Table</strong>',
+  };
+
+  sendgrid
+    .send(msg)
+    .then(() => {
+      console.log('Email sent')
+    })
+    .catch((error) => {
+      console.error(error)
+    });
+}
 //#endregion 
 
 //JWT Testing and reference code
