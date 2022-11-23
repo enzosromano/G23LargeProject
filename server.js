@@ -1760,6 +1760,63 @@ async function createPost(postObject) {
 
 //#endregion
 
+//#region Delete post API endpoint
+
+app.delete("/posts/postId", (req, res) => {
+  (async () => {
+    var ret = await deletePost(req.params.postId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret.message);
+    }
+
+  })();
+});
+
+async function deletePost(postId) {
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    post = await db.collection("posts").findOne({ _id: ObjectId(postId) });
+    
+    if (post) // if post exists in db
+    {
+      // Delete post
+      await db.collection("posts").deleteOne({ _id: ObjectId(postId) });
+      ret.message = "Successfully deleted post.";
+      ret.results = 0;
+    }
+    else
+    {
+      ret.message = "Post does not exist.";
+      ret.results = 1;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Display all posts API endpoint
 
 app.get('/posts', (req, res) => {
