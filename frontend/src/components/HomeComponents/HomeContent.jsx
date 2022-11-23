@@ -1,10 +1,10 @@
-import TopBar from "../TopBar";
+import TopBarHome from "./TopBarHome"
 
 const HomeContent = () => {
     return (
         <div className="music-container">
             
-            <TopBar text = "songs of the week."/>
+            <TopBarHome text = "PROVIDE A SONG TO VOTE!"/>
             <div className="music-table">
                 <br/>
                 <div className="ml-32">
