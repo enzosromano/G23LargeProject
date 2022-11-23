@@ -1,10 +1,14 @@
 import React from "react";
+import SearchSongContainer from "../components/HomeComponents/SearchSongContainer";
 
-export const HomePage = (props) => {
+const HomePage = () => {
 
     return (
         <div>
-            <h1> Login Successful!</h1>
+            <button onClick={() => window.location.href = "/profile"}>Go to your Profile Page!</button>
+            < SearchSongContainer />
         </div>
     )
 }
+
+export default HomePage;

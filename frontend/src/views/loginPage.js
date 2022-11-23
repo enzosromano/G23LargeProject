@@ -1,14 +1,18 @@
 import React from "react";
 
-import  Login  from "../components/loginV1";
+import  Login  from "../components/LoginComponents/loginV1";
 
-export const LoginPage = (props) => {
+const LoginPage = () => {
 
     return (
+        // <div>
+        //     <Login />
+        //     <button onClick={() => window.location.href = "/register"}>Don't have an Account? Register Here!</button>
+        // </div>
         <div>
             <Login />
-            <button onClick={() => props.onFormSwitch("registerPage")}>Don't have an Account? Register Here!</button>
         </div>
     )
 }
 
+export default LoginPage;

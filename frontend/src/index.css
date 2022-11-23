@@ -1,13 +1,63 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	
+    /* Side Bar Styling */
+	.sidebar-icon {
+    	@apply relative flex items-center justify-center h-24 w-24 mt-6 mb-6 mx-auto
+				shadow-lg bg-brown-500 text-brown-600 hover:bg-brown-600 hover:text-white 
+				rounded-3xl hover:rounded-xl 
+				transition-all duration-300 ease-linear cursor-pointer;
+	}   
+	.sidebar-help {
+    	@apply absolute w-auto p-2 m-14 min-w-max left-16
+				rounded-md shadow-md text-white bg-gray-900 text-xs font-bold
+				transition-all duration-75 scale-0 origin-left;
+	}
+    
+    /* Top Bar Styling */
+    .top-bar {
+        @apply flex flex-row items-center w-screen h-16
+                bg-brown-500 bg-opacity-90 shadow-2xl;
+        
+    }
+    .top-bar-icon {
+        @apply mr-3 ml-4
+             text-brown-600 font-semibold
+             transition duration-300 ease-in-out hover:text-amber-900 cursor-pointer;
+    }
+    .top-text {
+        @apply text-xl text-white tracking-wider font-semibold text-opacity-80 mr-8 ml-8 my-auto
+                transition duration-300 ease-in-out;   
+    }
+    .search {
+        @apply w-1/5 flex items-center justify-start pl-2 pr-4 h-9 ml-0 mr-8    fixed top-4 right-0
+                bg-brown-400 text-white
+                rounded-md shadow-md
+                transition duration-300 ease-in-out;
+    }
+    .search-input {
+        @apply w-full pl-1
+                font-sans font-semibold bg-transparent outline-none
+                text-gray-500  placeholder-gray-500 rounded;
+    }
+    
+    
+    .music-container {
+        @apply flex flex-col m-0 h-full w-full overflow-hidden ;
+    }
+    .music-table {
+        @apply h-screen bg-brown-500;
+    }
+    
+    .text-field {
+        @apply text-white relative bg-brown-500 p-1 focus:outline-none;
+    }
+    
 }

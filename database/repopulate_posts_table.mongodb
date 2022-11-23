@@ -1,0 +1,98 @@
+// Select the database
+use('TuneTables');
+
+var user = db.users.findOne({username: "Ewool"})._id; // get a user's id
+var ids = db.songs.find({}).toArray(); // get all objects in the songs array
+// print(user);
+
+// clear the old data from the collection
+db.posts.drop();
+
+//Add indexes for partial text search
+db.posts.createIndex({"username":"text", "updatedAt": 1});
+
+// inserting into Songs
+db.posts.insertMany([
+    { // 1
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "I really wish I had had some more of this...",
+        "song":         ids[0]._id, // Respect
+        "likes":        10,
+        "updatedAt":    112022
+    },
+    { // 2
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "You and me both, brothers.",
+        "song":         ids[1]._id, // (I Can't Get No) Satisfaction
+        "likes":        7,
+        "updatedAt":    112022
+    },
+    { // 3
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "Go Johnny, go!!",
+        "song":         ids[2]._id, // Johnny B. Goode
+        "likes":        12,
+        "updatedAt":    112022
+    },
+    { // 4
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "I'm not making a german joke, sorry.",
+        "song":         ids[3]._id, // Blitzkrieg Bop
+        "likes":        1,
+        "updatedAt":    112022
+    },
+    { // 5
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "This is an interesting sobriety test for sure!",
+        "song":         ids[4]._id, // I Walk the Line
+        "likes":        13,
+        "updatedAt":    112022
+    },
+    { // 6
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "Hey Jude, could you turn the light off when you get up?",
+        "song":         ids[5]._id, // Hey Jude
+        "likes":        3,
+        "updatedAt":    112022
+    },
+    { // 7
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "Rick james definitely knew how to pick 'em!",
+        "song":         ids[6]._id, // Super Freak
+        "likes":        69,
+        "updatedAt":    112022
+    },
+    { // 8
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "Sometimes, I feel like I'm stuck in this groove :/ The song's good, though",
+        "song":         ids[7]._id, // Into The Groove
+        "likes":        25,
+        "updatedAt":    112022
+    },
+    { // 9
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "Dreaming of those sweet $120k+ SWE jobs.. One day!!",
+        "song":         ids[8]._id, // Dream On
+        "likes":        9,
+        "updatedAt":    112022
+    },
+    { // 10
+        "creator":      user,
+        "username":     "Ewool",
+        "message":      "Only 17? In this economy?!",
+        "song":         ids[9]._id, // Dancing Queen
+        "likes":        17,
+        "updatedAt":    112022
+    },
+    
+]);
+

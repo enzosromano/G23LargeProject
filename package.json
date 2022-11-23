@@ -8,7 +8,8 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
+        "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend",
+        "test": "jest --detectOpenHandles --forceExit"
     },
     "repository": {
         "type": "git",
@@ -24,17 +25,22 @@
     },
     "homepage": "https://github.com/enzosromano/G23LargeProject#readme",
     "dependencies": {
+        "bcryptjs": "^2.4.3",
         "body-parser": "^1.20.1",
         "build": "^0.1.4",
         "chalk": "^4.1.2",
         "cors": "^2.8.5",
         "dotenv": "^16.0.3",
+        "escalade": "^3.1.1",
         "express": "^4.18.2",
+        "jsonwebtoken": "^8.5.1",
         "mongodb": "4.11",
         "morgan": "^1.10.0",
         "path": "^0.12.7"
     },
     "devDependencies": {
+        "jest": "^29.3.1",
+        "supertest": "^6.3.1",
         "uglify-js": "^3.17.4"
     }
 }
