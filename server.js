@@ -197,7 +197,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -278,7 +278,7 @@ app.post("/users/auth", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -376,7 +376,7 @@ async function passwordReset(userId, newPassword) {
     
   } catch (e) {
     // ret.message = "We were unable to reset the user's password.";
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -443,7 +443,7 @@ async function emailReset(userId, newEmail) {
     ret.message = "Sucessfully changed email address";
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -511,7 +511,7 @@ async function deleteUser(userId) {
     ret.message = "Deleted user.";
     ret.results = userId;
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -541,7 +541,7 @@ app.get('/users', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -594,7 +594,7 @@ async function getAllUsers() {
       }
       else
       {
-        res.status(400).json(ret.message);
+        res.status(400).json(ret);
       }
     })();
   });
@@ -694,7 +694,7 @@ async function getRelationships(userId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -768,7 +768,7 @@ async function getFriends(userId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -860,7 +860,7 @@ async function searchForFriends(userId, keyword) {
       }
       else
       {
-        ret.message = `${ret.results.length} friend(s) found with keyword = ${keyword}`;
+        ret.message = `0 friend(s) found with keyword = ${keyword}`;
         ret.results = 2;
       } 
     }
@@ -872,7 +872,7 @@ async function searchForFriends(userId, keyword) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -964,7 +964,7 @@ async function searchForBlocked(userId, keyword) {
       }
       else
       {
-        ret.message = `${ret.results.length} blocked user(s) found with keyword = ${keyword}`;
+        ret.message = `0 blocked user(s) found with keyword = ${keyword}`;
         ret.results = 2;
       } 
     }
@@ -976,7 +976,7 @@ async function searchForBlocked(userId, keyword) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -1050,7 +1050,7 @@ async function getBlocked(userId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -1200,8 +1200,8 @@ async function addFriend(userId, friendId) {
     var check1;
     var check2;
   
-    check1 = await checkId(userId);
-    check2 = await checkId(friendId);
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(friendId, "user");
     if (check1.results == 9 || check1.results == 10)
     {
       ret = check1;
@@ -1307,8 +1307,8 @@ async function deleteFriend(userId, friendId) {
     var check1;
     var check2;
   
-    check1 = await checkId(userId);
-    check2 = await checkId(friendId);
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(friendId, "user");
     if (check1.results == 9 || check1.results == 10)
     {
       ret = check1;
@@ -1464,8 +1464,8 @@ async function blockUser(userId, blockedId) {
     var check1;
     var check2;
   
-    check1 = await checkId(userId);
-    check2 = await checkId(blockedId);
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(blockedId, "user");
     if (check1.results == 9 || check1.results == 10)
     {
       ret = check1;
@@ -1571,8 +1571,8 @@ async function unblockUser(userId, blockedId) {
     var check1;
     var check2;
   
-    check1 = await checkId(userId);
-    check2 = await checkId(blockedId);
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(blockedId, "user");
     if (check1.results == 9 || check1.results == 10)
     {
       ret = check1;
@@ -1650,7 +1650,7 @@ app.post("/songs", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1712,7 +1712,7 @@ app.get('/songs', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 
@@ -1767,7 +1767,7 @@ app.get('/songs/search/:keyword', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -1855,7 +1855,7 @@ app.post('/posts', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1949,7 +1949,7 @@ async function deletePost(postId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(postId);
+    var check = await checkId(postId, "post");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -2064,7 +2064,7 @@ async function getUserPosts(userId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "user post");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -2154,7 +2154,7 @@ async function getFriendPosts(userId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId);
+    var check = await checkId(userId, "friend post");
     if (check.results == 9 || check.results == 10)
     {
       ret = check;
@@ -2177,8 +2177,8 @@ async function getFriendPosts(userId) {
 // ret.results = 8: Length of ID is valid and all characters are hex
 // ret.results = 9: Length of ID is invalid
 // ret.results = 10: A character is not hex (i.e., not within 0x0 - 0xF)
-async function checkId(Id) {
-  var input = Id.toString();
+async function checkId(id, idName) {
+  var input = id.toString();
 
   var ret = {
     success: false,
@@ -2186,12 +2186,16 @@ async function checkId(Id) {
     results: 8
   }
 
+  // Check if id length is valid
   if (input.length != 24)
   {
-    ret.message = `Invalid input string length (expected: 24; received: ${input.length})`;
+    ret.success = true;
+    ret.message = `No ${idName} found with id = ${id}.
+      \nCause: invalid input string length (expected: 24; received: ${input.length})`;
     ret.results = 9;
     return ret;
   }
+  // Check if all characters in id are hex values
   else
   {
     var char1, char2;
@@ -2214,7 +2218,9 @@ async function checkId(Id) {
       }
       else
       {
-        ret.message = `Invalid input string. (expected: hex value from 0x0 - 0xF; received: input.charAt(${i}) = ${(input.charAt(i)).toLowerCase()}`;
+        ret.success = true;
+        ret.message = `No ${idName} found with id = ${id}.
+          \nCause: invalid input string value (expected: hex value from 0x0 - 0xF; received: id.charAt(${i}) = ${(input.charAt(i)).toLowerCase()}`;
         ret.results = 10;
         return ret;
       }
