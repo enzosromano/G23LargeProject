@@ -7,7 +7,7 @@ const url = process.env.MONGODB_URL;
 
 const {MongoClient} = require('mongodb');
 
-describe('Get Friends Test Suite', () => {
+describe('Search Friends Test Suite', () => {
     let connection;
     let db;
 
@@ -90,13 +90,13 @@ describe('Get Friends Test Suite', () => {
         let users = await db.collection('users');
         let azenn = await users.findOne({ username: 'Azenn'});
         let id = azenn._id.toString();
-        let query = '/users/'+ id + '/friends';
+        let query = '/users/'+ id + '/searchFriends/' + 'a';
 
         const response = await request(server).get(query);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
-        expect(response.body.message).toEqual('No friends found.');
+        expect(response.body.message).toEqual(expect.stringContaining('0 friend(s) found with keyword'));
         expect(response.body.results).toEqual([]);
 
     });
@@ -104,13 +104,13 @@ describe('Get Friends Test Suite', () => {
     it('User does not exist', async() => {
 
         let id = '12345';
-        let query = '/users/'+ id + '/friends';
+        let query = '/users/'+ id + '/searchFriends/' + 'a';
 
         const response = await request(server).get(query);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
-        expect(response.body.message).toEqual('No user found with id = ' + id);
+        expect(response.body.message).toEqual(expect.stringContaining('No user found with id'));
         expect(response.body.results).toEqual([]);
 
     });
