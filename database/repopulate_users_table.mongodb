@@ -155,7 +155,35 @@ db.users.insertMany([
     }
 ]);
 
-var id = db.users.findOne({username: "Ewool"})._id;
-var fid = db.users.findOne({username: "Azenn"})._id;
+var id = db.users.findOne({username: "Ewool"})._id; // user
 
-db.users.updateOne({ _id: id}, {$set: {relationships: [{id: fid, friend: true, blocked: false}]}});
+var fid1 = db.users.findOne({username: "Azenn"})._id; // friends
+var fid2 = db.users.findOne({username: "Dwarr"})._id;
+
+var bid1 = db.users.findOne({username: "Hster"})._id; // blocked
+var bid2 = db.users.findOne({username: "Mnees"})._id;
+
+db.users.updateOne({ _id: id}, {$set: {
+    relationships: [
+        { // username: "Azenn", friended
+            id: fid1, 
+            friend: true, 
+            blocked: false
+        },
+        { // username: "Dwarr", friended
+            id: fid2, 
+            friend: true, 
+            blocked: false
+        },
+        { // username: "Hster", blocked
+            id: bid1, 
+            friend: false, 
+            blocked: true
+        },
+        { // username: "Mnees", blocked
+            id: bid2, 
+            friend: false, 
+            blocked: true
+        }
+    ]
+}});
