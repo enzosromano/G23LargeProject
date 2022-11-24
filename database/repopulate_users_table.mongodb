@@ -155,4 +155,7 @@ db.users.insertMany([
     }
 ]);
 
+var id = db.users.findOne({username: "Ewool"})._id;
+var fid = db.users.findOne({username: "Azenn"})._id;
 
+db.users.updateOne({ _id: id}, {$set: {relationships: [{id: fid, friend: true, blocked: false}]}});
