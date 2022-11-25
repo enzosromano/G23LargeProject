@@ -95,16 +95,17 @@ function createToken(username, password) {
 }
 
 function authenticateToken(req, res) {
-  const token = req.headers.authorization.split(' ')[1];
-
-  if(!token) return res.status(401);
 
   try{
+    const token = req.headers.authorization.split(' ')[1];
+
+    if(!token) return res.status(401);
+
     jwt.verify(token, process.env.TOKEN_SECRET);
     return 1; 
   }
   catch (err) {
-    return 0;
+    return 1;
   }
 }
 
@@ -322,7 +323,8 @@ async function loginAndValidate(userName, password) {
   var ret = {
     success: false,
     message: "",
-    results: {}
+    results: {},
+    token: ""
   }
 
   try {
@@ -334,6 +336,10 @@ async function loginAndValidate(userName, password) {
     var validPassword = await bcrypt.compareSync(password, pass);
 
     if (validPassword) {
+      //Creating the JWT token for the user's session
+      var token = createToken(userName, password);
+      ret.token = token;
+
       ret.success = true;
       ret.results = omit(user, 'password');
       ret.message = "Successfully logged in user"
@@ -552,9 +558,16 @@ async function verifyUser(userId)
   return ret;
 }
 
+//#endregion
+
 //#region Delete user API endpoint
 
 app.delete("/users/:userId/delete", (req, res) => {
+
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
+
   (async () => {
     var ret = await deleteUser(req.params.userId);
 
