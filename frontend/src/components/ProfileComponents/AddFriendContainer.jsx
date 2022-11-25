@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MdOutlineManageSearch } from 'react-icons/md';
 
 function AddFriendContainer() {
 
@@ -31,7 +32,7 @@ function AddFriendContainer() {
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch(buildPath('users/${id}/addFriend/${id}' + userToSearch.value), { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/${id}/addFriend/${id}'), { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
@@ -55,8 +56,8 @@ function AddFriendContainer() {
     return (
       <div className="add-friend-container">
           <form onSubmit={addFriendSubmit}>
-              <input type="text" id="userToAdd" placeholder="Add a friend" ref={(c) => userToSearch = c} /><br />
-              <input type="submit" id="addFriendButton" class="buttons" value="Add Friend" onClick={addFriendSubmit} />
+              <input type="text" id="userToAdd" placeholder="Add a friend" ref={(c) => friendToAdd = c} /><br />
+              <MdOutlineManageSearch size="24" className="my-auto" class="button" onClick={addFriendSubmit} />
           </form>
           <span id="addFriendResult">{message}</span>
       </div>
