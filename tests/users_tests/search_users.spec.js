@@ -3,28 +3,42 @@ let server =  require('../../server.js');
 
 describe('Search Users Test Suite', () => {
 
-    it('Keyword: "Ethan"', async() => {
-        const response = await request(server).get('/users/search/Ethan');
+    it('Keyword: "Ethan"', async() => { // first name
+        let key = 'Ethan';
+        const response = await request(server).get('/users/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
-        expect(response.body.message).toEqual('No users found.');
-        expect(response.body.results).not.toEqual([]);
+        expect(response.body.message).not.toEqual('No users found.');
+        expect(response.body.results).toEqual(expect.arrayContaining([expect.objectContaining({firstName: key})]));
 
     });
 
-    it('Keyword: "Ewool"', async() => {
-        const response = await request(server).get('/users/search/Ewool');
+    it('Keyword: "Woollet"', async() => { // last name
+        let key = 'Woollet';
+        const response = await request(server).get('/users/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
-        expect(response.body.message).toEqual('1 user(s) found.');
-        expect(response.body.results[0].username).toEqual("Ewool");
+        expect(response.body.message).not.toEqual('No users found.');
+        expect(response.body.results).toEqual(expect.arrayContaining([expect.objectContaining({lastName: key})]));
+
+    });
+
+    it('Keyword: "Ewool"', async() => { // username
+        let key = 'Ewool';
+        const response = await request(server).get('/users/search/' + key);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.success).toEqual(true);
+        expect(response.body.message).not.toEqual('No users found.');
+        expect(response.body.results).toEqual(expect.arrayContaining([expect.objectContaining({username: key})]));
 
     });
 
     it('Keyword: "oo"', async() => {
-        const response = await request(server).get('/users/search/oo');
+        let key = 'oo';
+        const response = await request(server).get('/users/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);

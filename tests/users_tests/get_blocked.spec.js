@@ -7,7 +7,7 @@ const url = process.env.MONGODB_URL;
 
 const {MongoClient} = require('mongodb');
 
-describe('Get Friends Test Suite', () => {
+describe('Get Blocked Test Suite', () => {
     let connection;
     let db;
 
@@ -66,7 +66,7 @@ describe('Get Friends Test Suite', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
-        expect(response.body.message).toEqual('No user found with id = ' + id);
+        expect(response.body.message).toEqual(expect.stringContaining('No user found with id = ' + id));
         expect(response.body.results).toEqual([]);
 
     });
