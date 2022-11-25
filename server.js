@@ -2317,21 +2317,11 @@ async function checkId(id, idName) {
   // Check if all characters in id are hex values
   else
   {
-    var char1, char2;
-    var A     = 65;
-    var F     = 70;
-    var zero  = 48;
-    var nine  = 57;
-    input     = input.toUpperCase();
+    var char;
     for (var i = 0; i < input.length; i++)
     {
-      char1 = parseInt(`0x${input.charAt(i)}`, 16) + A;
-      char2 = parseInt(input.charAt(i)) + zero;
-      if ((char1 <= F && char1 >= A))
-      {
-        continue;
-      }
-      else if ((char2 <= nine && char2 >= zero))
+      char = parseInt(`0x${input.charAt(i)}`, 16); // if input.charAt(i) is not hex, char will be NaN
+      if ((char <= 15 && char >= 0))
       {
         continue;
       }
@@ -2339,7 +2329,7 @@ async function checkId(id, idName) {
       {
         ret.success = true;
         ret.message = `No ${idName} found with id = ${id}.
-          \nCause: invalid input string value (expected: hex value from 0x0 - 0xF; received: id.charAt(${i}) = ${(input.charAt(i)).toLowerCase()}`;
+          \nCause: invalid input string value (expected: hex value from 0x0 - 0xF; received: id.charAt(${i}) = ${(input.charAt(i))}`;
         return ret;
       }
     }
