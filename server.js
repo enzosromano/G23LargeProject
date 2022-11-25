@@ -224,7 +224,7 @@ app.post("/users", (req, res) => { // WITH HASHED PASSWORD
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -307,7 +307,7 @@ app.post("/users/auth", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -368,7 +368,7 @@ app.put("/users/:userId/password", (req, res) => { //TODO: Fix and add hashing t
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -405,6 +405,14 @@ async function passwordReset(userId, newPassword) {
     
   } catch (e) {
     // ret.message = "We were unable to reset the user's password.";
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -429,7 +437,7 @@ app.put("/users/:userId/changeEmail", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -464,6 +472,14 @@ async function emailReset(userId, newEmail) {
     ret.message = "Sucessfully changed email address";
 
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -548,7 +564,7 @@ app.delete("/users/:userId/delete", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -586,6 +602,14 @@ async function deleteUser(userId) {
     ret.message = "Deleted user.";
     ret.results = userId;
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -608,7 +632,7 @@ app.get('/users', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -661,7 +685,7 @@ async function getAllUsers() {
       }
       else
       {
-        res.status(400).json(ret.message);
+        res.status(400).json(ret);
       }
     })();
   });
@@ -683,6 +707,8 @@ async function getAllUsers() {
       var resultsCheck = [];
       resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
       resultsCheck = resultsCheck.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'firstName': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'lastName': {'$regex': keyword},}).toArray());
 
       //Remove duplicates
       const results = Array.from(new Set(resultsCheck.map(a => a.email)))
@@ -693,6 +719,14 @@ async function getAllUsers() {
       if (results.length != 0)
       {
         ret.message = `${results.length} user(s) found.`;
+
+        for (var i = 0; i < results.length; i++)
+        {
+          delete results[i].password;
+          delete results[i].relationships;
+          delete results[i].isVerified;
+          delete results[i].email;
+        }
         ret.results = results; 
       }
       else
@@ -724,7 +758,7 @@ app.get('/users/:userId/relationships', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -761,6 +795,14 @@ async function getRelationships(userId) {
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -783,7 +825,7 @@ app.get('/users/:userId/friends', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -827,6 +869,14 @@ async function getFriends(userId) {
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -849,7 +899,7 @@ app.get("/users/:userId/searchFriends/:keyword", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -866,11 +916,11 @@ async function searchForFriends(userId, keyword) {
     results: {}
   }
 
-  var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
-  var resultsCheck = [];
-  var personId;
-
   try {
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var resultsCheck = [];
+    var personId;
+
     if (user) // If user exists in db
     {
       // Find all users that have [keyword] for at least one of their attributes/fields
@@ -899,6 +949,9 @@ async function searchForFriends(userId, keyword) {
             if (personId == user.relationships[j].id && user.relationships[j].friend)
             {
               delete results[i].password;
+              delete results[i].relationships;
+              delete results[i].isVerified;
+              delete results[i].email;
               ret.results.push(results[i]);
             }
           }
@@ -908,7 +961,7 @@ async function searchForFriends(userId, keyword) {
       }
       else
       {
-        ret.message = `${ret.results.length} friend(s) found with keyword = ${keyword}`;
+        ret.message = `0 friend(s) found with keyword = ${keyword}`;
         ret.results = 2;
       } 
     }
@@ -920,6 +973,14 @@ async function searchForFriends(userId, keyword) {
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -942,7 +1003,7 @@ app.get("/users/:userId/searchBlocked/:keyword", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -959,11 +1020,11 @@ async function searchForBlocked(userId, keyword) {
     results: {}
   }
 
-  var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
-  var resultsCheck = [];
-  var personId;
-
   try {
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var resultsCheck = [];
+    var personId;
+
     if (user) // If user exists in db
     {
       // Find all users that have [keyword] for at least one of their attributes/fields
@@ -992,6 +1053,9 @@ async function searchForBlocked(userId, keyword) {
             if (personId == user.relationships[j].id && user.relationships[j].blocked)
             {
               delete results[i].password;
+              delete results[i].relationships;
+              delete results[i].isVerified;
+              delete results[i].email;
               ret.results.push(results[i]);
             }
           }
@@ -1001,7 +1065,7 @@ async function searchForBlocked(userId, keyword) {
       }
       else
       {
-        ret.message = `${ret.results.length} blocked user(s) found with keyword = ${keyword}`;
+        ret.message = `0 blocked user(s) found with keyword = ${keyword}`;
         ret.results = 2;
       } 
     }
@@ -1013,6 +1077,14 @@ async function searchForBlocked(userId, keyword) {
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -1035,7 +1107,7 @@ app.get('/users/:userId/blocked', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1079,6 +1151,14 @@ async function getBlocked(userId) {
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "user");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+    
     console.log(e);
     ret.message = e;
   }
@@ -1101,7 +1181,7 @@ app.post('/users/:userId/addFriend/:friendId', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1218,6 +1298,24 @@ async function addFriend(userId, friendId) {
     ret.success = true;
 
   } catch (e) {
+    var check1;
+    var check2;
+  
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(friendId, "user");
+    if (check1.results == 9 || check1.results == 10)
+    {
+      ret = check1;
+      await client.close();
+      return ret;
+    }
+    else if (check2.results == 9 || check2.results == 10)
+    {
+      ret = check2;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -1240,7 +1338,7 @@ app.post('/users/:userId/unfriend/:friendId', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1307,6 +1405,24 @@ async function deleteFriend(userId, friendId) {
     ret.success = true;
 
   } catch (e) {
+    var check1;
+    var check2;
+  
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(friendId, "user");
+    if (check1.results == 9 || check1.results == 10)
+    {
+      ret = check1;
+      await client.close();
+      return ret;
+    }
+    else if (check2.results == 9 || check2.results == 10)
+    {
+      ret = check2;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -1329,7 +1445,7 @@ app.post('/users/:userId/block/:blockedId', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1434,7 +1550,7 @@ async function blockUser(userId, blockedId) {
       }
       else
       {
-        ret.message = `No user found with id = ${friendId}`;
+        ret.message = `No user found with id = ${blockedId}`;
         ret.results = 3;
       }
     }
@@ -1446,6 +1562,24 @@ async function blockUser(userId, blockedId) {
     ret.success = true;
 
   } catch (e) {
+    var check1;
+    var check2;
+  
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(blockedId, "user");
+    if (check1.results == 9 || check1.results == 10)
+    {
+      ret = check1;
+      await client.close();
+      return ret;
+    }
+    else if (check2.results == 9 || check2.results == 10)
+    {
+      ret = check2;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -1468,7 +1602,7 @@ app.post('/users/:userId/unblock/:blockedId', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1523,7 +1657,7 @@ async function unblockUser(userId, blockedId) {
       }
       else
       {
-        ret.message = `No user found with id = ${friendId}`;
+        ret.message = `No user found with id = ${blockedId}`;
         ret.results = 2;
       }
     }
@@ -1535,6 +1669,24 @@ async function unblockUser(userId, blockedId) {
     ret.success = true;
 
   } catch (e) {
+    var check1;
+    var check2;
+  
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(blockedId, "user");
+    if (check1.results == 9 || check1.results == 10)
+    {
+      ret = check1;
+      await client.close();
+      return ret;
+    }
+    else if (check2.results == 9 || check2.results == 10)
+    {
+      ret = check2;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -1599,7 +1751,7 @@ app.post("/songs", (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1661,7 +1813,7 @@ app.get('/songs', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 
@@ -1716,7 +1868,7 @@ app.get('/songs/search/:keyword', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -1804,7 +1956,7 @@ app.post('/posts', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
 
   })();
@@ -1851,6 +2003,71 @@ async function createPost(postObject) {
 
 //#endregion
 
+//#region Delete post API endpoint
+
+app.delete("/posts/postId", (req, res) => {
+  (async () => {
+    var ret = await deletePost(req.params.postId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret);
+    }
+
+  })();
+});
+
+async function deletePost(postId) {
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    post = await db.collection("posts").findOne({ _id: ObjectId(postId) });
+    
+    if (post) // if post exists in db
+    {
+      // Delete post
+      await db.collection("posts").deleteOne({ _id: ObjectId(postId) });
+      ret.message = "Successfully deleted post.";
+      ret.results = 0;
+    }
+    else
+    {
+      ret.message = "Post does not exist.";
+      ret.results = 1;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    var check = await checkId(postId, "post");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region Display all posts API endpoint
 
 app.get('/posts', (req, res) => {
@@ -1863,7 +2080,7 @@ app.get('/posts', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -1916,7 +2133,7 @@ app.get('/posts/:userId', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -1948,6 +2165,14 @@ async function getUserPosts(userId) {
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "user post");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
@@ -1970,7 +2195,7 @@ app.get('/posts/:userId/friends', (req, res) => {
     }
     else
     {
-      res.status(400).json(ret.message);
+      res.status(400).json(ret);
     }
   })();
 });
@@ -2012,29 +2237,97 @@ async function getFriendPosts(userId) {
           results = results.concat(friendPosts);
         }
       }
+
+      if (results.length != 0)
+      {
+        ret.results = results;
+        ret.message = `${results.length} post(s) found.`;
+      }
+      else
+      {
+        ret.message = `No posts found.`;
+      }
     }
     else
     {
       ret.message = `No user found with id = ${userId}`;
     }
-
-    if (results.length != 0)
-    {
-      ret.results = results;
-      ret.message = `${results.length} post(s) found.`;
-    }
-    else
-    {
-      ret.message = `No posts found.`;
-    }
     ret.success = true;
 
   } catch (e) {
+    var check = await checkId(userId, "friend post");
+    if (check.results == 9 || check.results == 10)
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
     console.log(e);
     ret.message = e;
   }
 
   await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region helper function: check whether an ID is valid/invalid
+
+// ret.results = 8: Length of ID is valid and all characters are hex
+// ret.results = 9: Length of ID is invalid
+// ret.results = 10: A character is not hex (i.e., not within 0x0 - 0xF)
+async function checkId(id, idName) {
+  var input = id.toString();
+
+  var ret = {
+    success: false,
+    message: "",
+    results: 8
+  }
+
+  // Check if id length is valid
+  if (input.length != 24)
+  {
+    ret.success = true;
+    ret.message = `No ${idName} found with id = ${id}.
+      \nCause: invalid input string length (expected: 24; received: ${input.length})`;
+    ret.results = 9;
+    return ret;
+  }
+  // Check if all characters in id are hex values
+  else
+  {
+    var char1, char2;
+    var A     = 65;
+    var Z     = 90;
+    var zero  = 48;
+    var nine  = 57;
+    input     = input.toUpperCase();
+    for (var i = 0; i < input.length; i++)
+    {
+      char1 = parseInt(`0x${input.charAt(i)}`, 16) + A;
+      char2 = parseInt(input.charAt(i)) + zero;
+      if ((char1 <= Z && char1 >= A))
+      {
+        continue;
+      }
+      else if ((char2 <= nine && char2 >= zero))
+      {
+        continue;
+      }
+      else
+      {
+        ret.success = true;
+        ret.message = `No ${idName} found with id = ${id}.
+          \nCause: invalid input string value (expected: hex value from 0x0 - 0xF; received: id.charAt(${i}) = ${(input.charAt(i)).toLowerCase()}`;
+        ret.results = 10;
+        return ret;
+      }
+    }
+  }
+
   return ret;
 }
 
