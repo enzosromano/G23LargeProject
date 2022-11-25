@@ -40,7 +40,7 @@ describe('Get Relationships Test Suite', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
         expect(response.body.message).not.toEqual('No user found with id = %s', id);
-        expect(response.body.results[0]).toEqual({id: fid, friend: true, blocked: false});
+        expect(response.body.results[0]).toEqual(expect.objectContaining({id: fid, friend: true, blocked: false}));
 
     });
 
@@ -69,7 +69,7 @@ describe('Get Relationships Test Suite', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
-        expect(response.body.message).toEqual('No user found with id = ' + id);
+        expect(response.body.message).toEqual(expect.stringContaining('No user found with id = ' + id));
         expect(response.body.results).toEqual([]);
 
     });
