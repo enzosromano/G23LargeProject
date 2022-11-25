@@ -107,24 +107,26 @@ function authenticateToken(req, res) {
   }
 }
 
-function sendVerificationEmail(email) {
+function sendVerificationEmail(email, userId) {
   const msg = {
     to: email, // Change to your recipient
     from: 'gab.01@hotmail.com', // Change to your verified sender
     subject: 'Tune Table Verification Email',
     text: 'Tune Table Verification',
-    html: '<strong>Click here to verify your email with Tune Table</strong>',
+    html: `Click <strong><a href="tunetable23.herokuapp.com/verify/${userId}">here</a></strong> to verify your email with Tune Table`
   };
 
   sendgrid
     .send(msg)
     .then(() => {
-      console.log('Email sent')
+      console.log('Verification Email Sent')
     })
     .catch((error) => {
       console.error(error)
+
     });
 }
+
 //#endregion 
 
 //JWT Testing and reference code
@@ -142,6 +144,8 @@ app.post("/createToken", (req, res, next) => {
   }
 
   const token = createToken(username, password);
+
+  sendVerificationEmail("gabriel.mousa@knights.ucf.edu", "a123bas9an_asn%2");
 
   ret.success = true;
   ret.results = {username: username, password: password, token: token};
