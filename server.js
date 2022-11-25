@@ -781,19 +781,12 @@ async function getRelationships(userId) {
 
     if (exists)
     {
-      ret.results = [];
-      for (var i = 0; i < exists.relationships.length; i++)
-      {
-        if (exists.relationships[i].friend)
-        {
-          ret.results.push(exists.relationships[i].id);
-        }
-      }
-
+      ret.results = exists.relationships;
+      
       if (ret.results.length != 0)
-        ret.message = `${ret.results.length} friend(s) found.`;
+        ret.message = `${ret.results.length} relationship(s) found.`;
       else
-        ret.message = `No friends found.`
+        ret.message = `No relationships found.`
     }
     else
     {
