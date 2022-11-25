@@ -794,6 +794,13 @@ async function getRelationships(userId) {
     }
     ret.success = true;
 
+    for(let i = 0; i < ret.results.length; i++){
+      var id = ret.results[i].id;
+      var user = await db.collection("users").findOne({ _id: ObjectId(id) });
+      var username = user.username;
+      ret.results[i].username = username;
+    }
+
   } catch (e) {
     var check = await checkId(userId, "user");
     if (check.results == 9 || check.results == 10)
