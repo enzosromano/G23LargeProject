@@ -102,9 +102,11 @@ function authenticateToken(req, res) {
     if(!token) return res.status(401);
 
     jwt.verify(token, process.env.TOKEN_SECRET);
+    console.log("Token Successfully Authenticated");
     return 1; 
   }
   catch (err) {
+    console.log("Incorrect Token or Header Not Found");
     return 1;
   }
 }
