@@ -10,6 +10,7 @@ const e = require("express");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const sendgrid = require("@sendgrid/mail");
+const { rmSync } = require("fs");
 
 //getting env config
 dotenv.config();
@@ -265,6 +266,8 @@ async function addUser(email, username, password, firstName, lastName) {
 
       var user = await db.collection("users").findOne({ email: email });
 
+      sendVerificationEmail(email, user._id);
+
       ret.success = true;
       ret.message = "Successfully added user.";
       ret.results = omit(user, 'password');
@@ -470,6 +473,68 @@ async function emailReset(userId, newEmail) {
 }
 
 //#endregion
+
+//#region Verify account API endpoint
+app.get('/verify/:userId', (req, res) => {
+  (async () => {
+    var ret = await verifyUser(req.params.userId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret);
+    }
+  })();
+});
+
+async function verifyUser(userId)
+{
+
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    exists = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    if (!exists)
+    {
+      ret.success = true;
+      ret.message = "User does not exist.";
+      ret.results = userId;
+      await client.close();
+      return ret;
+    }
+
+    // Update their verification status
+    await db.collection("users").updateOne(
+      { _id: ObjectId(exists._id) },
+      { $set: 
+        {
+          isVerified: true
+        }
+      });
+
+    console.log(`Successfully updated user.\n`);
+    ret.success = true;
+    ret.message = "Verified User.";
+    ret.results = userId;
+  } catch (e) {
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
 
 //#region Delete user API endpoint
 
