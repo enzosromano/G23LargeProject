@@ -616,6 +616,8 @@ async function getAllUsers() {
       var resultsCheck = [];
       resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
       resultsCheck = resultsCheck.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'firstName': {'$regex': keyword},}).toArray());
+      resultsCheck = resultsCheck.concat(await db.collection("users").find({'lastName': {'$regex': keyword},}).toArray());
 
       //Remove duplicates
       const results = Array.from(new Set(resultsCheck.map(a => a.email)))
@@ -626,6 +628,14 @@ async function getAllUsers() {
       if (results.length != 0)
       {
         ret.message = `${results.length} user(s) found.`;
+
+        for (var i = 0; i < results.length; i++)
+        {
+          delete results[i].password;
+          delete results[i].relationships;
+          delete results[i].isVerified;
+          delete results[i].email;
+        }
         ret.results = results; 
       }
       else
