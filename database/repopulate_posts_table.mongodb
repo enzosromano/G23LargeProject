@@ -1,8 +1,12 @@
 // Select the database
 use('TuneTables');
 
-var user = db.users.findOne({username: "Ewool"})._id; // get a user's id
-var ids = db.songs.find({}).toArray(); // get all objects in the songs array
+// grab some users from the users table
+var user1 = db.users.findOne({username: "Ewool"}); 
+var user2 = db.users.findOne({username: "Byian"}); 
+var user3 = db.users.findOne({username: "Irezn"}); 
+var user4 = db.users.findOne({username: "Lober"}); 
+var songs = db.songs.find({}).toArray(); // get all objects in the songs array
 // print(user);
 
 // clear the old data from the collection
@@ -14,85 +18,210 @@ db.posts.createIndex({"username":"text", "updatedAt": 1});
 // inserting into Songs
 db.posts.insertMany([
     { // 1
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user2._id,
         "message":      "I really wish I had had some more of this...",
-        "song":         ids[0]._id, // Respect
-        "likes":        10,
-        "updatedAt":    112022
+        "song":         songs[0]._id, // Respect
+        "likes":        2,
+        "likedBy":      [user3._id, user4._id],
+        "updatedAt":    112622
     },
     { // 2
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user1._id,
         "message":      "You and me both, brothers.",
-        "song":         ids[1]._id, // (I Can't Get No) Satisfaction
-        "likes":        7,
-        "updatedAt":    112022
+        "song":         songs[1]._id, // (I Can't Get No) Satisfaction
+        "likes":        2,
+        "likedBy":      [user1._id, user3._id],
+        "updatedAt":    112622
     },
     { // 3
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user1._id,
         "message":      "Go Johnny, go!!",
-        "song":         ids[2]._id, // Johnny B. Goode
-        "likes":        12,
-        "updatedAt":    112022
+        "song":         songs[2]._id, // Johnny B. Goode
+        "likes":        2,
+        "likedBy":      [user1._id, user4._id],
+        "updatedAt":    112622
     },
     { // 4
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user4._id,
         "message":      "I'm not making a german joke, sorry.",
-        "song":         ids[3]._id, // Blitzkrieg Bop
-        "likes":        1,
-        "updatedAt":    112022
+        "song":         songs[3]._id, // Blitzkrieg Bop
+        "likes":        0,
+        "likedBy":      [],
+        "updatedAt":    112622
     },
     { // 5
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user1._id,
         "message":      "This is an interesting sobriety test for sure!",
-        "song":         ids[4]._id, // I Walk the Line
-        "likes":        13,
-        "updatedAt":    112022
+        "song":         songs[4]._id, // I Walk the Line
+        "likes":        3,
+        "likedBy":      [user1._id, user2._id, user3._id],
+        "updatedAt":    112622
     },
     { // 6
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user1._id,
         "message":      "Hey Jude, could you turn the light off when you get up?",
-        "song":         ids[5]._id, // Hey Jude
-        "likes":        3,
-        "updatedAt":    112022
+        "song":         songs[5]._id, // Hey Jude
+        "likes":        1,
+        "likedBy":      [user1._id],
+        "updatedAt":    112622
     },
     { // 7
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user1._id,
         "message":      "Rick james definitely knew how to pick 'em!",
-        "song":         ids[6]._id, // Super Freak
-        "likes":        69,
-        "updatedAt":    112022
+        "song":         songs[6]._id, // Super Freak
+        "likes":        4,
+        "likedBy":      [user1._id, user2._id, user3._id, user4._id],
+        "updatedAt":    112622
     },
     { // 8
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user3._id,
         "message":      "Sometimes, I feel like I'm stuck in this groove :/ The song's good, though",
-        "song":         ids[7]._id, // Into The Groove
-        "likes":        25,
-        "updatedAt":    112022
+        "song":         songs[7]._id, // Into The Groove
+        "likes":        1,
+        "likedBy":      [user4._id],
+        "updatedAt":    112622
     },
     { // 9
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user2._id,
         "message":      "Dreaming of those sweet $120k+ SWE jobs.. One day!!",
-        "song":         ids[8]._id, // Dream On
-        "likes":        9,
-        "updatedAt":    112022
+        "song":         songs[8]._id, // Dream On
+        "likes":        1,
+        "likedBy":      [user2._id],
+        "updatedAt":    112622
     },
     { // 10
-        "creator":      user,
-        "username":     "Ewool",
+        "creator":      user1._id,
         "message":      "Only 17? In this economy?!",
-        "song":         ids[9]._id, // Dancing Queen
-        "likes":        17,
-        "updatedAt":    112022
+        "song":         songs[9]._id, // Dancing Queen
+        "likes":        1,
+        "likedBy":      [user1._id],
+        "updatedAt":    112622
     },
-    
 ]);
 
+// user1 likes 2,3,5,6,7,10
+// user2 likes 5,7,9
+// user3 likes 1,2,5,7
+// user4 likes 1,3,7,8
+
+// Adding user's likes to their accounts
+var posts = db.posts.find({}).toArray();
+
+db.users.updateOne({'_id': user1._id}, {
+    $set: {
+        'likedPosts':  [
+            posts[1]._id,
+            posts[2]._id,
+            posts[4]._id,
+            posts[5]._id,
+            posts[6]._id,
+            posts[9]._id
+
+        ],
+        'totalLikes': 13
+    }
+});
+
+db.users.updateOne({'_id': user2._id}, {
+    $set: {
+        'likedPosts':  [
+            posts[4]._id,
+            posts[6]._id,
+            posts[8]._id
+
+        ],
+        'totalLikes': 3
+    }
+});
+
+db.users.updateOne({'_id': user3._id}, {
+    $set: {
+        'likedPosts':  [
+            posts[0]._id,
+            posts[1]._id,
+            posts[4]._id,
+            posts[6]._id
+
+        ],
+        'totalLikes': 1
+    }
+});
+
+db.users.updateOne({'_id': user4._id}, {
+    $set: {
+        'likedPosts':  [
+            posts[0]._id,
+            posts[2]._id,
+            posts[6]._id,
+            posts[7]._id
+
+        ],
+        'totalLikes': 0
+    }
+});
+
+// user1 likes   2,3,  5,6,7,    10
+// user2 likes         5,  7,  9
+// user3 likes 1,2,    5,  7
+// user4 likes 1,  3,      7,8
+
+// adding likes to songs
+db.songs.updateOne({'_id': songs[0]._id}, { // 1
+    $set: {
+        'likes': 2
+    }
+});
+
+db.songs.updateOne({'_id': songs[1]._id}, { // 2
+    $set: {
+        'likes': 2
+    }
+});
+
+db.songs.updateOne({'_id': songs[2]._id}, { // 3
+    $set: {
+        'likes': 2
+    }
+});
+
+db.songs.updateOne({'_id': songs[3]._id}, { // 4
+    $set: {
+        'likes': 0
+    }
+});
+
+db.songs.updateOne({'_id': songs[4]._id}, { // 5
+    $set: {
+        'likes': 3
+    }
+});
+
+db.songs.updateOne({'_id': songs[5]._id}, { // 6
+    $set: {
+        'likes': 1
+    }
+});
+
+db.songs.updateOne({'_id': songs[6]._id}, { // 7
+    $set: {
+        'likes': 4
+    }
+});
+
+db.songs.updateOne({'_id': songs[7]._id}, { // 8
+    $set: {
+        'likes': 1
+    }
+});
+
+db.songs.updateOne({'_id': songs[8]._id}, { // 9
+    $set: {
+        'likes': 1
+    }
+});
+
+db.songs.updateOne({'_id': songs[9]._id}, { // 110
+    $set: {
+        'likes': 1
+    }
+});
