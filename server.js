@@ -690,9 +690,13 @@ async function getAllUsers() {
 
 //#region Display specific users API endpoint
 
-  app.get("/users/search/:keyword", (req, res) => {
+  app.get("/users/:userId/search/:keyword", (req, res) => {
+    const val = authenticateToken(req, res);
+
+    if(val != 1) return res.status(403).json({error: "Invalid Token"});
+    
     (async () => {
-      var ret = await searchForUser(req.params.keyword);
+      var ret = await searchForUser(req.params.userId, req.params.keyword);
   
       if(ret.success)
       {
@@ -705,9 +709,7 @@ async function getAllUsers() {
     })();
   });
   
-  async function searchForUser(keyword) {
-    console.log(`keyword: ${keyword}\n`);
-  
+  async function searchForUser(userId, keyword) {
     // Connect to db and get user
     await client.connect();
     db = client.db("TuneTables");
@@ -731,18 +733,48 @@ async function getAllUsers() {
           return resultsCheck.find(a => a.email === email)
       })
   
+      // if we have results...
       if (results.length != 0)
       {
-        ret.message = `${results.length} user(s) found.`;
-
+        // For each user in results array, iterate over their relationships array
+        // to make sure that they are not blocking the user calling the search
+        ret.results = [];
         for (var i = 0; i < results.length; i++)
         {
-          delete results[i].password;
-          delete results[i].relationships;
-          delete results[i].isVerified;
-          delete results[i].email;
+          // A user that has no relationships implies that they are not blocking the searching user
+          if (results[i].relationships.length == 0)
+          {
+            delete results[i].password;
+            delete results[i].relationships;
+            delete results[i].isVerified;
+            delete results[i].email;
+            ret.results.push(results[i]);
+          }
+          else
+          {
+            // Check if relationship exists with the searching user
+            for (var j = 0; j < results[i].relationships.length; j++)
+            {
+              // If there exists a relationship with the searching user...
+              if (userId == results[i].relationships[j].id)
+              {
+                // If the searching user is not blocked, add to ret.results
+                if (!results[i].relationships[j].blocked)
+                {
+                  delete results[i].password;
+                  delete results[i].relationships;
+                  delete results[i].isVerified;
+                  delete results[i].email;
+                  ret.results.push(results[i]);
+                }
+
+                break;
+              }
+            }
+          }
         }
-        ret.results = results; 
+
+        ret.message = `${ret.results.length} user(s) found.`;
       }
       else
       {
@@ -751,6 +783,14 @@ async function getAllUsers() {
       ret.success = true;
 
     } catch (e) {
+      var check = await checkId(userId, "user");
+      if (!(check.message == ""))
+      {
+        ret = check;
+        await client.close();
+        return ret;
+      }
+
       console.log(e);
       ret.message = e;
     }
@@ -1686,6 +1726,7 @@ async function unblockUser(userId, blockedId) {
           if (blockedId == user.relationships[i].id && user.relationships[i].blocked)
           {
             isBlocked = true;
+            break;
           }
         }
 
@@ -1971,7 +2012,7 @@ async function searchForSong(keyword) {
 
 //#region Create post endpoint
 
-app.post('/posts', (req, res) => {
+app.post('/posts/:userId', (req, res) => {
   const val = authenticateToken(req, res);
 
   if(val != 1) return res.status(403).json({error: "Invalid Token"});
@@ -2002,7 +2043,7 @@ app.post('/posts', (req, res) => {
   }
 
   (async () => {
-    var ret = await createPost(post);
+    var ret = await createPost(req.params.userId, post);
 
     if(ret.success)
     {
@@ -2016,7 +2057,11 @@ app.post('/posts', (req, res) => {
   })();
 });
 
-async function createPost(postObject) {
+async function createPost(userId, postObject) {
+  // establish db connection
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
 
   var ret = {
     "success": false,
@@ -2024,31 +2069,36 @@ async function createPost(postObject) {
     "results": {}
   }
 
-  // establish db connection
-  await client.connect();
-  db = client.db("TuneTables");
-  var ObjectId = require('mongodb').ObjectId;
-
-
   try {
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    var today  = new Date();
 
     let postId = await db.collection("posts").insertOne({
-      creator: ObjectId('637a4f28c782a02d5734bc9c'),
+      creator: ObjectId(userId),
       message: postObject.message,
-      song: postObject.song,
+      song: ObjectId(postObject.song),
       likes: 0,
-      updatedAt: Date.now()
+      updatedAt: today.toLocaleDateString("en-US", options)
     });
 
-    var song = await db.collection("posts").findOne({ _id: postId.insertedId });
+    var post = await db.collection("posts").findOne({ _id: postId.insertedId });
 
     ret.success = true;
     ret.message = "Successfully created post.";
-    ret.results = song;
+    ret.results = post;
 
   }
   catch {
-    ret.message = "Error occurred while creating post.";
+    var check = await checkId(userId, "user");
+    if (!(check.message == ""))
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
+    console.log(e);
+    ret.message = e;
   }
 
   await client.close();
@@ -2059,7 +2109,7 @@ async function createPost(postObject) {
 
 //#region Delete post API endpoint
 
-app.delete("/posts/postId", (req, res) => {
+app.delete("/posts/:postId", (req, res) => {
   const val = authenticateToken(req, res);
 
   if(val != 1) return res.status(403).json({error: "Invalid Token"});
@@ -2111,6 +2161,244 @@ async function deletePost(postId) {
     if (!(check.message == ""))
     {
       ret = check;
+      await client.close();
+      return ret;
+    }
+
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region like post API endpoint
+
+app.post('/users/:userId/like/:postId', (req, res) => {
+  // const val = authenticateToken(req, res);
+
+  // if(val != 1) return res.status(403).json({error: "Invalid Token"});
+  (async () => {
+    var ret = await likePost(req.params.userId, req.params.postId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret);
+    }
+
+  })();
+});
+
+async function likePost(userId, postId) {
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    // Check if user and post exists in db
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var post = await db.collection("posts").findOne({ _id: ObjectId(postId) });
+    var likedPost = false;
+
+    if (user) // if user exists in db
+    {
+      if (post) // if post exists in db
+      {
+        // Check to see whether user has already liked the post
+        for (var i = 0; i < post.likedBy.length; i++)
+        {
+          // If user has already liked the post...
+          if ((userId == post.likedBy[i]))
+          {
+            likedPost = true;
+            break;
+          }
+        }
+
+        // If user has not liked the post, push userId into likedBy array,
+        // increment song's likes by 1, creator's totalLikes by 1, post's likes by 1
+        if (!likedPost)
+        {
+          await db.collection("posts").updateOne(
+            post, 
+            {$push:{likedBy: userId}}
+          );
+
+          await db.collection("songs").updateOne(
+            {_id: ObjectId(post.song)},
+            {$inc: {"likes": 1}}
+          );
+
+          await db.collection("users").updateOne(
+            {_id: ObjectId(post.creator)},
+            {$inc: {"totalLikes": 1}}
+          );
+
+          await db.collection("posts").updateOne(
+            {_id: ObjectId(post._id)},
+            {$inc: {"likes": 1}}
+          );
+
+          ret.message = `Successfully liked post.`;
+        }
+      }
+      else
+      {
+        ret.message = `No post found with id = ${postId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+  } catch (e) {
+    var check1;
+    var check2;
+
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(postId, "post");
+    if (!(check1.message == ""))
+    {
+      ret = check1;
+      await client.close();
+      return ret;
+    }
+    else if (!(check2.message == ""))
+    {
+      ret = check2;
+      await client.close();
+      return ret;
+    }
+
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
+//#region unlike post API endpoint
+
+app.post('/users/:userId/unlike/:postId', (req, res) => {
+  // const val = authenticateToken(req, res);
+
+  // if(val != 1) return res.status(403).json({error: "Invalid Token"});
+  (async () => {
+    var ret = await unlikePost(req.params.userId, req.params.postId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret);
+    }
+
+  })();
+});
+
+async function unlikePost(userId, postId) {
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    // Check if user and post exists in db
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    var post = await db.collection("posts").findOne({ _id: ObjectId(postId) });
+    var likedPost = false;
+
+    if (user) // if user exists in db
+    {
+      if (post) // if post exists in db
+      {
+        // Check to see whether user has previously liked the post
+        for (var i = 0; i < post.likedBy.length; i++)
+        {
+          // If user has already liked the post...
+          if ((userId == post.likedBy[i]))
+          {
+            likedPost = true;
+            break;
+          }
+        }
+
+        // If user has liked the post, pull userId from likedBy array,
+        // decrement song's likes by 1, creator's totalLikes by 1, post's likes by 1
+        if (likedPost)
+        {
+          await db.collection("posts").updateOne(
+            post, 
+            {$pull:{likedBy: userId}}
+          );
+
+          await db.collection("songs").updateOne(
+            {_id: ObjectId(post.song)},
+            {$inc: {"likes": -1}}
+          );
+
+          await db.collection("users").updateOne(
+            {_id: ObjectId(post.creator)},
+            {$inc: {"totalLikes": -1}}
+          );
+
+          await db.collection("posts").updateOne(
+            {_id: ObjectId(post._id)},
+            {$inc: {"likes": -1}}
+          );
+
+          ret.message = `Successfully unliked post.`;
+        }
+      }
+      else
+      {
+        ret.message = `No post found with id = ${postId}`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+  } catch (e) {
+    var check1;
+    var check2;
+
+    check1 = await checkId(userId, "user");
+    check2 = await checkId(postId, "post");
+    if (!(check1.message == ""))
+    {
+      ret = check1;
+      await client.close();
+      return ret;
+    }
+    else if (!(check2.message == ""))
+    {
+      ret = check2;
       await client.close();
       return ret;
     }
