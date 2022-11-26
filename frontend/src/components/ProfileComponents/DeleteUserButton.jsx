@@ -30,9 +30,10 @@ function DeleteUserButton() {
         var token = localStorage.getItem('token')
         //var decodedData = JSON.parse(userID)
         //console.log(decodedData)
+        console.log(token)
 
         try {
-            const response = await fetch(buildPath('users/', userID, '/delete'), { method: 'DELETE', headers: { 'authorization': token, 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/', userID, '/delete'), { method: 'DELETE', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 

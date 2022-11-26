@@ -52,12 +52,12 @@ function Login() {
                 localStorage.setItem('lastName', JSON.stringify(user.lastName));
                 localStorage.setItem('isVerified', JSON.stringify(user.isVerified));
                 localStorage.setItem('totalLikes', JSON.stringify(user.totalLikes));
-                localStorage.setItem('token', res.results["token"]);
-                console.log(res.results["token"])
+                localStorage.setItem('token', res.token);
+                console.log(res.token);
                 console.log(res.results["_id"]);
 
                 setMessage(JSON.stringify(res.message));
-                //window.location.href = '/home';
+                window.location.href = '/home';
             }
         }
         catch (e) {
