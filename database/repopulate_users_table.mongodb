@@ -21,7 +21,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$lW.yNo5g/5JnfN3WHmh3LeWubK8f/hYSU4GJ4gy6HynIOPtlUyyhK', // rVphD4pU
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 2
         'username':      'Azenn',
@@ -31,7 +32,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$32Ch.GD9LLEMPDPBeHlpOOzPWilBkr4kKIsBT2iZWzPJdYoIkBx5e', // RwLz255b
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 3
         'username':      'Byian',
@@ -41,7 +43,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$JHuMN9Sdb/m1o6IPT/iG.OmtBaaBmdBUk9/8O2jKvCHjxnFeO2l12', // Wx9tgkaV
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 4
         'username':      'Cxera',
@@ -51,7 +54,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$5SWOBeweqOhgFzwznU7TEucEcfAkLrdLVFHccT.24IrLvfk3BGhb.', // Z3DTKJ2m
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 5
         'username':      'Dwarr',
@@ -61,7 +65,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$2SA5Z9cY6kg0a.R7WNqOx.PpKhla94z6T1RpIey8ZwOqbJ7ltq3fW', // J6FiKk7t
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 6
         'username':      'Evolg',
@@ -71,7 +76,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$epCL1/YqeINQh5FzrbDxP.ZKUbJcoxjcCXnMdWz2hBjRCTGeeYdNm', // pv4xR7na
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 7
         'username':      'Fural',
@@ -81,7 +87,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$cNgQ6o2giYpVs0.wM2kVfOifF3k1sYffEOHE1htMdOEBMZYnL8I1y', // G23ZLJ2A
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 8
         'username':      'Gtila',
@@ -91,7 +98,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$0Q90ldFwpXk8Bpqn6VaCXuls/8qgUrRFyxI5QS024HeJE0Umoz9JW', // dhpZFB9Q
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 9
         'username':      'Hster',
@@ -101,7 +109,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$5CULV8g..v1oGtmJa7B6ZuyG73iqvPMbo4uDulWOtirasz7O5Y/PG', // 3kPmNiPA
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 10
         'username':      'Irezn',
@@ -111,7 +120,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$g4NNyKF.IKiY0BKYdEq.M.cZ81mSy0Ajs2.mLyUeQbrjCfl9s12/S', // nj3G8YMk
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 11
         'username':      'Jquiz',
@@ -121,7 +131,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$4a31egLGxLpBTorZaIZmSe9yj/uIM/emiYTE02Kr7Ri9cpsFqxv5y', // s94cLfu1
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 12
         'username':      'Kperr',
@@ -131,7 +142,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$GTrrVO5qeD24y1aDnUvzYuPrHu4DSA5uch7jE.EeSSF4QIO3cL7wG', // 5jmCjfof
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 13
         'username':      'Lober',
@@ -141,7 +153,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$PgrhELO8OMlsrj5wAxiXou80.jHe9FqRi0GenKzeIqY74xXLRKU6e', // rDd9cQmQ
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     },
     { // 14
         'username':      'Mnees',
@@ -151,7 +164,8 @@ db.users.insertMany([
         'isVerified':    false, 
         'password':      '$2a$10$7ugrJMbKoHxkj/C8B0k6wu6BoQZ/ocR0X0TFCjqlhgsweptWCynfq', // w3iihbgN
         'totalLikes':    0, 
-        'relationships': []
+        'relationships': [],
+        'likedPosts':    []
     }
 ]);
 
