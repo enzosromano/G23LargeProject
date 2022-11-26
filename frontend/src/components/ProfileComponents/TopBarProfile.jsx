@@ -2,6 +2,7 @@ import React from 'react';
 import { BsMusicNoteList } from 'react-icons/bs';
 import SearchUserContainer from './SearchUserContainer';
 import AddFriendContainer from './AddFriendContainer'
+import DeleteUserButton from './DeleteUserButton';
 
 
 const TopBarProfile = ({text}) => {
@@ -15,8 +16,8 @@ const TopBarProfile = ({text}) => {
                 </div>
                 
                 <div className= 'flex flex-row justify-right'>
-                    <SearchUserContainer />
                     <AddFriendContainer />
+                    <DeleteUserButton />
                 </div>
                
                     
