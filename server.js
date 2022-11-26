@@ -2069,11 +2069,57 @@ async function createPost(userId, postObject) {
     var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     var today  = new Date();
 
+    // Search for the user
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    if (!user)
+    {
+      ret.success = true;
+      ret.message = `No user found with id = ${friendId}`;
+      await client.close();
+      return ret;
+    }
+    delete user.email;
+    delete user.isVerified;
+    delete user.password;
+    // delete user.totalLikes;
+    delete user.relationships;
+
+    // Search for song 
+    var song = null;
+    try {
+      song = await db.collection("songs").findOne({ _id: ObjectId(postObject.song) });
+    }
+    catch {
+      song = null;
+    }
+    finally {
+      if (!song)
+      {
+        song = await db.collection("songs").findOne({ title: postObject.song });
+        if (!song)
+        {
+          song = await db.collection("songs").findOne({ artist: postObject.song });
+          if (!song)
+          {
+            song = await db.collection("songs").findOne({ album: postObject.song });
+            if (!song)
+            {
+              ret.success = true;
+              ret.message = `Could find not a song with keyword = ${song}`;
+              await client.close();
+              return ret;
+            }
+          }
+        }
+      }
+    }
+
     let postId = await db.collection("posts").insertOne({
-      creator: ObjectId(userId),
+      creator: user, // creator Object
       message: postObject.message,
-      song: ObjectId(postObject.song),
+      song: song, // song Object
       likes: 0,
+      likedBy: [],
       updatedAt: today.toLocaleDateString("en-US", options)
     });
 
@@ -2228,27 +2274,50 @@ async function likePost(userId, postId) {
         // increment song's likes by 1, creator's totalLikes by 1, post's likes by 1
         if (!likedPost)
         {
+          // Add user to post's likedBy array
           await db.collection("posts").updateOne(
             post, 
             {$push:{likedBy: userId}}
           );
 
+          // Increment song's likes
           await db.collection("songs").updateOne(
-            {_id: ObjectId(post.song)},
+            {_id: ObjectId(post.song._id)},
             {$inc: {"likes": 1}}
           );
 
+          // Increment creator's likes
           await db.collection("users").updateOne(
-            {_id: ObjectId(post.creator)},
+            {_id: ObjectId(post.creator._id)},
             {$inc: {"totalLikes": 1}}
           );
 
+          // Increment post's likes
           await db.collection("posts").updateOne(
             {_id: ObjectId(post._id)},
             {$inc: {"likes": 1}}
           );
 
+          // Obtain new creator and song objects
+          var creator = await db.collection("users").findOne({ _id: ObjectId(post.creator._id) });
+          var song    = await db.collection("songs").findOne({ _id: ObjectId(post.song._id) });
+  
+          // Update the post in the db
+          await db.collection("posts").updateOne(
+            {_id: ObjectId(post._id)},
+            {$set:
+              {
+                creator: creator,
+                song: song
+              }
+            }
+          );
+
           ret.message = `Successfully liked post.`;
+        }
+        else
+        {
+          ret.message = `Already liked post.`;
         }
       }
       else
@@ -2347,27 +2416,50 @@ async function unlikePost(userId, postId) {
         // decrement song's likes by 1, creator's totalLikes by 1, post's likes by 1
         if (likedPost)
         {
+          // Pull user from post's likedBy array
           await db.collection("posts").updateOne(
             post, 
             {$pull:{likedBy: userId}}
           );
 
+          // Decrement song's likes
           await db.collection("songs").updateOne(
-            {_id: ObjectId(post.song)},
+            {_id: ObjectId(post.song._id)},
             {$inc: {"likes": -1}}
           );
 
+          // Decrement creator's likes
           await db.collection("users").updateOne(
-            {_id: ObjectId(post.creator)},
+            {_id: ObjectId(post.creator._id)},
             {$inc: {"totalLikes": -1}}
           );
 
+          // Decrement post's likes
           await db.collection("posts").updateOne(
             {_id: ObjectId(post._id)},
             {$inc: {"likes": -1}}
           );
 
+          // Obtain new creator and song objects
+          var creator = await db.collection("users").findOne({ _id: ObjectId(post.creator._id) });
+          var song    = await db.collection("songs").findOne({ _id: ObjectId(post.song._id) });
+  
+          // Update the post in the db
+          await db.collection("posts").updateOne(
+            {_id: ObjectId(post._id)},
+            {$set:
+              {
+                creator: creator,
+                song: song
+              }
+            }
+          );
+
           ret.message = `Successfully unliked post.`;
+        }
+        else
+        {
+          ret.message = `Already unliked post.`;
         }
       }
       else
