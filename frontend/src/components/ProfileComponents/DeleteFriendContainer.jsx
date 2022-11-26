@@ -19,12 +19,31 @@ function DeleteFriendContainer() {
 
     const deleteFriendSubmit = async event => {
         event.preventDefault();
+        //First find the friend to delete
+        try {
+            const response = await fetch(buildPath('users/search/' + friendToDelete.value), { method: 'GET', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+
+            var res = JSON.parse(await response.text());
+
+            if (!res.success) {
+                setMessage(JSON.stringify(res));
+            }
+            else {
+                console.log(res.results[0])
+                setMessage(JSON.stringify(res.message));
+                
+            }
+        }
+        catch (e) {
+            alert(e.toString());
+            return;
+        }
 
         var obj = { friendToDelete: friendToDelete.value };
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch(buildPath('users/${id}/unfriend/${id}'), { method: 'POST', body: js, headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/unfriend/' + res.results[0]._id), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
@@ -44,7 +63,7 @@ function DeleteFriendContainer() {
     return (
         <div className="delete-friend-container">
             <form onSubmit={deleteFriendSubmit}>
-                <input type="text" id="deleteFriend" placeholder="Delete a Friend" ref={(c) => email = c} /><br />
+                <input type="text" id="deleteFriend" placeholder="Delete a Friend" ref={(c) => friendToDelete = c} /><br />
                 <input type="submit" id="deleteFriendButton" class="buttons" value="Delete Friend" onClick={deleteFriendSubmit} />
             </form>
             <span id="deleteFriendResult">{message}</span>
