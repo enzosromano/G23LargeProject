@@ -2,6 +2,7 @@ module.exports = async () => {
     return {
         setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.js'],
         verbose: true,
-        "preset": "@shelf/jest-mongodb"
+        "preset": "@shelf/jest-mongodb",
+        "testTimeout": 10000
     };
 };
