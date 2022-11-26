@@ -2070,12 +2070,15 @@ async function createPost(userId, postObject) {
   }
 
   try {
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    var today  = new Date();
+
     let postId = await db.collection("posts").insertOne({
       creator: ObjectId(userId),
       message: postObject.message,
       song: ObjectId(postObject.song),
       likes: 0,
-      updatedAt: Date.now()
+      updatedAt: today.toLocaleDateString("en-US", options)
     });
 
     var post = await db.collection("posts").findOne({ _id: postId.insertedId });
