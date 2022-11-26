@@ -112,7 +112,7 @@ describe('Search Friends Test Suite', () => {
         expect(response.body.success).toEqual(true);
         expect(response.body.message).toEqual(expect.stringContaining('No user found with id'));
 
-        console.debug(response.body.results); // debug
+        // console.debug(response.body.results); // debug
 
         expect(response.body.results).toEqual([]);
 
