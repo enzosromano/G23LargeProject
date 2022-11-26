@@ -764,6 +764,9 @@ async function getAllUsers() {
 //#region Get a user's relationships API endpoint
 
 app.get('/users/:userId/relationships', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await getRelationships(req.params.userId);
 
@@ -838,6 +841,9 @@ async function getRelationships(userId) {
 //#region get user's friends API endpoint 
 
 app.get('/users/:userId/friends', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await getFriends(req.params.userId);
 
@@ -914,6 +920,9 @@ async function getFriends(userId) {
 //#region search user's friends based on keyword API endpoint
 
 app.get("/users/:userId/searchFriends/:keyword", (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await searchForFriends(req.params.userId, req.params.keyword);
 
@@ -1017,6 +1026,9 @@ async function searchForFriends(userId, keyword) {
 //#region search user's blocked list based on keyword API endpoint
 
 app.get("/users/:userId/searchBlocked/:keyword", (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await searchForBlocked(req.params.userId, req.params.keyword);
 
@@ -1120,6 +1132,9 @@ async function searchForBlocked(userId, keyword) {
 //#region get user's blocked API endpoint 
 
 app.get('/users/:userId/blocked', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await getBlocked(req.params.userId);
 
@@ -1196,6 +1211,9 @@ async function getBlocked(userId) {
 //#region add friend API endpoint
 
 app.post('/users/:userId/addFriend/:friendId', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await addFriend(req.params.userId, req.params.friendId);
 
@@ -1353,6 +1371,9 @@ async function addFriend(userId, friendId) {
 //#region Delete Friend API endpoint 
 
 app.post('/users/:userId/unfriend/:friendId', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await deleteFriend(req.params.userId, req.params.friendId);
 
@@ -1460,6 +1481,9 @@ async function deleteFriend(userId, friendId) {
 //#region block user API endpoint
 
 app.post('/users/:userId/block/:blockedId', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await blockUser(req.params.userId, req.params.blockedId);
 
@@ -1617,6 +1641,9 @@ async function blockUser(userId, blockedId) {
 //#region unblock user API endpoint 
 
 app.post('/users/:userId/unblock/:blockedId', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await unblockUser(req.params.userId, req.params.blockedId);
 
@@ -1945,6 +1972,9 @@ async function searchForSong(keyword) {
 //#region Create post endpoint
 
 app.post('/posts', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
 
   const { message, song } = req.body;
   var post = req.body;
@@ -2030,6 +2060,9 @@ async function createPost(postObject) {
 //#region Delete post API endpoint
 
 app.delete("/posts/postId", (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await deletePost(req.params.postId);
 
@@ -2210,6 +2243,9 @@ async function getUserPosts(userId) {
 //#region Display all friend posts API endpoint
 
 app.get('/posts/:userId/friends', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
   (async () => {
     var ret = await getFriendPosts(req.params.userId);
 
