@@ -691,10 +691,6 @@ async function getAllUsers() {
 //#region Display specific users API endpoint
 
   app.get("/users/:userId/search/:keyword", (req, res) => {
-    const val = authenticateToken(req, res);
-
-    if(val != 1) return res.status(403).json({error: "Invalid Token"});
-    
     (async () => {
       var ret = await searchForUser(req.params.userId, req.params.keyword);
   
