@@ -1,3 +1,5 @@
+import React from "react";
+import LeaderBoardTable from "./LeaderBoardTable";
 import TopBarLeaderboard from "./TopBarLeaderboard";
 
 
@@ -7,6 +9,7 @@ const Leaderboard = () => {
             <TopBarLeaderboard text = "THIS WEEK'S LEADERBOARD."/>
             
             <div className="flex flex-col h-screen bg-brown-500 ml-32">
+                <LeaderBoardTable />
                 <LeaderboardEntry username="samu_420" pfp="21"/>
                 <LeaderboardEntry username="Xxian69xX" pfp="61"/>
             </div>

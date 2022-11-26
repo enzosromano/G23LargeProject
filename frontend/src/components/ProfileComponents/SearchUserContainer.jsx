@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MdOutlineManageSearch } from 'react-icons/md';
 
 function SearchUserContainer() {
 
@@ -54,8 +55,8 @@ function SearchUserContainer() {
     return (
       <div className="search-user-container">
           <form onSubmit={searchUserSubmit}>
-              <input type="text" id="username" placeholder="Ethan Romano" ref={(c) => userToSearch = c} /><br />
-              <input type="submit" id="searchUserButton" class="buttons" value="Search User" onClick={searchUserSubmit} />
+              <input type="text" id="username" placeholder="Search User" ref={(c) => userToSearch = c} /><br />
+              <MdOutlineManageSearch size="24" className="my-auto" class="button" onClick={searchUserSubmit} />
           </form>
           <span id="searchUserResult">{message}</span>
       </div>
