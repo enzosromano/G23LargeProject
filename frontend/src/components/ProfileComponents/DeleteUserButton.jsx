@@ -4,13 +4,13 @@ function DeleteUserButton() {
 
     const app_name = "tunetable23"
     
-    function buildPath(route) {
+    function buildPath(route1, route2, route3) {
 
         if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
-            return "https://" + app_name + ".herokuapp.com/" + route;
+            return "https://" + app_name + ".herokuapp.com/" + route1 + route2 + route3;
         }
         else {
-            return 'http://localhost:5000/' + route;
+            return 'http://localhost:5000/' + route1 + route2 + route3;
         }
     }
 
@@ -27,10 +27,12 @@ function DeleteUserButton() {
         var obj = { email: email.value, password: password.value };
         var js = JSON.stringify(obj);
         var userID = localStorage.getItem('userID')
-        setID(JSON.parse(userID))
+        var token = localStorage.getItem('token')
+        //var decodedData = JSON.parse(userID)
+        //console.log(decodedData)
 
         try {
-            const response = await fetch(buildPath('users/${id}/delete'), { method: 'DELETE', body: js, headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/', userID, '/delete'), { method: 'DELETE', headers: { 'authorization': token, 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 

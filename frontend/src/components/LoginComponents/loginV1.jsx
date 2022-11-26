@@ -34,13 +34,30 @@ function Login() {
                 setMessage(JSON.stringify(res));
             }
             else {
-                var user = { userID: res.results["_id"], email: res.results["email"] };
-                localStorage.setItem('userID', JSON.stringify(user.userID));
+                var user = { userID: res.results["_id"], email: res.results["email"], firstName: res.results["firstName"], lastName: res.results["lastName"],
+                isVerified: res.results["isVerified"], totalLikes: res.results["totalLikes"], token: res.results["token"] };
+                
+                document.cookie = 'userID=' + user.userID 
+                document.cookie = 'email=' + user.email
+                document.cookie = 'firstName=' + user.firstName
+                document.cookie = 'lastName=' + user.lastName
+                document.cookie = 'isVerified=' + user.isVerified
+                document.cookie = 'totalLikes=' + user.totalLikes
+                document.cookie = 'token=' + user.token
+                
+
+                localStorage.setItem('userID', res.results["_id"]);
                 localStorage.setItem('email', JSON.stringify(user.email));
-                console.log(JSON.stringify(user.userID));
+                localStorage.setItem('firstName', JSON.stringify(user.firstName));
+                localStorage.setItem('lastName', JSON.stringify(user.lastName));
+                localStorage.setItem('isVerified', JSON.stringify(user.isVerified));
+                localStorage.setItem('totalLikes', JSON.stringify(user.totalLikes));
+                localStorage.setItem('token', res.results["token"]);
+                console.log(res.results["token"])
+                console.log(res.results["_id"]);
 
                 setMessage(JSON.stringify(res.message));
-                window.location.href = '/home';
+                //window.location.href = '/home';
             }
         }
         catch (e) {
