@@ -690,9 +690,9 @@ async function getAllUsers() {
 
 //#region Display specific users API endpoint
 
-  app.get("/users/search/:keyword", (req, res) => {
+  app.get("/users/:userId/search/:keyword", (req, res) => {
     (async () => {
-      var ret = await searchForUser(req.params.keyword);
+      var ret = await searchForUser(req.params.userId, req.params.keyword);
   
       if(ret.success)
       {
@@ -705,9 +705,7 @@ async function getAllUsers() {
     })();
   });
   
-  async function searchForUser(keyword) {
-    console.log(`keyword: ${keyword}\n`);
-  
+  async function searchForUser(userId, keyword) {
     // Connect to db and get user
     await client.connect();
     db = client.db("TuneTables");
@@ -731,18 +729,48 @@ async function getAllUsers() {
           return resultsCheck.find(a => a.email === email)
       })
   
+      // if we have results...
       if (results.length != 0)
       {
-        ret.message = `${results.length} user(s) found.`;
-
+        // For each user in results array, iterate over their relationships array
+        // to make sure that they are not blocking the user calling the search
+        ret.results = [];
         for (var i = 0; i < results.length; i++)
         {
-          delete results[i].password;
-          delete results[i].relationships;
-          delete results[i].isVerified;
-          delete results[i].email;
+          // A user that has no relationships implies that they are not blocking the searching user
+          if (results[i].relationships.length == 0)
+          {
+            delete results[i].password;
+            delete results[i].relationships;
+            delete results[i].isVerified;
+            delete results[i].email;
+            ret.results.push(results[i]);
+          }
+          else
+          {
+            // Check if relationship exists with the searching user
+            for (var j = 0; j < results[i].relationships.length; j++)
+            {
+              // If there exists a relationship with the searching user...
+              if (userId == results[i].relationships[j].id)
+              {
+                // If the searching user is not blocked, add to ret.results
+                if (!results[i].relationships[j].blocked)
+                {
+                  delete results[i].password;
+                  delete results[i].relationships;
+                  delete results[i].isVerified;
+                  delete results[i].email;
+                  ret.results.push(results[i]);
+                }
+
+                break;
+              }
+            }
+          }
         }
-        ret.results = results; 
+
+        ret.message = `${ret.results.length} user(s) found.`;
       }
       else
       {
@@ -751,6 +779,14 @@ async function getAllUsers() {
       ret.success = true;
 
     } catch (e) {
+      var check = await checkId(userId, "user");
+      if (!(check.message == ""))
+      {
+        ret = check;
+        await client.close();
+        return ret;
+      }
+
       console.log(e);
       ret.message = e;
     }
