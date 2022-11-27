@@ -1,11 +1,39 @@
 const request = require('supertest');
 let server =  require('../../server.js');
 
+
+require('dotenv').config();
+const url = process.env.MONGODB_URL;
+
+const {MongoClient} = require('mongodb');
+
+
 describe('Search Users Test Suite', () => {
+
+    let connection;
+    let db;
+    let id;
+
+    beforeAll(async () => {
+        // connect to database
+        connection = await MongoClient.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+          });
+
+        db = await connection.db('TuneTables');
+        let users = await db.collection('users');
+        let ethan = await users.findOne({username: 'Azenn'});
+        id = ethan._id;
+    });
+
+    afterAll(async () => {
+        await connection.close();
+    });
 
     it('Keyword: "Ethan"', async() => { // first name
         let key = 'Ethan';
-        const response = await request(server).get('/users/search/' + key);
+        const response = await request(server).get('/users/' + id + '/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
@@ -16,7 +44,7 @@ describe('Search Users Test Suite', () => {
 
     it('Keyword: "Woollet"', async() => { // last name
         let key = 'Woollet';
-        const response = await request(server).get('/users/search/' + key);
+        const response = await request(server).get('/users/' + id + '/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
@@ -27,7 +55,7 @@ describe('Search Users Test Suite', () => {
 
     it('Keyword: "Ewool"', async() => { // username
         let key = 'Ewool';
-        const response = await request(server).get('/users/search/' + key);
+        const response = await request(server).get('/users/' + id + '/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
@@ -38,7 +66,7 @@ describe('Search Users Test Suite', () => {
 
     it('Keyword: "oo"', async() => {
         let key = 'oo';
-        const response = await request(server).get('/users/search/' + key);
+        const response = await request(server).get('/users/' + id + '/search/' + key);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
@@ -48,7 +76,7 @@ describe('Search Users Test Suite', () => {
     });
 
     it('Keyword: "a"', async() => {
-        const response = await request(server).get('/users/search/a');
+        const response = await request(server).get('/users/' + id + '/search/a');
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
@@ -58,7 +86,7 @@ describe('Search Users Test Suite', () => {
     });
 
     it('Keyword: "ZZZZZ"', async() => {
-        const response = await request(server).get('/users/search/ZZZZZ');
+        const response = await request(server).get('/users/' + id + '/search/ZZZZZ');
 
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toEqual(true);
