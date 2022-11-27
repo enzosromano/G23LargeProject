@@ -265,6 +265,7 @@ async function addUser(email, username, password, firstName, lastName) {
         password: hashedPassword,
         totalLikes: 0,
         relationships: [],
+        likedPosts: []
       });
 
       var user = await db.collection("users").findOne({ email: email });
@@ -2085,8 +2086,9 @@ async function createPost(userId, postObject) {
     delete user.email;
     delete user.isVerified;
     delete user.password;
-    // delete user.totalLikes;
+    delete user.totalLikes;
     delete user.relationships;
+    delete user.likedPosts;
 
     // Search for song 
     var song = null;
@@ -2312,6 +2314,14 @@ async function likePost(userId, postId) {
           // Obtain new creator and song objects
           var creator = await db.collection("users").findOne({ _id: ObjectId(post.creator._id) });
           var song    = await db.collection("songs").findOne({ _id: ObjectId(post.song._id) });
+
+          // Remove sensitive information about the creator
+          delete creator.password;
+          delete creator.relationships;
+          delete creator.isVerified;
+          delete creator.email;
+          delete creator.likedPosts;
+          delete creator.totalLikes;
   
           // Update the post in the db
           await db.collection("posts").updateOne(
@@ -2462,6 +2472,14 @@ async function unlikePost(userId, postId) {
           var creator = await db.collection("users").findOne({ _id: ObjectId(post.creator._id) });
           var song    = await db.collection("songs").findOne({ _id: ObjectId(post.song._id) });
   
+          // Remove sensitive information about the creator
+          delete creator.password;
+          delete creator.relationships;
+          delete creator.isVerified;
+          delete creator.email;
+          delete creator.likedPosts;
+          delete creator.totalLikes;
+
           // Update the post in the db
           await db.collection("posts").updateOne(
             {_id: ObjectId(post._id)},
@@ -2811,7 +2829,7 @@ async function getSortedPosts(userId) {
     ret.success = true;
 
   } catch (e) {
-    var check = await checkId(userId, "friend post");
+    var check = await checkId(userId, "user");
     if (!(check.message == ""))
     {
       ret = check;
