@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MdOutlineManageSearch } from 'react-icons/md';
 
 function SearchSongContainer() {
 
@@ -37,7 +38,7 @@ function SearchSongContainer() {
                 setMessage(JSON.stringify(res));
             }
             else {
-                var song = { title: res.results[0] };
+                var song = { songSearch: res.results[0] };
                 console.log(song);
 
                 setMessage(JSON.stringify(res.message));
@@ -52,13 +53,13 @@ function SearchSongContainer() {
     }
     
     return (
-      <div className="search-song-container">
-          <form onSubmit={searchSongSubmit}>
-              <input type="text" id="username" placeholder="Head Strong" ref={(c) => songToSearch = c} /><br />
-              <input type="submit" id="searchUserButton" class="buttons" value="Search Song" onClick={searchSongSubmit} />
-          </form>
-          <span id="songSearchResult">{message}</span>
-      </div>
+        <div className="serach-song-container">
+        <form onSubmit={searchSongSubmit}>
+            <input type="text" id="userToAdd" placeholder="Search Song" ref={(c) => songToSearch = c} /><br />
+            <MdOutlineManageSearch size="24" className="my-auto" class="button" onClick={searchSongSubmit} />
+        </form>
+        <span id="searchSongResult">{message}</span>
+    </div>
   );
 };
 
