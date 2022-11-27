@@ -1,4 +1,5 @@
 import CreatePostContainer from "./CreatePostContainer";
+import DeletePostContainer from "./DeletePostContainer";
 import TopBarHome from "./TopBarHome"
 
 const HomeContent = () => {
@@ -11,6 +12,7 @@ const HomeContent = () => {
                 <div className="ml-32">
                     <div className='ml-6 text-white'>curated by your friends!</div>
                     <CreatePostContainer />
+                    <DeletePostContainer />
                 </div>
                 
             </div>
