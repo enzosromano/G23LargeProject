@@ -19,7 +19,7 @@ Here are the tables:
 
 -> This table keeps track of the last used values and the fields the relate to in other tables. Intended for use in auto increment fields.
 
-There are no autoincrement fields in the current schema.
+There are no auto incrementing fields in the current schema.
 
 
 
@@ -35,7 +35,8 @@ There are no autoincrement fields in the current schema.
 <boolean>   "isVerified":      Value representing whether or not this account has been email verified. (true/false)
 <string>    "password":        User's password. (Should be hashed)
 <number>    "totalLikes":      Number of total likes since its addition to the database. (Integer)
-<array>     "relationships":   Array of object references (_id) that represent the ids of mutually friended users. (Array of objects) 
+<array>     "relationships":   Array of user ids of people whom the user has liked or blocked. (Array of objects)
+<array>     "likedPosts":      Array of post ids that the user has liked. (Array of objects)
 
 
 
@@ -51,3 +52,18 @@ There are no autoincrement fields in the current schema.
 <string>   "length":   Time in minutes and seconds. (In the format "MM:SS")
 <string>   "year":     Year of official relase.
 <number>   "likes":    Number of total likes since its addition to the database. (Integer)
+
+
+
+"posts"
+
+-> This table contains all posts and tracks who likes them.
+
+<object>   "_id":       Identifier for this post. [Unique]
+<object>   "creator":   The user who made the post.
+<string>   "message":   The message body of the post. (Can be "")
+<object>   "song":      The song associated with the post. (Shouldn't be empty)
+<number>   "likes":     The number of people who like the post. (Integer) 
+<array>    "likedBy":   An array containing the users who have liked the post. (Array of objects)
+<number>   "updatedAt": An number representing the date at which the post was most recently changed. (Integer)
+
