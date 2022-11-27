@@ -744,6 +744,7 @@ async function getAllUsers() {
             delete results[i].relationships;
             delete results[i].isVerified;
             delete results[i].email;
+            delete results[i].likedPosts;
             ret.results.push(results[i]);
           }
           else
@@ -761,6 +762,7 @@ async function getAllUsers() {
                   delete results[i].relationships;
                   delete results[i].isVerified;
                   delete results[i].email;
+                  delete results[i].likedPosts;
                   ret.results.push(results[i]);
                 }
 
@@ -1020,6 +1022,7 @@ async function searchForFriends(userId, keyword) {
               delete results[i].relationships;
               delete results[i].isVerified;
               delete results[i].email;
+              delete results[i].likedPosts;
               ret.results.push(results[i]);
             }
           }
@@ -1126,6 +1129,7 @@ async function searchForBlocked(userId, keyword) {
               delete results[i].relationships;
               delete results[i].isVerified;
               delete results[i].email;
+              delete results[i].likedPosts;
               ret.results.push(results[i]);
             }
           }
@@ -2130,7 +2134,7 @@ async function createPost(userId, postObject) {
     ret.results = post;
 
   }
-  catch {
+  catch (e) {
     var check = await checkId(userId, "user");
     if (!(check.message == ""))
     {
@@ -2270,8 +2274,9 @@ async function likePost(userId, postId) {
           }
         }
 
-        // If user has not liked the post, push userId into likedBy array,
-        // increment song's likes by 1, creator's totalLikes by 1, post's likes by 1
+        // If user has not liked the post: push userId into likedBy array,
+        // increment song's likes by 1, creator's totalLikes by 1, post's likes by 1,
+        // then lastly add the post ID to the user's likedPosts array
         if (!likedPost)
         {
           // Add user to post's likedBy array
@@ -2296,6 +2301,12 @@ async function likePost(userId, postId) {
           await db.collection("posts").updateOne(
             {_id: ObjectId(post._id)},
             {$inc: {"likes": 1}}
+          );
+
+          // Add the post ID to the user's likedPosts array
+          await db.collection("users").updateOne(
+            {_id: ObjectId(userId)},
+            {$push:{"likedPosts": (post._id).toString()}}
           );
 
           // Obtain new creator and song objects
@@ -2412,8 +2423,9 @@ async function unlikePost(userId, postId) {
           }
         }
 
-        // If user has liked the post, pull userId from likedBy array,
-        // decrement song's likes by 1, creator's totalLikes by 1, post's likes by 1
+        // If user has liked the post: pull userId from likedBy array,
+        // decrement song's likes by 1, creator's totalLikes by 1, post's likes by 1,
+        // pull post ID from the user's likedPosts array
         if (likedPost)
         {
           // Pull user from post's likedBy array
@@ -2438,6 +2450,12 @@ async function unlikePost(userId, postId) {
           await db.collection("posts").updateOne(
             {_id: ObjectId(post._id)},
             {$inc: {"likes": -1}}
+          );
+
+          // Pull post ID from the user's likedPosts array
+          await db.collection("users").updateOne(
+            {_id: ObjectId(userId)},
+            {$pull:{"likedPosts": (post._id).toString()}}
           );
 
           // Obtain new creator and song objects
@@ -2584,7 +2602,7 @@ async function getUserPosts(userId) {
   }
 
   try {
-    var results = await db.collection("posts").find({ creator: ObjectId(userId) }).toArray();
+    var results = await db.collection("posts").find({ "creator._id": ObjectId(userId) }).toArray();
 
     if (results.length != 0)
     {
@@ -2667,7 +2685,7 @@ async function getFriendPosts(userId) {
           friendId = ObjectId(user.relationships[i].id);
 
           // Query all posts that have a creator ID of friendId
-          friendPosts = await db.collection("posts").find({ creator: friendId }).toArray();
+          friendPosts = await db.collection("posts").find({ "creator._id": friendId }).toArray();
 
           // Add posts to results
           results = results.concat(friendPosts);
