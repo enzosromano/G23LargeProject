@@ -2727,6 +2727,108 @@ async function getFriendPosts(userId) {
 
 //#endregion
 
+//#region Populate leaderboard with sorted posts (by likes)
+
+app.get('/posts/:userId/leaderboard', (req, res) => {
+  const val = authenticateToken(req, res);
+
+  if(val != 1) return res.status(403).json({error: "Invalid Token"});
+  (async () => {
+    var ret = await getSortedPosts(req.params.userId);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret);
+    }
+  })();
+});
+
+async function getSortedPosts(userId) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user;
+    var friendId;
+    var friendPosts;
+    var results = [];
+
+    user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+    if (user) // If user exists in db
+    {
+
+      //Populate the users posts first
+      userPosts = await db.collection("posts").find({ "creator._id": ObjectId(userId) }).toArray();
+      results = results.concat(userPosts);
+      console.log(results);
+
+      // Iterate through user's relationship array
+      for (var i = 0; i < user.relationships.length; i++)
+      {
+        // If relationship is a frendship...
+        if (user.relationships[i].friend)
+        {
+          // Get friend's ID
+          friendId = ObjectId(user.relationships[i].id);
+
+          // Query all posts that have a creator ID of friendId
+          friendPosts = await db.collection("posts").find({ "creator._id": friendId }).toArray();
+
+          // Add posts to results
+          results = results.concat(friendPosts);
+        }
+      }
+
+      if (results.length != 0)
+      {
+        results.sort(function(a, b) {
+          return a.likes - b.likes;
+        });
+        ret.results = results;
+        ret.message = `${results.length} post(s) found.`;
+      }
+      else
+      {
+        ret.message = `No posts found.`;
+      }
+    }
+    else
+    {
+      ret.message = `No user found with id = ${userId}`;
+    }
+    ret.success = true;
+
+  } catch (e) {
+    var check = await checkId(userId, "friend post");
+    if (!(check.message == ""))
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
+//#endregion
+
 //#region helper function: check whether an ID is valid/invalid
 
 async function checkId(id, idName) {
