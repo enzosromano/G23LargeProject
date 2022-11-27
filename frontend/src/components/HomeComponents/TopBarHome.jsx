@@ -1,5 +1,6 @@
 import { BsMusicNoteList } from 'react-icons/bs';
 import { MdOutlineManageSearch } from 'react-icons/md';
+import SearchSongContainer from './SearchSongContainer';
 
 const TopBarHome = ({text}) => {
     return (
@@ -10,11 +11,7 @@ const TopBarHome = ({text}) => {
                     <MusicIcon />
                     <h4 className="top-text">{text}</h4>
                 </div>
-                <Search />
-                <div className= 'float-right'>
-                    <SearchIcon />
-                </div>
-                    
+                <SearchSongContainer />     
             </div>
                 
         </div> 
@@ -26,20 +23,6 @@ const MusicIcon = () => (
     <div className="flex items-center justify-start">
         <BsMusicNoteList size="24" className="top-bar-icon" />
         <span className="font-semibold text-brown-600">TuneTable</span>
-    </div>
-)
-const Search = () => (
-    <div className="search">
-        
-        <input className="search-input" type="text" placeholder="Search Song" />
-    </div>
-);
-
-const SearchIcon = () => (
-    <div className= " flex flex-col ">
-        <button className="self-end">
-            <MdOutlineManageSearch size="24" className="my-auto" />
-        </button>
     </div>
 )
 
