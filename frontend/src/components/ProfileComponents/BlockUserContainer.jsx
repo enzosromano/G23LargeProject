@@ -22,16 +22,16 @@ function BlockUserContainer() {
         event.preventDefault();
         //First find the friend to delete
         try {
-            const response = await fetch(buildPath('users/search/' + blockUser.value), { method: 'GET', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/search/' + blockUser.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
-            var res = JSON.parse(await response.text());
+            var res1 = JSON.parse(await response.text());
 
-            if (!res.success) {
-                setMessage(JSON.stringify(res));
+            if (!res1.success) {
+                setMessage(JSON.stringify(res1));
             }
             else {
-                console.log(res.results[0])
-                setMessage(JSON.stringify(res.message));
+                
+                setMessage(JSON.stringify(res1.message));
                 
             }
         }
@@ -45,15 +45,15 @@ function BlockUserContainer() {
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/block/' + res.results[0]._id), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/block/' + res1.results[0]._id), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
-            var res = JSON.parse(await response.text());
+            var res2 = JSON.parse(await response.text());
 
-            if (!res.success) {
-                setMessage(JSON.stringify(res));
+            if (!res2.success) {
+                setMessage(JSON.stringify(res2));
             }
             else {
-                setMessage(JSON.stringify(res.message));
+                setMessage(JSON.stringify(res2.message));
                 
             }
         }
