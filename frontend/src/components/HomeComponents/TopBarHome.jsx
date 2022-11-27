@@ -1,6 +1,5 @@
 import { BsMusicNoteList } from 'react-icons/bs';
-import { MdOutlineManageSearch } from 'react-icons/md';
-import SearchSongContainer from './SearchSongContainer';
+
 
 const TopBarHome = ({text}) => {
     return (
@@ -10,8 +9,7 @@ const TopBarHome = ({text}) => {
                 <div className='flex flex-row justify-evenly'>
                     <MusicIcon />
                     <h4 className="top-text">{text}</h4>
-                </div>
-                <SearchSongContainer />     
+                </div>   
             </div>
                 
         </div> 
