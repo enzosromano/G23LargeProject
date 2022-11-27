@@ -27,27 +27,24 @@ function AddFriendContainer() {
             setMessage("Please provide a valid user to add")
             return
         }
-
+        
         var userID = localStorage.getItem('userID')
         var obj = { friendToAdd: friendToAdd.value };
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch(buildPath('users/search/' + friendToAdd.value), { method: 'GET', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + userID + '/search/' + friendToAdd.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
-            var res = JSON.parse(await response.text());
+            var res1 = JSON.parse(await response.text());
 
-            if (!res.success) {
-                setMessage(JSON.stringify(res));
+            if (!res1.success) {
+                setMessage(JSON.stringify(res1));
             }
             else {
-                console.log(res.results)
-                console.log(res.results[0])
-                localStorage.setItem('friendID', res.results[0]._id);
-                localStorage.setItem('friendFirstName', res.results[0].firstName);
-                localStorage.setItem('friendLastName', res.results[0].lastName);
-                localStorage.setItem('friendUsername', res.results[0].username);
-                setMessage(JSON.stringify(res.message));
+                console.log(res1)
+                localStorage.setItem('friendID', res1.results[0]._id)
+                console.log("good")
+                setMessage(JSON.stringify(res1.message));
                 
             }
         }
@@ -59,19 +56,17 @@ function AddFriendContainer() {
 
         try {
 
-            var friendID = localStorage.getItem('friendID')
-            console.log(friendID + "/n" + userID)
-            const response = await fetch(buildPath('users/' + userID + '/addFriend/' + friendID), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + userID + '/addFriend/' + localStorage.getItem('friendID')), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
-            var res = JSON.parse(await response.text());
+            var res2 = JSON.parse(await response.text());
 
-            if (!res.success) {
-                setMessage(JSON.stringify(res));
+            if (!res2.success) {
+                setMessage(JSON.stringify(res2));
             }
             else {
                 
 
-                setMessage(JSON.stringify(res.message));
+                setMessage(JSON.stringify(res2.message));
                 
             }
         }
