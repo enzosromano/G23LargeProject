@@ -718,8 +718,9 @@ async function getAllUsers() {
     }
   
     try {
+      var blockedSearchingUser;
       var resultsCheck = [];
-      resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
+      // resultsCheck = await db.collection("users").find({'email': {'$regex': keyword},}).toArray();
       resultsCheck = resultsCheck.concat(await db.collection("users").find({'username': {'$regex': keyword},}).toArray());
       resultsCheck = resultsCheck.concat(await db.collection("users").find({'firstName': {'$regex': keyword},}).toArray());
       resultsCheck = resultsCheck.concat(await db.collection("users").find({'lastName': {'$regex': keyword},}).toArray());
@@ -738,6 +739,7 @@ async function getAllUsers() {
         ret.results = [];
         for (var i = 0; i < results.length; i++)
         {
+          blockedSearchingUser = false;
           // A user that has no relationships implies that they are not blocking the searching user
           if (results[i].relationships.length == 0)
           {
@@ -748,9 +750,12 @@ async function getAllUsers() {
             delete results[i].likedPosts;
             ret.results.push(results[i]);
           }
+          // Accout for two situations: 
+          //  (1) user results[i] has relationships with searching user and is not blocking searching user
+          //  (2) user results[i] has no relationships with the searching user
           else
           {
-            // Check if relationship exists with the searching user
+            // Check for situation 1
             for (var j = 0; j < results[i].relationships.length; j++)
             {
               // If there exists a relationship with the searching user...
@@ -765,10 +770,23 @@ async function getAllUsers() {
                   delete results[i].email;
                   delete results[i].likedPosts;
                   ret.results.push(results[i]);
-                }
 
-                break;
+                  blockedSearchingUser = true;
+                  break;
+                }
               }
+            }
+            // If situation 1 is not the case, situation 2 is true
+            if (!blockedSearchingUser)
+            {
+              delete results[i].password;
+              delete results[i].relationships;
+              delete results[i].isVerified;
+              delete results[i].email;
+              delete results[i].likedPosts;
+              ret.results.push(results[i]);
+
+              blockedSearchingUser = true;
             }
           }
         }
@@ -922,7 +940,13 @@ async function getFriends(userId) {
         if (exists.relationships[i].friend)
         {
           query = await db.collection("users").findOne({ _id: ObjectId(exists.relationships[i].id) }); 
-          ret.results.push({id: exists.relationships[i].id, username: query.username});
+          ret.results.push({
+            id: exists.relationships[i].id,
+            firstName: query.firstName,
+            lastName: query.lastName,
+            username: query.username,
+            totalLikes: query.totalLikes
+          });
         }
       }
 
@@ -1215,7 +1239,13 @@ async function getBlocked(userId) {
         if (exists.relationships[i].blocked)
         {
           query = await db.collection("users").findOne({ _id: ObjectId(exists.relationships[i].id) }); 
-          ret.results.push({id: exists.relationships[i].id, username: query.username});
+          ret.results.push({
+            id: exists.relationships[i].id,
+            firstName: query.firstName,
+            lastName: query.lastName,
+            username: query.username,
+            totalLikes: query.totalLikes
+          });
         }
       }
 
