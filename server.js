@@ -131,6 +131,26 @@ function sendVerificationEmail(email, userId) {
     });
 }
 
+function sendPasswordResetEmail(email) {
+  const msg = {
+    to: email, // Change to your recipient
+    from: 'gab.01@hotmail.com', // Change to your verified sender
+    subject: 'Tune Table Password Reset Email',
+    text: 'Tune Table Password Reset',
+    html: `Click <strong><a href="tunetable23.herokuapp.com/ChangeThisLink">here</a></strong> to reset your password with Tune Table`
+  };
+
+  sendgrid
+    .send(msg)
+    .then(() => {
+      console.log('Password Reset Email Sent')
+    })
+    .catch((error) => {
+      console.error(error)
+
+    });
+}
+
 //#endregion 
 
 //JWT Testing and reference code
@@ -363,7 +383,8 @@ async function loginAndValidate(userName, password) {
 
 //#region User reset password
 
-app.put("/users/:userId/password", (req, res) => { //TODO: Fix and add hashing to passwords
+app.put("/users/:userId/password", (req, res) => { 
+  //This is the endpoint that resets the user's password afterwards
 
   var id = req.params.userId;
   const { password } = req.body;
@@ -429,6 +450,67 @@ async function passwordReset(userId, newPassword) {
   await client.close();
   return ret;
 }
+
+
+app.post("/users/:userId/sendPasswordReset", (req, res) => { 
+  //This endpoint gets hit initially when user wants to reset password and it sends the email
+
+  var id = req.params.userId;
+
+  (async () => {
+    var ret = await sendPasswordReset(id);
+
+    if(ret.success)
+    {
+      res.status(200).json(ret);
+    }
+    else
+    {
+      res.status(400).json(ret);
+    }
+
+  })();
+
+});
+
+async function sendPasswordReset(userId) {
+  // Connect to db and get user
+  await client.connect();
+  db = client.db("TuneTables");
+  var ObjectId = require('mongodb').ObjectId;
+
+  var ret = {
+    success: false,
+    message: "",
+    results: {}
+  }
+
+  try {
+    var user = await db.collection("users").findOne({ _id: ObjectId(userId) });
+
+    sendPasswordResetEmail(user.email);
+
+    ret.success = true;
+    ret.message = "Password Reset Email Sent";
+
+  } catch (e) {
+    // ret.message = "We were unable to reset the user's password.";
+    var check = await checkId(userId, "user");
+    if (!(check.message == ""))
+    {
+      ret = check;
+      await client.close();
+      return ret;
+    }
+
+    console.log(e);
+    ret.message = e;
+  }
+
+  await client.close();
+  return ret;
+}
+
 
 //#endregion
 
