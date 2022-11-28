@@ -25,7 +25,7 @@ function UnlikePostContainer() {
 
         try {
             //Needs postId and userId
-            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/like/:postId'), { method: 'POST', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/unlike/:postId'), { method: 'POST', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 
-function DeletePostContainer() {
+function DeletePostContainer({postID}) {
 
     const app_name = "tunetable23"
     
     function buildPath(route) {
 
         if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
+            console.log("https://" + app_name + ".herokuapp.com/" + route)
             return "https://" + app_name + ".herokuapp.com/" + route;
         }
         else {
+            console.log('http://localhost:5000/' + route)
             return 'http://localhost:5000/' + route;
         }
     }
@@ -25,8 +27,8 @@ function DeletePostContainer() {
         //Need to find postID
 
         try {
-            const response = await fetch(buildPath('posts/${postID}'), { method: 'DELETE', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
-
+            const response = await fetch(buildPath('posts/' + postID), { method: 'DELETE', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            
             var res = JSON.parse(await response.text());
 
             if (!res.success) {
@@ -36,6 +38,7 @@ function DeletePostContainer() {
     
 
                 setMessage(JSON.stringify(res.message));
+                window.location.reload(false);
                 
             }
         }

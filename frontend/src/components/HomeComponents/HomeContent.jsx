@@ -2,6 +2,7 @@ import CreatePostContainer from "./CreatePostContainer";
 import DeletePostContainer from "./DeletePostContainer";
 import GetFriendsPostContainer from "./GetFriendsPostContainer";
 import GetUserPostsContainer from "./GetUserPostsContainer";
+import GetUserPostsContainerV2 from "./GetUserPostsContainerV2";
 import TopBarHome from "./TopBarHome"
 
 const HomeContent = () => {
@@ -12,7 +13,8 @@ const HomeContent = () => {
             <div className="music-table">
                 <br/>
                 <div className="ml-32">
-                    <div className='ml-6 text-white'>curated by your friends!</div>
+                    <div className='ml-6 text-white'>Your Posts!</div>
+                    <GetUserPostsContainerV2 />
                     <CreatePostContainer />
                     <DeletePostContainer />
                     <GetUserPostsContainer />
