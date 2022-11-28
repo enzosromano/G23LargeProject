@@ -1,5 +1,7 @@
 import CreatePostContainer from "./CreatePostContainer";
 import DeletePostContainer from "./DeletePostContainer";
+import GetFriendsPostContainer from "./GetFriendsPostContainer";
+import GetUserPostsContainer from "./GetUserPostsContainer";
 import TopBarHome from "./TopBarHome"
 
 const HomeContent = () => {
@@ -13,6 +15,8 @@ const HomeContent = () => {
                     <div className='ml-6 text-white'>curated by your friends!</div>
                     <CreatePostContainer />
                     <DeletePostContainer />
+                    <GetUserPostsContainer />
+                    <GetFriendsPostContainer />
                 </div>
                 
             </div>
