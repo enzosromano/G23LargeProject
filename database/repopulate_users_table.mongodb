@@ -6,9 +6,9 @@ use('TuneTables');
 db.users.drop();
 
 //Add indexes for partial text search
-db.users.createIndex({"username":"text"});
+db.users.createIndex({"username":"text", "firstName":"text", "lastName":"text"});
 
-// Add inde
+// Add index
 db.users.createIndex({"email":1}, {unique: true});
 
 // inserting into Users
