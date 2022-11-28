@@ -45,7 +45,9 @@ function Login() {
                 document.cookie = 'totalLikes=' + user.totalLikes
                 document.cookie = 'token=' + user.token
                 
-
+                
+                localStorage.setItem('username', username.value);
+                
                 localStorage.setItem('userID', res.results["_id"]);
                 localStorage.setItem('email', JSON.stringify(user.email));
                 localStorage.setItem('firstName', JSON.stringify(user.firstName));

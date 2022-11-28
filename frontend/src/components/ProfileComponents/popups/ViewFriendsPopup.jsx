@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+
 function ViewFriendsPopup({active, close}) {
     
     const app_name = "tunetable23";
@@ -27,10 +28,10 @@ function ViewFriendsPopup({active, close}) {
             return;
         }
 
+        let userId = localStorage.getItem('userID');
         
-
         try {
-            const response = await fetch(buildPath('users/search/' + userToSearch.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + userId + '/search/' + userToSearch.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
