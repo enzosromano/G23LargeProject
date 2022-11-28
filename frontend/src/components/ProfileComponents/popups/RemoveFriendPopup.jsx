@@ -69,7 +69,7 @@ function RemoveFriendPopup({active, close}) {
                     <label className="text-white">username</label>
                     <input type="text" id="deleteFriend" placeholder="Remove Friend" ref={(c) => friendToDelete = c} className="text-gray-700 border-2 relative p-2 mb-4" />
                     <div className="flex justify-evenly">
-                        <button onClick={close} className="w-1/3 text-white p-1 border"> cancel </button>
+                        <button onClick={close} className="w-1/3 text-white p-1 border"> close </button>
                         <input type="submit" value="submit" onClick={deleteFriendSubmit} className="w-1/3 text-white p-1 border cursor-pointer"/>
                     </div>
                     <span id="deleteFriendResult" className="my-2 text-brown-600">{message}</span>
