@@ -36,13 +36,15 @@ const ProfileContent = () => {
     const [resetPasswordPopup, setResetPasswordPopup] = useState(false);
     const resetPasswordClose = () => setResetPasswordPopup(false);
     
+    let email = localStorage.getItem('email');
+    
     return (
         <div>
             <div className="bg-brown-500 h-screen w-screen flex items-center justify-center">
                 <div className="bg-brown-200 w-full max-w-[450px] rounded-lg text-center flex flex-col items-center p-6">
                     <img src="https://avatars.dicebear.com/api/open-peeps/1.svg" className="rounded-full w-32" alt="pfp" />
                     <div className="m-4 text-4xl font-semibold text-brown-600"> Xxian69xX </div>
-                    <div className="font-semibold text-white my-2">Account Email: samu.wall02@gmail.com</div>
+                    <div className="font-semibold text-white my-2">Account Email: {email}</div>
                     {/* these are pop ups */}
                     <button onClick={() => setViewFriendsPopup(true)} className="profile-text-btn">View Friends</button>
                     <button onClick={() => setAddFriendPopup(true)} className="profile-text-btn">Add Friend</button>
