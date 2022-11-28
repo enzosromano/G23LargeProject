@@ -17,16 +17,16 @@ const SideBar = () => {
 
 const SideBarIcon = ({ icon, text, routing }) => (
     
-    <div className="sidebar-icon group">
-        <button onClick={() => window.location.href = routing}>
-        
-            {icon}
-            <span className="sidebar-help group-hover:scale-100">
-                {text}
-            </span>
+    // fixed sidebar help tip positioning
+    <button className="sidebar-icon group" onClick={() => window.location.href = routing}>
+    
+        {icon}
+        <span className="sidebar-help group-hover:scale-100">
+            {text}
+        </span>
 
-        </button>
-    </div>
+    </button>
+    
 
 );
 
