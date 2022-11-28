@@ -18,84 +18,134 @@ db.posts.createIndex({"username":"text", "updatedAt": 1});
 // inserting into Songs
 db.posts.insertMany([
     { // 1
-        "creator":      user2._id,
+        "creator":      {
+            "_id":          user2._id,
+            "firstName":    user2.firstName,
+            "lastName":     user2.lastName,
+            "username":     user2.username
+        },
         "message":      "I really wish I had had some more of this...",
         "song":         songs[0]._id, // Respect
         "likes":        2,
         "likedBy":      [user3._id, user4._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 2
-        "creator":      user1._id,
+        "creator":      {
+            "_id":          user1._id,
+            "firstName":    user1.firstName,
+            "lastName":     user1.lastName,
+            "username":     user1.username
+        },
         "message":      "You and me both, brothers.",
         "song":         songs[1]._id, // (I Can't Get No) Satisfaction
         "likes":        2,
         "likedBy":      [user1._id, user3._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 3
-        "creator":      user1._id,
+        "creator":      {
+            "_id":          user1._id,
+            "firstName":    user1.firstName,
+            "lastName":     user1.lastName,
+            "username":     user1.username
+        },
         "message":      "Go Johnny, go!!",
         "song":         songs[2]._id, // Johnny B. Goode
         "likes":        2,
         "likedBy":      [user1._id, user4._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 4
-        "creator":      user4._id,
+        "creator":      {
+            "_id":          user4._id,
+            "firstName":    user4.firstName,
+            "lastName":     user4.lastName,
+            "username":     user4.username
+        },
         "message":      "I'm not making a german joke, sorry.",
         "song":         songs[3]._id, // Blitzkrieg Bop
         "likes":        0,
         "likedBy":      [],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 5
-        "creator":      user1._id,
+        "creator":      {
+            "_id":          user1._id,
+            "firstName":    user1.firstName,
+            "lastName":     user1.lastName,
+            "username":     user1.username
+        },
         "message":      "This is an interesting sobriety test for sure!",
         "song":         songs[4]._id, // I Walk the Line
         "likes":        3,
         "likedBy":      [user1._id, user2._id, user3._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 6
-        "creator":      user1._id,
+        "creator":      {
+            "_id":          user1._id,
+            "firstName":    user1.firstName,
+            "lastName":     user1.lastName,
+            "username":     user1.username
+        },
         "message":      "Hey Jude, could you turn the light off when you get up?",
         "song":         songs[5]._id, // Hey Jude
         "likes":        1,
         "likedBy":      [user1._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 7
-        "creator":      user1._id,
+        "creator":      {
+            "_id":          user1._id,
+            "firstName":    user1.firstName,
+            "lastName":     user1.lastName,
+            "username":     user1.username
+        },
         "message":      "Rick james definitely knew how to pick 'em!",
         "song":         songs[6]._id, // Super Freak
         "likes":        4,
         "likedBy":      [user1._id, user2._id, user3._id, user4._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 8
-        "creator":      user3._id,
+        "creator":      {
+            "_id":          user3._id,
+            "firstName":    user3.firstName,
+            "lastName":     user3.lastName,
+            "username":     user3.username
+        },
         "message":      "Sometimes, I feel like I'm stuck in this groove :/ The song's good, though",
         "song":         songs[7]._id, // Into The Groove
         "likes":        1,
         "likedBy":      [user4._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 9
-        "creator":      user2._id,
+        "creator":      {
+            "_id":          user2._id,
+            "firstName":    user2.firstName,
+            "lastName":     user2.lastName,
+            "username":     user2.username
+        },
         "message":      "Dreaming of those sweet $120k+ SWE jobs.. One day!!",
         "song":         songs[8]._id, // Dream On
         "likes":        1,
         "likedBy":      [user2._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
     { // 10
-        "creator":      user1._id,
+        "creator":      {
+            "_id":          user1._id,
+            "firstName":    user1.firstName,
+            "lastName":     user1.lastName,
+            "username":     user1.username
+        },
         "message":      "Only 17? In this economy?!",
         "song":         songs[9]._id, // Dancing Queen
         "likes":        1,
         "likedBy":      [user1._id],
-        "updatedAt":    112622
+        "updatedAt":    "Monday, November 28, 2022"
     },
 ]);
 
