@@ -1,41 +1,71 @@
 import React from "react";
-import LeaderBoardTable from "./LeaderBoardTable";
+//import LeaderBoardTable from "./LeaderBoardTable";
 import TopBarLeaderboard from "./TopBarLeaderboard";
 
 
+// const Leaderboard = () => {
+//     return (
+//         <div className="flex flex-col m-0 h-full w-full overflow-hidden">
+//             <TopBarLeaderboard text = "THIS WEEK'S LEADERBOARD."/>
+            
+//             <div className="flex flex-col h-screen bg-brown-500 ml-32">
+//                 <LeaderBoardTable />
+//                 <LeaderboardEntry username="samu_420" pfp="21"/>
+//                 <LeaderboardEntry username="Xxian69xX" pfp="61"/>
+//             </div>
+            
+//         </div>
+        
+//     );    
+// };
+
+
+// I was thinking that instead of a plain html table we place a <LeaderboardEntry> element
+// for every friend in leaderboard with their information (user/num_likes for the week/maybe pfp)
 const Leaderboard = () => {
     return (
         <div className="flex flex-col m-0 h-full w-full overflow-hidden">
-            <TopBarLeaderboard text = "THIS WEEK'S LEADERBOARD."/>
+            <TopBarLeaderboard text = "this week's leaderboard."/>
             
             <div className="flex flex-col h-screen bg-brown-500 ml-32">
-                <LeaderBoardTable />
-                <LeaderboardEntry username="samu_420" pfp="21"/>
-                <LeaderboardEntry username="Xxian69xX" pfp="61"/>
+                <LeaderboardEntry username="samu_420" pfp="21" num_likes="21" />
+                <LeaderboardEntry username="Xxian69xX" pfp="8" num_likes="15" />
+                <LeaderboardEntry username="guy23" pfp="60" num_likes="14" />
+                <LeaderboardEntry username="dude65" pfp="120" num_likes="1" />
             </div>
             
         </div>
         
-    );    
+    );  
 };
 
-const LeaderboardEntry = ({username, pfp}) => (
-    <div className="flex flex-row mx-10 my-10 rounded-lg bg-brown-100 text-white content-center">
-        <ProfilePic pfp="23"/> 
-        <div className="font-semibold "> {username} </div>
+const LeaderboardEntry = ({username, num_likes, pfp}) => (
+    <div className="flex mx-10 my-6 rounded-lg bg-brown-200 shadow-2xl text-white ">
+        <ProfilePic pfp={pfp}/> 
+        
+            <span className="w-7/12 mx-4 text-xl font-semibold leading-[5]"> {username} </span>
+            {/* <span className="w-7/12 mx-4 text-xl font-semibold leading-[5]"> list of songs from that week?: </span> */}
+            <div className="w-2/12 text-end">
+                <span className="justify mx-2 text-xl font-semibold leading-[5]"> likes:</span>
+                <span className="align-sub text-4xl font-bold text-brown-600 shadow-2xl">{num_likes}</span>
+            </div>
+        
     </div>
 );
 
-// for some reason capitalization matters
-const ProfilePic = ({pfp}) => (
-    
+
+const ProfilePic = ({pfp}) => {
     
     // instead of this placeholder pfp system, probably need to get img from API
-    <div className="flex flex-wrap justify-center">
-        <div className="w-full m-2 px-1">
-            <img src={'https://avatars.dicebear.com/api/open-peeps/{pfp}.svg'} alt="..." className="shadow-lg rounded-full w-20 h-full align-middle border-none" />
+    
+    let url = 'https://avatars.dicebear.com/api/open-peeps/' + pfp +'.svg';
+    return (
+        <div className="flex flex-wrap justify-center">
+            <div className="w-full m-2 px-1 bg-brown-300 rounded-full">
+                <img src={url} alt="pfp" className="shadow-lg rounded-full w-20 h-full align-middle border-none" />
+            </div>
         </div>
-    </div>
-);
+    );
+}
 
 export default Leaderboard;

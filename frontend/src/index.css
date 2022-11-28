@@ -25,8 +25,7 @@
     }
     .top-bar-icon {
         @apply mr-3 ml-4
-             text-brown-600 font-semibold
-             transition duration-300 ease-in-out hover:text-amber-900 cursor-pointer;
+             text-brown-600 font-semibold;
     }
     .top-text {
         @apply text-xl text-white tracking-wider font-semibold text-opacity-80 mr-8 ml-8 my-auto
@@ -54,6 +53,12 @@
     
     .text-field {
         @apply text-white relative bg-brown-500 p-1 focus:outline-none;
+    }
+    .profile-text-btn {
+        @apply font-semibold text-white my-2 cursor-pointer hover:text-brown-600
+        p-1 border-2 border-brown-500 hover:border-brown-300 bg-brown-300
+        transition duration-200 rounded-lg
+        w-2/3;
     }
     
 }
