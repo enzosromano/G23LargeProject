@@ -72,7 +72,7 @@ function RemoveFriendPopup({active, close}) {
                         <button onClick={close} className="w-1/3 text-white p-1 border"> cancel </button>
                         <input type="submit" value="submit" onClick={deleteFriendSubmit} className="w-1/3 text-white p-1 border cursor-pointer"/>
                     </div>
-                    <span id="deleteFriendResult">{message}</span>
+                    <span id="deleteFriendResult" className="my-2 text-brown-600">{message}</span>
                 </form>
                 
             

@@ -74,7 +74,7 @@ function BlockUserPopup({active, close}) {
                         <button onClick={close} className="w-1/3 text-white p-1 border"> cancel </button>
                         <input type="submit" value="submit" onClick={blockUserSubmit} className="w-1/3 text-white p-1 border cursor-pointer"/>
                     </div>
-                    <span id="blockUserResult">{message}</span>
+                    <span id="blockUserResult" className="my-2 text-brown-600">{message}</span>
                 </form>
                 
         </div>

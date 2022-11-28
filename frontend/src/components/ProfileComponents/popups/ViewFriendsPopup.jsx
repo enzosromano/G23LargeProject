@@ -62,7 +62,7 @@ function ViewFriendsPopup({active, close}) {
                         <input type="text" id="username" placeholder="Search User" ref={(c) => userToSearch = c} className="text-gray-700 border-2 relative p-2 mb-4"/><br />
                         <input type="submit" onClick={searchUserSubmit} className="w-1/3 text-white p-1 border cursor-pointer" />
                     </form>
-                    <span id="searchUserResult">{message}</span>
+                    <span id="searchUserResult" className="my-2 text-brown-600">{message}</span>
                     <button onClick={close} className="w-1/3 text-white p-1 my-1 border"> close </button>
                 </div>
                 

@@ -72,7 +72,7 @@ function DeleteUserPopup({active, close}) {
                         <input type="submit" onClick={deleteUserSubmit} value="yes, delete my account" className="w-5/12 p-1 border border-red-500 bg-red-200 hover:bg-red-600 cursor-pointer"/>
                     </div>
                 </form>
-                <span id="deleteUserResult">{message}</span>
+                <span id="deleteUserResult" className="my-2 text-brown-600">{message}</span>
                 
             </div>
         </div>
