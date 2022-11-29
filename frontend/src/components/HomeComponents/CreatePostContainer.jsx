@@ -63,7 +63,7 @@ function CreatePostContainer() {
     
 
                 setMessage(JSON.stringify(res2.message));
-                
+                window.location.reload(false);
             }
         }
         catch (e) {
