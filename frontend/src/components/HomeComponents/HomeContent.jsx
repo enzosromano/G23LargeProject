@@ -32,7 +32,7 @@ const HomeContent = () => {
         <div className="overflow-x-hidden">
             
             <TopBarHome text = "songs of the week."/>
-            <div className=" bg-gradient-to-b from-brown-500 to-brown-300">
+            <div className=" bg-gradient-to-b from-brown-500 to-brown-300 h-screen">
                 
                 <div className="ml-32 flex flex-col ">
                     <div className="flex h-48 items-center mb-2">
