@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import DeleteFriendContainer from '../DeleteFriendContainer';
 
 
 function ViewFriendsPopup({active, close}) {
     
+    
     const app_name = "tunetable23";
     
     function buildPath(route) {
+        console.log('good')
 
         if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -15,23 +18,16 @@ function ViewFriendsPopup({active, close}) {
         }
     }
 
-    var userToSearch;
-
     const [message, setMessage] = useState("");
+    const [resources, setResources] = useState([]);
 
-
-    const searchUserSubmit = async event => {
+    
+    const getFriendsSubmit = async event => {
         event.preventDefault();
-
-        if("" === userToSearch.value || " " === userToSearch.value) {
-            setMessage("Please provide a valid name");
-            return;
-        }
-
-        let userId = localStorage.getItem('userID');
+        
         
         try {
-            const response = await fetch(buildPath('users/' + userId + '/search/' + userToSearch.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/friends'), { method: 'GET', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
@@ -39,8 +35,8 @@ function ViewFriendsPopup({active, close}) {
                 setMessage(JSON.stringify(res));
             }
             else {
-                console.log(Object.keys(res))
-
+                console.log(res.results)
+                setResources(res.results)
                 setMessage(JSON.stringify(res.message));
                 
             }
@@ -51,19 +47,46 @@ function ViewFriendsPopup({active, close}) {
         }
 
     }
+   
+    
+       
+    
+    
     
     if (!active) return (null);
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-30 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-30 backdrop-blur-sm">
                 
                 <div className="flex flex-col w-full max-w-[400px] mx-auto bg-brown-400/90 p-4 rounded-lg font-semibold">
-                    <div className="mb-4 text-xl text-brown-600">*simple list of friend names from API*</div>
-                    <div className="mb-4 text-white">search user</div>
-                    <form onSubmit={searchUserSubmit}>
-                        <input type="text" id="username" placeholder="Search User" ref={(c) => userToSearch = c} className="text-gray-700 border-2 relative p-2 mb-4"/><br />
-                        <input type="submit" onClick={searchUserSubmit} className="w-1/3 text-white p-1 border cursor-pointer" />
-                    </form>
-                    <span id="searchUserResult" className="my-2 text-brown-600">{message}</span>
+                
+                <table className='w-full table-auto'>
+                        <thead className='text-white'>
+                            <tr>
+                                <th className='p-3 text-sm font-semibold tracking-wide'>Username</th>
+                                <th className='p-3 text-sm font-semibold tracking-wide'>First Name</th>
+                                <th className='p-3 text-sm font-semibold tracking-wide'>Last Name</th>
+                                <th className='p-3 text-sm font-semibold tracking-wide'>Total Likes</th>
+                                <th className='p-3 text-sm font-semibold tracking-wide'>Delete Friend</th>
+                            </tr>
+                        </thead>
+                        <tbody className='text-white'>
+                        
+                            {
+                                resources.map((resource, index) => (
+                                    
+                                    <tr key={index}>
+                                        <td className='p-3 text-sm font-semibold tracking-wide'>{resource.username}</td>
+                                        <td className='p-3 text-sm font-semibold tracking-wide'>{resource.firstName}</td>
+                                        <td className='p-3 text-sm font-semibold tracking-wide'>{resource.lastName}</td>
+                                        <td className='p-3 text-sm font-semibold tracking-wide'>{resource.totalLikes}</td>
+                                        <td className='p-3 text-sm font-semibold tracking-wide'><DeleteFriendContainer postID={resource.id}/></td>
+                                    </tr>
+                            
+                                ))
+                            }
+                        </tbody>
+                     </table>
+                     <button onClick={getFriendsSubmit} className="w-1/3 text-white p-1 my-1 border"> Get Friends </button>
                     <button onClick={close} className="w-1/3 text-white p-1 my-1 border"> close </button>
                 </div>
                 
