@@ -8,6 +8,7 @@ import IndexPage from "./views/indexPage";
 import LeaderboardPage from "./views/leaderboardPage";
 import ProfilePage from "./views/profilePage";
 import ChangePasswordPage from "./views/changePasswordPage";
+import ProvideEmailPage from "./views/provideEmailPage";
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/home" index element={<HomePage/>} />
           <Route path="/profile" index element={<ProfilePage/>} />
           <Route path="/ResetPassword" index element={<ChangePasswordPage/>} />
+          <Route path="/forgetpassword" index element={<ProvideEmailPage/>} />
         </Routes>
       </BrowserRouter>
     </div>
