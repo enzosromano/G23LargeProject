@@ -137,7 +137,7 @@ function sendPasswordResetEmail(email) {
     from: 'gab.01@hotmail.com', // Change to your verified sender
     subject: 'Tune Table Password Reset Email',
     text: 'Tune Table Password Reset',
-    html: `Click <strong><a href="tunetable23.herokuapp.com/ChangeThisLink">here</a></strong> to reset your password with Tune Table`
+    html: `Click <strong><a href="tunetable23.herokuapp.com/ResetPassword">here</a></strong> to reset your password with Tune Table`
   };
 
   sendgrid
