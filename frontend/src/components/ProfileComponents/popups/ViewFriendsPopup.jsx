@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import DeleteFriendContainer from '../DeleteFriendContainer';
 
 
 function ViewFriendsPopup({active, close}) {
+    
     
     const app_name = "tunetable23";
     
@@ -17,7 +19,7 @@ function ViewFriendsPopup({active, close}) {
     }
 
     const [message, setMessage] = useState("");
-    const [resources, setResources] = useState('');
+    const [resources, setResources] = useState([]);
 
     
     const getFriendsSubmit = async event => {
@@ -34,7 +36,7 @@ function ViewFriendsPopup({active, close}) {
             }
             else {
                 console.log(res.results)
-                setResources(JSON.stringify(res.results))
+                setResources(res.results)
                 setMessage(JSON.stringify(res.message));
                 
             }
@@ -45,38 +47,46 @@ function ViewFriendsPopup({active, close}) {
         }
 
     }
+   
+    
+       
+    
     
     
     if (!active) return (null);
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-30 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-30 backdrop-blur-sm">
                 
                 <div className="flex flex-col w-full max-w-[400px] mx-auto bg-brown-400/90 p-4 rounded-lg font-semibold">
-                    {getFriendsSubmit}
-                    <table className='w-full table-auto'>
+                
+                <table className='w-full table-auto'>
                         <thead className='text-white'>
                             <tr>
                                 <th className='p-3 text-sm font-semibold tracking-wide'>Username</th>
                                 <th className='p-3 text-sm font-semibold tracking-wide'>First Name</th>
                                 <th className='p-3 text-sm font-semibold tracking-wide'>Last Name</th>
                                 <th className='p-3 text-sm font-semibold tracking-wide'>Total Likes</th>
+                                <th className='p-3 text-sm font-semibold tracking-wide'>Delete Friend</th>
                             </tr>
                         </thead>
                         <tbody className='text-white'>
+                        
                             {
-                                resources.map((resource) => (
+                                resources.map((resource, index) => (
                                     
-                                    <tr>
+                                    <tr key={index}>
                                         <td className='p-3 text-sm font-semibold tracking-wide'>{resource.username}</td>
                                         <td className='p-3 text-sm font-semibold tracking-wide'>{resource.firstName}</td>
                                         <td className='p-3 text-sm font-semibold tracking-wide'>{resource.lastName}</td>
                                         <td className='p-3 text-sm font-semibold tracking-wide'>{resource.totalLikes}</td>
+                                        <td className='p-3 text-sm font-semibold tracking-wide'><DeleteFriendContainer postID={resource.id}/></td>
                                     </tr>
                             
                                 ))
                             }
                         </tbody>
                      </table>
+                     <button onClick={getFriendsSubmit} className="w-1/3 text-white p-1 my-1 border"> Get Friends </button>
                     <button onClick={close} className="w-1/3 text-white p-1 my-1 border"> close </button>
                 </div>
                 
