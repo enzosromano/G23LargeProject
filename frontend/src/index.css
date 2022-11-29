@@ -44,11 +44,15 @@
     }
     
     
-    .music-container {
+    /* .music-container {
         @apply flex flex-col m-0 h-full w-full overflow-hidden ;
     }
     .music-table {
         @apply h-screen bg-brown-500;
+    } */
+    
+    th, td {
+        @apply border-b p-3 border-brown-600;   
     }
     
     .text-field {
