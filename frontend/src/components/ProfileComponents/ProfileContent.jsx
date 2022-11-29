@@ -44,7 +44,7 @@ const ProfileContent = () => {
     
     return (
         <div>
-            <div className="bg-brown-500 h-screen w-screen flex items-center justify-center">
+            <div className="bg-gradient-to-b from-brown-500 to-brown-300 h-screen w-screen flex items-center justify-center">
                 <div className="bg-brown-200 w-full max-w-[450px] rounded-lg text-center flex flex-col items-center p-6">
                     <img src={url} className="rounded-full w-32" alt="pfp" />
                     <div className="m-4 text-4xl font-semibold text-brown-600"> {username} </div>
