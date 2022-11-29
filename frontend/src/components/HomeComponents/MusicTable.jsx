@@ -90,7 +90,7 @@ function MusicTable() {
                     {
                         friendPosts.map((post, index) => (
                             <tr key={index}>
-                                <td className="text-white">{post.username}</td>
+                                <td className="text-white">{post.creator.username}</td>
                                 <td className="text-white ">{post.song.title}</td>
                                 <td>{post.song.artist}</td>
                                 <td>{post.song.album}</td>
