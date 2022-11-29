@@ -55,7 +55,7 @@ function GetUserPostsContainerV2() {
     }, []);
     
     
-    if (!posts) return (null);
+    if (Object.keys(posts).length === 0) return (null);
 
     return (
         <div className="Get-User-Post-Container">{
