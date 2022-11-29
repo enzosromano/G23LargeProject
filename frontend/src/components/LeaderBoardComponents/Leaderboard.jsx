@@ -11,10 +11,10 @@ function Leaderboard() {
     
     
     return (
-        <div className="flex flex-col m-0 h-full w-full overflow-hidden">
+        <div className="flex flex-col m-0 h-full w-full overflow-x-hidden">
             <TopBarLeaderboard text = "this week's leaderboard."/>
             
-            <div className="flex flex-col h-screen bg-brown-500 ml-32">
+            <div className="flex flex-col h-screen bg-gradient-to-b from-brown-500 to-brown-300 ml-32">
                 <LeaderboardEntry username="samu_420" pfp="21" num_likes="21" />
                 <LeaderboardEntry username="Xxian69xX" pfp="8" num_likes="15" />
                 <LeaderboardEntry username="guy23" pfp="60" num_likes="14" />
