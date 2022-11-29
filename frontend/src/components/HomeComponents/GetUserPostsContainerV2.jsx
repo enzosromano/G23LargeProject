@@ -56,10 +56,12 @@ function GetUserPostsContainerV2() {
 
         loadPosts();
     }, []);
+    
+    
 
   return (
     <div className="Get-User-Post-Container">{
-        !posts ? ("No Post Found"):(
+        !posts ? (<div> No Posts </div>) : (
             <table className='w-full table-auto'>
                 <thead className='text-white'>
                     <tr>

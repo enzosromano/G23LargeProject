@@ -3,26 +3,13 @@ import React from "react";
 import TopBarLeaderboard from "./TopBarLeaderboard";
 
 
-// const Leaderboard = () => {
-//     return (
-//         <div className="flex flex-col m-0 h-full w-full overflow-hidden">
-//             <TopBarLeaderboard text = "THIS WEEK'S LEADERBOARD."/>
-            
-//             <div className="flex flex-col h-screen bg-brown-500 ml-32">
-//                 <LeaderBoardTable />
-//                 <LeaderboardEntry username="samu_420" pfp="21"/>
-//                 <LeaderboardEntry username="Xxian69xX" pfp="61"/>
-//             </div>
-            
-//         </div>
-        
-//     );    
-// };
-
-
 // I was thinking that instead of a plain html table we place a <LeaderboardEntry> element
 // for every friend in leaderboard with their information (user/num_likes for the week/maybe pfp)
-const Leaderboard = () => {
+function Leaderboard() {
+    
+    
+    
+    
     return (
         <div className="flex flex-col m-0 h-full w-full overflow-hidden">
             <TopBarLeaderboard text = "this week's leaderboard."/>
