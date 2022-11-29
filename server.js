@@ -107,7 +107,7 @@ function authenticateToken(req, res) {
   }
   catch (err) {
     console.log("Incorrect Token or Header Not Found");
-    return 1;
+    return 0;
   }
 }
 
