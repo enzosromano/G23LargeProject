@@ -1,0 +1,47 @@
+use('TuneTables');
+
+// grab some users from the users table
+var user1 = db.users.findOne({username: "Ewool"});
+var user2 = db.users.findOne({username: "Byian"}); 
+var user3 = db.users.findOne({username: "Irezn"}); 
+var user4 = db.users.findOne({username: "Lober"}); 
+var user5 = db.users.findOne({username: "Kperr"}); 
+
+db.users.insertOne(
+    {
+        'username':      '',
+        'firstName':     '', 
+        'lastName':      '', 
+        'email':         '', 
+        'isVerified':    true, 
+        'password':      '$2a$10$lW.yNo5g/5JnfN3WHmh3LeWubK8f/hYSU4GJ4gy6HynIOPtlUyyhK', // rVphD4pU
+        'totalLikes':    0, 
+        'relationships': [
+            { // friend
+                id:         user1._id,
+                friend:     true,
+                blocked:    false
+            },
+            { // friend
+                id:         user2._id,
+                friend:     true,
+                blocked:    false
+            },
+            { // friend
+                id:         user3._id,
+                friend:     true,
+                blocked:    false
+            },
+            { // blocked
+                id:         user4._id,
+                friend:     false,
+                blocked:    true
+            },
+            { // blocked (no posts)
+                id:         user5._id,
+                friend:     false,
+                blocked:    true
+            }
+        ],
+        'likedPosts':    []
+    }
