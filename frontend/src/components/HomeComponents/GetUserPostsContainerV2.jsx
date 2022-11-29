@@ -5,6 +5,7 @@ import DeletePostContainer from './DeletePostContainer';
 
 
 
+
 function GetUserPostsContainerV2() {
 
     const app_name = "tunetable23"
@@ -55,7 +56,10 @@ function GetUserPostsContainerV2() {
     }, []);
     
     
-    if (Object.keys(posts).length === 0) return (null);
+    if (JSON.stringify(posts) === '{}') {
+        console.log("user posts empty");
+        return (null);
+    }
 
     return (
         <div className="Get-User-Post-Container">{
