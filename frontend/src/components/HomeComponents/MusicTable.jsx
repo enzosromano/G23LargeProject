@@ -3,6 +3,10 @@ import {useEffect, useState} from 'react';
 import {AiOutlineHeart} from 'react-icons/ai';
 import {AiFillHeart} from 'react-icons/ai';
 
+
+// SKELETON --------------- UNFINISHED
+
+
 function MusicTable() {
     
     const [friendPosts, setFriendPosts] = useState([]);
