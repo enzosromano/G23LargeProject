@@ -1,4 +1,5 @@
 import React from "react";
+import GetLeaderboardContainer from "./GetLeaderboardContainer";
 //import LeaderBoardTable from "./LeaderBoardTable";
 import TopBarLeaderboard from "./TopBarLeaderboard";
 
@@ -15,10 +16,8 @@ function Leaderboard() {
             <TopBarLeaderboard text = "this week's leaderboard."/>
             
             <div className="flex flex-col h-screen bg-gradient-to-b from-brown-500 to-brown-300 ml-32">
-                <LeaderboardEntry username="samu_420" pfp="21" num_likes="21" />
-                <LeaderboardEntry username="Xxian69xX" pfp="8" num_likes="15" />
-                <LeaderboardEntry username="guy23" pfp="60" num_likes="14" />
-                <LeaderboardEntry username="dude65" pfp="120" num_likes="1" />
+
+                <GetLeaderboardContainer />
             </div>
             
         </div>
