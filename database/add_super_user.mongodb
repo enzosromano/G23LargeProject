@@ -1,47 +1,222 @@
+// connect to the database
 use('TuneTables');
 
-// grab some users from the users table
-var user1 = db.users.findOne({username: "Ewool"});
-var user2 = db.users.findOne({username: "Byian"}); 
-var user3 = db.users.findOne({username: "Irezn"}); 
-var user4 = db.users.findOne({username: "Lober"}); 
-var user5 = db.users.findOne({username: "Kperr"}); 
+// delete previous versions of the super user
+db.users.deleteOne({username: 'samuwall'});
 
-db.users.insertOne(
+// get some users from the users table
+var user1 = db.users.findOne({username: "Ewool"});
+var user2 = db.users.findOne({username: "Byian"});
+var user3 = db.users.findOne({username: "Irezn"});
+var user4 = db.users.findOne({username: "Lober"});
+var user5 = db.users.findOne({username: "Kperr"});
+var user6 = db.users.findOne({username: "Jquiz"});
+
+// get some of their posts
+var posts1 = db.posts.find({'creator._id': user1._id}).toArray();
+var posts2 = db.posts.find({'creator._id': user2._id}).toArray();
+var posts3 = db.posts.find({'creator._id': user3._id}).toArray();
+
+
+db.users.insertOne( // this is a super use with all actions performed for the app demo
     {
-        'username':      '',
-        'firstName':     '', 
-        'lastName':      '', 
-        'email':         '', 
+        'username':      'samuwall',
+        'firstName':     'Samu', 
+        'lastName':      'Wallace', 
+        'email':         'samu.wall02@gmail.com', 
         'isVerified':    true, 
-        'password':      '$2a$10$lW.yNo5g/5JnfN3WHmh3LeWubK8f/hYSU4GJ4gy6HynIOPtlUyyhK', // rVphD4pU
+        'password':      '$2a$10$8aAXrn0wr0LHXEw5Hn1VV.7wY30pOe27IbDsP4GDUPjAqZ9ItyLCS', // apples22
         'totalLikes':    0, 
         'relationships': [
             { // friend
-                id:         user1._id,
-                friend:     true,
-                blocked:    false
+                'id':         user1._id,
+                'friend':     true,
+                'blocked':    false
             },
             { // friend
-                id:         user2._id,
-                friend:     true,
-                blocked:    false
+                'id':         user2._id,
+                'friend':     true,
+                'blocked':    false
             },
             { // friend
-                id:         user3._id,
-                friend:     true,
-                blocked:    false
+                'id':         user3._id,
+                'friend':     true,
+                'blocked':    false
             },
             { // blocked
-                id:         user4._id,
-                friend:     false,
-                blocked:    true
+                'id':         user4._id,
+                'friend':     false,
+                'blocked':    true
             },
             { // blocked (no posts)
-                id:         user5._id,
-                friend:     false,
-                blocked:    true
+                'id':         user5._id,
+                'friend':     false,
+                'blocked':    true
+            },
+            { // friended (no posts)
+                'id':         user6._id,
+                'friend':     true,
+                'blocked':    false
             }
         ],
-        'likedPosts':    []
+        'likedPosts':   [posts1[0]._id, posts1[1]._id, posts1[2]._id, posts2[0]._id, posts3[0]._id]
     }
+);
+
+// update the user like counts
+db.users.updateOne({_id: user1._id}, { $set: {totalLikes: user1.totalLikes + 3}});
+db.users.updateOne({_id: user2._id}, { $set: {totalLikes: user1.totalLikes + 1}});
+db.users.updateOne({_id: user3._id}, { $set: {totalLikes: user1.totalLikes + 1}});
+
+// get the songs from the posts
+var song1 = db.songs.findOne({_id: posts1[0].song._id});
+var song2 = db.songs.findOne({_id: posts1[1].song._id});
+var song3 = db.songs.findOne({_id: posts1[2].song._id});
+var song4 = db.songs.findOne({_id: posts2[0].song._id});
+var song5 = db.songs.findOne({_id: posts3[0].song._id});
+
+// update the song like counts
+db.songs.updateOne({_id: song1._id}, { $set: {likes: song1.likes + 1}});
+db.songs.updateOne({_id: song2._id}, { $set: {likes: song2.likes + 1}});
+db.songs.updateOne({_id: song3._id}, { $set: {likes: song3.likes + 1}});
+db.songs.updateOne({_id: song4._id}, { $set: {likes: song4.likes + 1}});
+db.songs.updateOne({_id: song5._id}, { $set: {likes: song5.likes + 1}});
+
+// get the id of the newly added user
+var new_user = db.users.findOne({username: 'samuwall'});
+
+// update the posts' like info
+db.posts.updateOne(
+    {
+        '_id': posts1[0]._id
+    },
+    {
+        $set: {
+            'likes':      posts1[0].likes + 1,
+            'likedBy':    posts1[0].likedBy.concat([new_user._id]),
+        }
+    }
+);
+
+db.posts.updateOne(
+    {
+       '_id': posts1[1]._id
+    },
+    {
+        $set: {
+            'likes':      posts1[1].likes + 1,
+            'likedBy':    posts1[1].likedBy.concat([new_user._id]),
+        }
+    }
+);
+
+db.posts.updateOne(
+    {
+        '_id': posts1[2]._id
+    },
+    {
+        $set: {
+            'likes':      posts1[2].likes + 1,
+            'likedBy':    posts1[2].likedBy.concat([new_user._id]),
+        }
+    }
+);
+
+db.posts.updateOne(
+    {
+        '_id': posts2[0]._id
+    },
+    {
+        $set: {
+            'likes':      posts2[0].likes + 1,
+            'likedBy':    posts2[0].likedBy.concat([new_user._id]),
+        }
+    }
+);
+
+db.posts.updateOne(
+    {
+        '_id': posts3[0]._id
+    },
+    {
+        $set: {
+            'likes':      posts3[0].likes + 1,
+            'likedBy':    posts3[0].likedBy.concat([new_user._id]),
+        }
+    }
+);
+
+
+// add songs to post about
+db.songs.insertMany([
+    { // 1
+        'title':  'Space Jam', 
+        'artist': "Quad City DJ's", 
+        'album':  'Space Jam Soundtrack', 
+        'url':    'https://open.spotify.com/track/683hRieVmYdAhVA1DkjSAk?si=7faf303783d5460f', 
+        'length': '5:04', 
+        'year':   '1996', 
+        'likes' : 0
+    },
+    { // 2
+        'title':  'Rasputin', 
+        'artist': 'Boney M.', 
+        'album':  'Nightflight to Venus', 
+        'url':    'https://open.spotify.com/track/5jkFvD4UJrmdoezzT1FRoP?si=e01d55f9f32a4389', 
+        'length': '5:51', 
+        'year':   '1978', 
+        'likes' : 0
+    },
+]);
+
+
+var sj = db.songs.findOne({title: 'Space Jam'});
+var rsp = db.songs.findOne({title: 'Rasputin'});
+
+// make posts
+db.posts.insertMany([
+    { // 1
+        "creator":      {
+            "_id":          new_user._id,
+            "firstName":    new_user.firstName,
+            "lastName":     new_user.lastName,
+            "username":     new_user.username
+        },
+        "message":      "COME ON AND SLAM!",
+        "song":         { // Space Jam
+            '_id':      sj._id,
+            'title':    sj.title,
+            'artist':   sj.artist,
+            'album':    sj.album,
+            'url':      sj.url,
+            'length':   sj.length,
+            'year':     sj.year,
+            'likes' :   sj.likes,
+        },
+        "likes":        0,
+        "likedBy":      [],
+        "updatedAt":    "Tuesday, November 29, 2022"
+    },
+    { // 1
+        "creator":      {
+            "_id":          new_user._id,
+            "firstName":    new_user.firstName,
+            "lastName":     new_user.lastName,
+            "username":     new_user.username
+        },
+        "message":      "Oh, those crazy Russians..",
+        "song":         { // Rasputin
+            '_id':      rsp._id,
+            'title':    rsp.title,
+            'artist':   rsp.artist,
+            'album':    rsp.album,
+            'url':      rsp.url,
+            'length':   rsp.length,
+            'year':     rsp.year,
+            'likes' :   rsp.likes,
+        },
+        "likes":        0,
+        "likedBy":      [],
+        "updatedAt":    "Tuesday, November 29, 2022"
+    },
+])
