@@ -24,7 +24,7 @@ function CreatePostContainer() {
     const createPostSubmit = async event => {
         event.preventDefault();
         
-
+        
         try {
             const response = await fetch(buildPath('songs/search/' + searchMySong.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
@@ -83,22 +83,22 @@ function CreatePostContainer() {
     //     <span id="createPostResult">{message}</span>
     // </div>
         <div>
-            
-            <form onSubmit={createPostSubmit} >
-                <div className="p-4 ml-3 mt-2 text-2xl text-white w-3/12 leading-[2]">choose today's song</div>
-                <div className="mt-1 flex flex-col">
+
+            <form onSubmit={createPostSubmit} className='flex h-40 items-center'>
+                
+                <div className="p-4 ml-3 mt-2 text-2xl text-white w-1/6 leading-[2]">choose today's song</div>
+                <div className="flex flex-col mx-6">
                     <label className="font-semibold text-md text-white m-0.5">title</label>
-                    <input type="text" id="provideSong" placeholder="Post Your Song!" ref={(c) => searchMySong = c} className="rounded-md focus:outline-none pl-1 bg-gray-200" />
-                    {/* <label className="font-semibold text-md text-white m-0.5">artist</label>
-                    <input type="text" className="rounded-md  focus:outline-none pl-1 bg-gray-200" /> */}
+                    <input type="text" id="provideSong" placeholder="Post Your Song!" ref={(c) => searchMySong = c} className="rounded-md focus:outline-none pl-1  bg-gray-200 " />
                 </div>
             
-                <div className="p-4 ml-10 mt-2 text-2xl text-brown-600 w-3/12 leading-[2]">post today's message</div>
-                <div className=" flex flex-col mt-14">
+                <div className="p-4 ml-3 mt-2 text-2xl text-brown-600 w-1/6 leading-[2]">choose today's message</div>
+                <div className=" flex flex-col mx-6">
                     <label className="font-semibold text-md text-white m-0.5">message</label>
                     <input type="text" id="provideComment" placeholder="Post Your Message!" ref={(c) => giveMyMessage = c} className="rounded-md focus:outline-none pl-1 bg-gray-200" />
                 </div>
-                <input type="submit" onClick={createPostSubmit} value="submit" className="m-3 text-brown-600 p-1 border rounded-lg cursor-pointer font-semibold hover:bg-brown-600 hover:text-white hover:rounded-xl hover:border-none transition-all duration-200 ease-linear" />
+                <input type="submit" onClick={createPostSubmit} value="submit" className="text-brown-600 p-2 ml-8 mt-4 border rounded-lg cursor-pointer font-semibold hover:bg-brown-600 hover:text-white hover:rounded-xl hover:border-none transition-all duration-200 ease-linear" />
+            
             </form>
             
         </div>
