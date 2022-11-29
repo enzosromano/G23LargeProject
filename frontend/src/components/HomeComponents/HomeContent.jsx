@@ -5,7 +5,7 @@
 // import GetUserPostsContainerV2 from "./GetUserPostsContainerV2";
 import TopBarHome from "./TopBarHome"
 
-// import MusicTable from './MusicTable';
+import MusicTable from './MusicTable';
 import UserMusicTable from './UserMusicTable';
 //import PostTable from './PostTable';
 
@@ -57,9 +57,9 @@ const HomeContent = () => {
                 </div>
                 
                 <div >
-                    {/* <div className="ml-36 pb-6 ">
+                    <div className="ml-36 pb-6 ">
                         <MusicTable />
-                    </div> */}
+                    </div>
                     <div className="p-4 ml-36 pt-5 font-semibold text-xl text-white">your posted songs</div>
                     <div className="ml-36 pb-6 ">
                         <UserMusicTable />

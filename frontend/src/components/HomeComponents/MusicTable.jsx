@@ -7,23 +7,70 @@ import {AiFillHeart} from 'react-icons/ai';
 // SKELETON --------------- UNFINISHED
 
 
+ // isLiked is gotten by comparing user's localStorage likedPosts array with the post id
+    // function likePost(postid, isLiked)
+    //      if isliked -> like , else -> unlike
+    // 
+
+
 function MusicTable() {
+    
+    
+    const app_name = "tunetable23"
+    
+    function buildPath(route) {
+
+        if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
+            return "https://" + app_name + ".herokuapp.com/" + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
+    
     
     const [friendPosts, setFriendPosts] = useState([]);
     const [likedPosts, setLiked] = useState([]);
     
-    // isLiked is gotten by comparing user's localStorage likedPosts array with the post id
-    // function likePost(postid, isLiked)
-    //      if isliked -> like , else -> unlike
-    // 
     
-    
-    // useEffect( () => {
+    useEffect( () => {
+        const loadPosts = async () => {
+            
+            //Get all user post
+            try {
+                const response = await fetch(buildPath('posts/' + localStorage.getItem('userID') + '/friends'), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+
+                var res = JSON.parse(await response.text());
+
+                if (!res.success) {
+                    setMessage(JSON.stringify(res));
+                }
+                else {
+                    console.log(res.results);
+                        
+                    setMessage(JSON.stringify(res.message));
+
+                    setFriendPosts(res.results);
+
+                            
+                }
+            }
+            catch (e) {
+                alert(e.toString());
+                return;
+            }
+            
+        };
+
+        loadPosts();
         
-        
-    // }, []); // fetch data only on component did mount
+    }, []); // fetch data only on component did mount
     
-    
+    if (JSON.stringify(friendPosts) === '{}') {
+        console.log("friend posts empty");
+        // return (<div className="text-white">user has no posts</div>);
+        return(null);
+    }
     
     return (
         <div>
@@ -43,11 +90,11 @@ function MusicTable() {
                     {
                         friendPosts.map((post, index) => (
                             <tr key={index}>
-                                <td className="text-white">{post.email}</td>
-                                <td className="text-white ">{post.name}</td>
-                                <td>Malcolm Lockyer</td>
-                                <td>album</td>
-                                <td>1961</td>
+                                <td className="text-white">{post.username}</td>
+                                <td className="text-white ">{post.song.title}</td>
+                                <td>{post.song.artist}</td>
+                                <td>{post.song.album}</td>
+                                <td>{post.song.year}</td>
                                 <td><LikeButton /></td>
                             </tr>
                         ))
