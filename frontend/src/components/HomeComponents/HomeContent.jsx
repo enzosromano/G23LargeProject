@@ -3,7 +3,7 @@
 // import GetFriendsPostContainer from "./GetFriendsPostContainer";
 // import GetUserPostsContainer from "./GetUserPostsContainer";
 // import GetUserPostsContainerV2 from "./GetUserPostsContainerV2";
-// import TopBarHome from "./TopBarHome"
+import TopBarHome from "./TopBarHome"
 
 // import MusicTable from './MusicTable';
 import UserMusicTable from './UserMusicTable';
@@ -31,7 +31,7 @@ const HomeContent = () => {
         
         <div className="overflow-x-hidden">
             
-            <TopBar text = "songs of the week."/>
+            <TopBarHome text = "songs of the week."/>
             <div className=" bg-gradient-to-b from-brown-500 to-brown-300">
                 
                 <div className="ml-32 flex flex-col ">
