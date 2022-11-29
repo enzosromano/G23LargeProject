@@ -1,8 +1,6 @@
-// import CreatePostContainer from "./CreatePostContainer";
-// import DeletePostContainer from "./DeletePostContainer";
-// import GetFriendsPostContainer from "./GetFriendsPostContainer";
-// import GetUserPostsContainer from "./GetUserPostsContainer";
-// import GetUserPostsContainerV2 from "./GetUserPostsContainerV2";
+
+import CreatePostContainer from "./CreatePostContainer";
+
 import TopBarHome from "./TopBarHome"
 
 import MusicTable from './MusicTable';
@@ -36,7 +34,7 @@ const HomeContent = () => {
                 
                 <div className="ml-32 flex flex-col ">
                     <div className="flex h-48 items-center mb-2">
-                        <div className="p-4 ml-3 mt-2 text-2xl text-white w-3/12 leading-[2]">choose today's song</div>
+                        {/* <div className="p-4 ml-3 mt-2 text-2xl text-white w-3/12 leading-[2]">choose today's song</div>
                         <form className=" mt-1 flex flex-col">
                             <label className="font-semibold text-md text-white m-0.5">title</label>
                             <input type="text" className="rounded-md focus:outline-none pl-1 bg-gray-200" />
@@ -49,7 +47,10 @@ const HomeContent = () => {
                             <label className="font-semibold text-md text-white m-0.5">message</label>
                             <input type="text" className="rounded-md focus:outline-none pl-1 bg-gray-200" />
                             <input type="submit" value="submit" className="m-3 text-brown-600 p-1 border rounded-lg cursor-pointer font-semibold hover:bg-brown-600 hover:text-white hover:rounded-xl hover:border-none transition-all duration-200 ease-linear" />
-                        </form>
+                        </form> */}
+                        
+                        <CreatePostContainer />
+                        
                     </div>
                     
                     <div className="p-4 ml-3 pt-5 font-semibold text-3xl text-white border-t-4 border-brown-200 border-dashed">vote on your friends' songs!</div>

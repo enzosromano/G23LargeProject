@@ -28,7 +28,7 @@ function MusicTable() {
         }
     }
     
-    
+    const [message, setMessage] = useState();
     const [friendPosts, setFriendPosts] = useState([]);
     const [likedPosts, setLiked] = useState([]);
     
