@@ -26,7 +26,7 @@ function CreatePostContainer() {
         
         
         try {
-            const response = await fetch(buildPath('songs/search/' + searchMySong.value), { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('songs/search/' + searchMySong.value), { method: 'GET', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res1 = JSON.parse(await response.text());
 
