@@ -5,6 +5,7 @@ import TopBarHome from "./TopBarHome"
 
 import MusicTable from './MusicTable';
 import UserMusicTable from './UserMusicTable';
+import OurTables from "./OurTables";
 //import PostTable from './PostTable';
 
 const HomeContent = () => {
@@ -41,12 +42,14 @@ const HomeContent = () => {
                 </div>
                 
                 <div >
+                    {/*
                     <div className="ml-36 pb-6 ">
                         <MusicTable />
                     </div>
+    */}
                     <div className="p-4 ml-36 pt-5 font-semibold text-xl text-white">your posted songs</div>
                     <div className="ml-36 pb-6 ">
-                        <UserMusicTable />
+                        <OurTables />
                     </div>
                     {/* <div className="mt-10 pb-8 ml-36 w-screen">
                         <div className="ml-20 font-semibold text-xl text-brown-600"> messages of the week </div>
