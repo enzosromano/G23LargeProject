@@ -25,7 +25,7 @@ const ChangePasswordPage = () => {
 
         
         try {
-            const response = await fetch(buildPath('users/63868ed44f48cc2905ced8f2/password'), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/63868ed44f48cc2905ced8f2/password'), { method: 'PUT', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
