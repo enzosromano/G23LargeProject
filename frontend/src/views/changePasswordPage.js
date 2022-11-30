@@ -16,10 +16,6 @@ const ChangePasswordPage = () => {
     var password
 
     const [message, setMessage] = useState("");
-    const cookieValue = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('userID='))
-    ?.split('=')[1];
 
     const resetSubmit = async event => {
         event.preventDefault();
@@ -28,12 +24,8 @@ const ChangePasswordPage = () => {
         var js = JSON.stringify(obj);
 
         
-        const output = document.getElementById('cookie-value')
-        output.textContent = `> ${cookieValue}`
-        console.log(output.textContent)
-        
         try {
-            const response = await fetch(buildPath('users/' + output.textContent + '/password'), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/638788e5fe216e123732d31f/password'), { method: 'PUT', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
@@ -70,7 +62,7 @@ const ChangePasswordPage = () => {
                     
                     
                     </form>
-                    {/* <span>{message}</span> */}
+                    <div id="changePasswordResult" className="font-semibold text-red-500 p-1">{message}</div>
                 </div>
             </div>
         
