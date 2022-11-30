@@ -97,7 +97,7 @@ function Login() {
                         <input type="submit" class="buttons" id="loginButton" value="Sign In" onClick={handleSubmit} className="cursor-pointer w-full py-3 mt-8 shadow-2xl bg-brown-200 font-semibold text-white hover:bg-brown-600 hover:rounded-xl transition-all duration-100 ease-linear" />
                         <div id="loginResult" className="font-semibold text-red-500 p-1">{message}</div>
                     
-                        <div className="text-white text-center underline mt-1 hover:cursor-pointer">forgot your password?</div>
+                        <div onClick={() => window.location.href = "/forgetpassword"} className="text-white text-center underline mt-1 hover:cursor-pointer">forgot your password?</div>
                         <div onClick={() => window.location.href = "/register"} className="text-center text-white mt-2 hover:cursor-pointer">create new account</div>
                     
                     </form>

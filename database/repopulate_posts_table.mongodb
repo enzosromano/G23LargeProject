@@ -25,7 +25,16 @@ db.posts.insertMany([
             "username":     user2.username
         },
         "message":      "I really wish I had had some more of this...",
-        "song":         songs[0]._id, // Respect
+        "song":         { // Respect
+            '_id':      songs[0]._id,
+            'title':    songs[0].title,
+            'artist':   songs[0].artist,
+            'album':    songs[0].album,
+            'url':      songs[0].url,
+            'length':   songs[0].length,
+            'year':     songs[0].year,
+            'likes' :   songs[0].likes,
+        },
         "likes":        2,
         "likedBy":      [user3._id, user4._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -38,7 +47,16 @@ db.posts.insertMany([
             "username":     user1.username
         },
         "message":      "You and me both, brothers.",
-        "song":         songs[1]._id, // (I Can't Get No) Satisfaction
+        "song":         { // (I Can't Get No) Satisfaction
+            '_id':      songs[1]._id,
+            'title':    songs[1].title,
+            'artist':   songs[1].artist,
+            'album':    songs[1].album,
+            'url':      songs[1].url,
+            'length':   songs[1].length,
+            'year':     songs[1].year,
+            'likes' :   songs[1].likes,
+        },
         "likes":        2,
         "likedBy":      [user1._id, user3._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -51,7 +69,16 @@ db.posts.insertMany([
             "username":     user1.username
         },
         "message":      "Go Johnny, go!!",
-        "song":         songs[2]._id, // Johnny B. Goode
+        "song":         { // Johnny B. Goode
+            '_id':      songs[2]._id,
+            'title':    songs[2].title,
+            'artist':   songs[2].artist,
+            'album':    songs[2].album,
+            'url':      songs[2].url,
+            'length':   songs[2].length,
+            'year':     songs[2].year,
+            'likes' :   songs[2].likes,
+        },
         "likes":        2,
         "likedBy":      [user1._id, user4._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -64,7 +91,16 @@ db.posts.insertMany([
             "username":     user4.username
         },
         "message":      "I'm not making a german joke, sorry.",
-        "song":         songs[3]._id, // Blitzkrieg Bop
+        "song":         { // Blitzkrieg Bop
+            '_id':      songs[3]._id,
+            'title':    songs[3].title,
+            'artist':   songs[3].artist,
+            'album':    songs[3].album,
+            'url':      songs[3].url,
+            'length':   songs[3].length,
+            'year':     songs[3].year,
+            'likes' :   songs[3].likes,
+        },
         "likes":        0,
         "likedBy":      [],
         "updatedAt":    "Monday, November 28, 2022"
@@ -77,7 +113,16 @@ db.posts.insertMany([
             "username":     user1.username
         },
         "message":      "This is an interesting sobriety test for sure!",
-        "song":         songs[4]._id, // I Walk the Line
+        "song":         { // I Walk the Line
+            '_id':      songs[4]._id,
+            'title':    songs[4].title,
+            'artist':   songs[4].artist,
+            'album':    songs[4].album,
+            'url':      songs[4].url,
+            'length':   songs[4].length,
+            'year':     songs[4].year,
+            'likes' :   songs[4].likes,
+        },
         "likes":        3,
         "likedBy":      [user1._id, user2._id, user3._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -90,7 +135,16 @@ db.posts.insertMany([
             "username":     user1.username
         },
         "message":      "Hey Jude, could you turn the light off when you get up?",
-        "song":         songs[5]._id, // Hey Jude
+        "song":         { // Hey Jude
+            '_id':      songs[5]._id,
+            'title':    songs[5].title,
+            'artist':   songs[5].artist,
+            'album':    songs[5].album,
+            'url':      songs[5].url,
+            'length':   songs[5].length,
+            'year':     songs[5].year,
+            'likes' :   songs[5].likes,
+        },
         "likes":        1,
         "likedBy":      [user1._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -103,7 +157,16 @@ db.posts.insertMany([
             "username":     user1.username
         },
         "message":      "Rick james definitely knew how to pick 'em!",
-        "song":         songs[6]._id, // Super Freak
+        "song":         { // Super Freak
+            '_id':      songs[6]._id,
+            'title':    songs[6].title,
+            'artist':   songs[6].artist,
+            'album':    songs[6].album,
+            'url':      songs[6].url,
+            'length':   songs[6].length,
+            'year':     songs[6].year,
+            'likes' :   songs[6].likes,
+        },
         "likes":        4,
         "likedBy":      [user1._id, user2._id, user3._id, user4._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -116,7 +179,16 @@ db.posts.insertMany([
             "username":     user3.username
         },
         "message":      "Sometimes, I feel like I'm stuck in this groove :/ The song's good, though",
-        "song":         songs[7]._id, // Into The Groove
+        "song":         { // Into The Groove
+            '_id':      songs[7]._id,
+            'title':    songs[7].title,
+            'artist':   songs[7].artist,
+            'album':    songs[7].album,
+            'url':      songs[7].url,
+            'length':   songs[7].length,
+            'year':     songs[7].year,
+            'likes' :   songs[7].likes,
+        },
         "likes":        1,
         "likedBy":      [user4._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -129,7 +201,16 @@ db.posts.insertMany([
             "username":     user2.username
         },
         "message":      "Dreaming of those sweet $120k+ SWE jobs.. One day!!",
-        "song":         songs[8]._id, // Dream On
+        "song":         { // Dream On
+            '_id':      songs[8]._id,
+            'title':    songs[8].title,
+            'artist':   songs[8].artist,
+            'album':    songs[8].album,
+            'url':      songs[8].url,
+            'length':   songs[8].length,
+            'year':     songs[8].year,
+            'likes' :   songs[8].likes,
+        },
         "likes":        1,
         "likedBy":      [user2._id],
         "updatedAt":    "Monday, November 28, 2022"
@@ -142,7 +223,16 @@ db.posts.insertMany([
             "username":     user1.username
         },
         "message":      "Only 17? In this economy?!",
-        "song":         songs[9]._id, // Dancing Queen
+        "song":         { // Dancing Queen
+            '_id':      songs[9]._id,
+            'title':    songs[9].title,
+            'artist':   songs[9].artist,
+            'album':    songs[9].album,
+            'url':      songs[9].url,
+            'length':   songs[9].length,
+            'year':     songs[9].year,
+            'likes' :   songs[9].likes,
+        },
         "likes":        1,
         "likedBy":      [user1._id],
         "updatedAt":    "Monday, November 28, 2022"
