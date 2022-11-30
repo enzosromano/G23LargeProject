@@ -53,7 +53,7 @@ const ProvideEmailPage = () => {
                 <div className="flex justify-center h-full items-center">
                     <form onSubmit={resetSubmit} className="w-full max-w-[400px] mx-auto bg-brown-400/90 p-8 rounded-lg flex flex-col">
                         <div className="text-brown-600 text-2xl font-bold text-center py-6">almost there!</div>
-                        <div className="text-white font-semibold text-center mb-4">type an email to send a reset password link</div>
+                        <div className="text-white font-semibold text-center mb-4">type an email to send a reset password link to</div>
                     
                         <label className="text-brown-600 font-semibold">email to use</label>
                         <input type="text" id="email" ref={(c) => email = c} className="text-white relative bg-brown-500 p-2 focus:outline-none" />

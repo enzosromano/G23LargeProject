@@ -55,8 +55,7 @@ function Login() {
                 localStorage.setItem('isVerified', JSON.stringify(user.isVerified));
                 localStorage.setItem('totalLikes', JSON.stringify(user.totalLikes));
                 localStorage.setItem('token', res.token);
-                console.log(res.token);
-                console.log(res.results["_id"]);
+                
 
                 setMessage(JSON.stringify(res.message));
                 window.location.href = '/home';
