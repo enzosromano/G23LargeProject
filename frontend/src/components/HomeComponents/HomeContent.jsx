@@ -11,7 +11,7 @@ import OurTables from "./OurTables";
 const HomeContent = () => {
     return (
         // <div className="overflow-x-hidden">
-            
+
         //     <TopBarHome text = "songs of the week."/>
         //     <div className=" bg-gradient-to-b from-brown-500 to-brown-300">
         //         <br/>
@@ -23,24 +23,24 @@ const HomeContent = () => {
         //             <GetUserPostsContainer />
         //             <GetFriendsPostContainer />
         //         </div>
-                
+
         //     </div>
-            
+
         // </div>
-        
-        <div className="overflow-x-hidden">
-            
-            <TopBarHome text = "songs of the week."/>
-            <div className=" bg-gradient-to-b from-brown-500 to-brown-300 h-screen">
-                
+
+        <div className="overflow-x-hidden h-screen">
+
+            <TopBarHome text="songs of the week." />
+            <div className=" bg-gradient-to-b from-brown-500 to-brown-300">
+
                 <div className="ml-32 flex flex-col ">
-                        
+
                     <CreatePostContainer />
-                        
+
                     <div className="p-4 ml-3 pt-5 font-semibold text-3xl text-white border-t-4 border-brown-200 border-dashed">vote on your friends' songs!</div>
-                
+
                 </div>
-                
+
                 <div >
                     {/*
                     <div className="ml-36 pb-6 ">
@@ -48,7 +48,7 @@ const HomeContent = () => {
                     </div>
     */}
                     <div className="p-4 ml-36 pt-5 font-semibold text-xl text-white">your posted songs</div>
-                    <div className="ml-36 pb-6 ">
+                    <div className="ml-36 pb-6">
                         <OurTables />
                     </div>
                     {/* <div className="mt-10 pb-8 ml-36 w-screen">
@@ -57,11 +57,11 @@ const HomeContent = () => {
                         
                     </div> */}
                 </div>
-                
+
             </div>
-            
+
         </div>
-        
+
     );
 };
 
