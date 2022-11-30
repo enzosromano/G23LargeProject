@@ -16,8 +16,6 @@ const ChangePasswordPage = () => {
     var password
 
     const [message, setMessage] = useState("");
-    var cookies = document.cookie.split(';').map(cookie => cookie.split('=')).reduce((accumulator, [key, value]) => ({accumulator, [key.trim()]: decodeURIComponent(value)}), {});
-    console.log(cookies.userID)
 
     const resetSubmit = async event => {
         event.preventDefault();
@@ -26,10 +24,8 @@ const ChangePasswordPage = () => {
         var js = JSON.stringify(obj);
 
         
-        
-        
         try {
-            const response = await fetch(buildPath('users/' + cookies.userID + '/password'), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+            const response = await fetch(buildPath('users/63868ed44f48cc2905ced8f2/password'), { method: 'POST', body: js, headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
 
             var res = JSON.parse(await response.text());
 
