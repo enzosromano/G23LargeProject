@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
-import {AiOutlineHeart} from 'react-icons/ai';
+import {AiFillDislike} from 'react-icons/ai';
+import {AiFillLike} from 'react-icons/ai';
 
 function OurTables() {
 
@@ -128,6 +129,7 @@ function OurTables() {
                         <th >album</th>
                         <th >year</th>
                         <th >like</th>
+                        <th >unlike</th>
                     </tr>
                 </thead>
                 
@@ -140,7 +142,8 @@ function OurTables() {
                                 <td>{post.song.artist}</td>
                                 <td>{post.song.album}</td>
                                 <td>{post.song.year}</td>
-                                <td><LikeButton /></td>
+                                <td><LikeButton postID={post._id}/></td>
+                                <td><UnLikeButton postID={post._id}/></td>
                             </tr>
                         ))
                     }
@@ -153,14 +156,111 @@ function OurTables() {
     
 };
 
-function LikeButton({}) {
+function LikeButton({postID}) {
 
-    // need to be able to remember which songs are already liked
-    // and reflect this with which heart is displayed (outline/filled)
+    const app_name = "tunetable23"
+    
+    function buildPath(route) {
+
+        if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
+            return "https://" + app_name + ".herokuapp.com/" + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
+
+    console.log(postID)
+    const [message, setMessage] = useState("");
+
+
+    const likeSubmit = async event => {
+        event.preventDefault();
+
+
+        try {
+            //Needs postId and userId
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/like/' + postID), { method: 'POST', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+
+            var res = JSON.parse(await response.text());
+
+            if (!res.success) {
+                setMessage(JSON.stringify(res));
+            }
+            else {
+    
+
+                setMessage(JSON.stringify(res.message));
+                
+            }
+        }
+        catch (e) {
+            alert(e.toString());
+            return;
+        }
+
+    }
     
     return (
         <div className='cursor-pointer'>
-            <AiOutlineHeart size="24" />
+            <form onSubmit={likeSubmit}>
+                <AiFillLike size="24" className="my-auto" class="button" onClick={likeSubmit}/>
+            </form>
+        </div>
+    );  
+
+};
+
+function UnLikeButton({postID}) {
+
+    const app_name = "tunetable23"
+    
+    function buildPath(route) {
+
+        if (process.env.NODE_ENV === "production") { // TECH DEBT PROBLEM
+            return "https://" + app_name + ".herokuapp.com/" + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
+
+    console.log(postID)
+    const [message, setMessage] = useState("");
+
+
+    const dislikeSubmit = async event => {
+        event.preventDefault();
+
+
+        try {
+            //Needs postId and userId
+            const response = await fetch(buildPath('users/' + localStorage.getItem('userID') + '/unlike/' + postID), { method: 'POST', headers: { 'authorization': 'Bearer ${token}', 'Content-Type': 'application/json' } });
+
+            var res = JSON.parse(await response.text());
+
+            if (!res.success) {
+                setMessage(JSON.stringify(res));
+            }
+            else {
+    
+
+                setMessage(JSON.stringify(res.message));
+                
+            }
+        }
+        catch (e) {
+            alert(e.toString());
+            return;
+        }
+
+    }
+    
+    return (
+        <div className='cursor-pointer'>
+            <form onSubmit={dislikeSubmit}>
+                <AiFillDislike size="24" className="my-auto" class="button" onClick={dislikeSubmit}/>
+            </form>
         </div>
     );  
 
