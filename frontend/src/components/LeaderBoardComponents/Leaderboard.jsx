@@ -25,9 +25,9 @@ function Leaderboard() {
     );  
 };
 
-const LeaderboardEntry = ({username, num_likes, pfp}) => (
+const LeaderboardEntry = ({username, num_likes}) => (
     <div className="flex mx-10 my-6 rounded-lg bg-brown-200 shadow-2xl text-white ">
-        <ProfilePic pfp={pfp}/> 
+        <ProfilePic pfp={username}/> 
         
             <span className="w-7/12 mx-4 text-xl font-semibold leading-[5]"> {username} </span>
             {/* <span className="w-7/12 mx-4 text-xl font-semibold leading-[5]"> list of songs from that week?: </span> */}
